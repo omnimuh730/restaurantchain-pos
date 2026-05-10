@@ -1,0 +1,321 @@
+package com.mh.restaurantchainpos.pos.ui.floor
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.pos.data.ActiveRole
+import com.mh.restaurantchainpos.pos.data.Floor
+import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
+
+@Composable
+fun FloorTabsRow(
+    palette: FloorPalette,
+    role: ActiveRole,
+    floors: List<Floor>,
+    activeFloorId: String,
+    onSelectFloor: (String) -> Unit,
+    onRenameFloor: (String, String) -> Unit,
+    onAddFloor: (String) -> Unit,
+    onRemoveFloor: (String) -> Unit,
+    onEditLayout: () -> Unit,
+) {
+    var menuOpen by remember { mutableStateOf(false) }
+    var addOpen by remember { mutableStateOf(false) }
+    var removeOpen by remember { mutableStateOf(false) }
+    var renamingId by remember { mutableStateOf<String?>(null) }
+    var renameVal by remember { mutableStateOf("") }
+    val scroll = rememberScrollState()
+    val isAdmin = role == ActiveRole.Admin
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(palette.card)
+            .border(1.dp, palette.border)
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            Modifier
+                .weight(1f)
+                .horizontalScroll(scroll),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            floors.forEach { f ->
+                val isActive = f.id == activeFloorId
+                if (renamingId == f.id) {
+                    Box(
+                        Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(palette.raised)
+                            .border(1.dp, palette.border, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    ) {
+                        BasicTextField(
+                            value = renameVal,
+                            onValueChange = { renameVal = it },
+                            singleLine = true,
+                            textStyle = TextStyle(color = palette.text1, fontSize = 13.sp),
+                            cursorBrush = SolidColor(Blue500),
+                            modifier = Modifier.width(80.dp),
+                        )
+                    }
+                } else {
+                    Column(
+                        Modifier
+                            .clickable {
+                                onSelectFloor(f.id)
+                            }
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                f.name,
+                                color = if (isActive) Blue500 else palette.text2,
+                                fontWeight = if (isActive) FontWeight.Medium else FontWeight.Normal,
+                                fontSize = 14.sp,
+                                modifier = Modifier.clickable {
+                                    renamingId = f.id
+                                    renameVal = f.name
+                                },
+                            )
+                            Box(
+                                Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(if (isActive) Blue500.copy(alpha = 0.15f) else palette.raised)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                            ) {
+                                Text(
+                                    f.tables.size.toString(),
+                                    color = if (isActive) Blue500 else palette.text3,
+                                    fontSize = 11.sp,
+                                )
+                            }
+                        }
+                        Box(
+                            Modifier
+                                .height(2.dp)
+                                .width(36.dp)
+                                .background(if (isActive) Blue500 else Color.Transparent),
+                        )
+                    }
+                }
+            }
+        }
+
+        if (isAdmin) {
+            Box {
+                Box(
+                    Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { menuOpen = true },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("⋮", color = if (menuOpen) Blue500 else palette.text2, fontSize = 18.sp)
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(text = { Text("+ Add Floor") }, onClick = {
+                        menuOpen = false
+                        addOpen = true
+                    })
+                    DropdownMenuItem(text = { Text("✎ Edit Layout") }, onClick = {
+                        menuOpen = false
+                        onEditLayout()
+                    })
+                    DropdownMenuItem(
+                        text = { Text("🗑 Remove Floor", color = Color(0xFFEF4444)) },
+                        onClick = {
+                            menuOpen = false
+                            if (floors.size > 1) removeOpen = true
+                        },
+                    )
+                }
+            }
+        }
+    }
+
+    if (addOpen) {
+        ModalShell(onClose = { addOpen = false }) {
+            FloorRenameDialog(
+                palette = palette,
+                title = "Add Floor",
+                hint = "Give this floor a short name like 1F or Patio.",
+                initial = "${floors.size + 1}F",
+                primaryLabel = "Add",
+                onConfirm = { name ->
+                    onAddFloor(name)
+                    addOpen = false
+                },
+                onCancel = { addOpen = false },
+            )
+        }
+    }
+    if (removeOpen) {
+        ModalShell(onClose = { removeOpen = false }) {
+            FloorConfirmDialog(
+                palette = palette,
+                title = "Remove Floor",
+                message = "Delete \"${floors.first { it.id == activeFloorId }.name}\"? Tables on this floor will be lost.",
+                primaryLabel = "Delete",
+                primaryColor = Color(0xFFEF4444),
+                onConfirm = {
+                    onRemoveFloor(activeFloorId)
+                    removeOpen = false
+                },
+                onCancel = { removeOpen = false },
+            )
+        }
+    }
+    if (renamingId != null) {
+        // commit on outside click via dummy backdrop
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .clickable {
+                    val id = renamingId ?: return@clickable
+                    onRenameFloor(id, renameVal)
+                    renamingId = null
+                },
+        )
+    }
+}
+
+@Composable
+private fun ModalShell(onClose: () -> Unit, content: @Composable () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color(0x80000000))
+            .clickable(onClick = onClose),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.clickable(enabled = false) {}) { content() }
+    }
+}
+
+@Composable
+private fun FloorRenameDialog(
+    palette: FloorPalette,
+    title: String,
+    hint: String,
+    initial: String,
+    primaryLabel: String,
+    onConfirm: (String) -> Unit,
+    onCancel: () -> Unit,
+) {
+    var value by remember { mutableStateOf(initial) }
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(palette.raised)
+            .border(1.dp, palette.border, RoundedCornerShape(12.dp))
+            .padding(20.dp),
+    ) {
+        Text(title, color = palette.text1, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+        Spacer(Modifier.height(4.dp))
+        Text(hint, color = palette.text2, fontSize = 13.sp)
+        Spacer(Modifier.height(12.dp))
+        Box(
+            Modifier
+                .clip(RoundedCornerShape(6.dp))
+                .background(palette.card)
+                .border(1.dp, palette.border, RoundedCornerShape(6.dp))
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .width(240.dp),
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = { value = it },
+                singleLine = true,
+                textStyle = TextStyle(color = palette.text1, fontSize = 14.sp),
+                cursorBrush = SolidColor(Blue500),
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.weight(1f))
+            DialogButton("Cancel", palette.text1, palette.card, palette.border, onCancel)
+            DialogButton(primaryLabel, Color.White, Blue500, Blue500, { onConfirm(value.ifBlank { initial }) })
+        }
+    }
+}
+
+@Composable
+private fun FloorConfirmDialog(
+    palette: FloorPalette,
+    title: String,
+    message: String,
+    primaryLabel: String,
+    primaryColor: Color,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(palette.raised)
+            .border(1.dp, palette.border, RoundedCornerShape(12.dp))
+            .padding(20.dp),
+    ) {
+        Text(title, color = palette.text1, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+        Spacer(Modifier.height(8.dp))
+        Text(message, color = palette.text2, fontSize = 13.sp)
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.weight(1f))
+            DialogButton("Cancel", palette.text1, palette.card, palette.border, onCancel)
+            DialogButton(primaryLabel, Color.White, primaryColor, primaryColor, onConfirm)
+        }
+    }
+}
+
+@Composable
+private fun DialogButton(label: String, contentColor: Color, bg: Color, border: Color, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(bg)
+            .border(1.dp, border, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+    ) {
+        Text(label, color = contentColor, fontSize = 13.sp)
+    }
+}
