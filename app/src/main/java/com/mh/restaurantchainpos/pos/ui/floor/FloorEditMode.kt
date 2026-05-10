@@ -65,7 +65,7 @@ fun FloorEditMode(
     }
 
     Column(Modifier.fillMaxSize().background(palette.editBg)) {
-        EditTopBar(palette, state)
+        EditTopBar(palette, state, isMobile)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             Row(Modifier.fillMaxSize()) {
                 if (!isMobile) {
@@ -96,11 +96,16 @@ fun FloorEditMode(
             }
 
             if (isMobile) {
+                val fabBottom: androidx.compose.ui.unit.Dp by animateDpAsState(
+                    targetValue = if (mobileDrawerOpen) 372.dp else 48.dp,
+                    animationSpec = tween(durationMillis = 240),
+                    label = "fab-bottom",
+                )
                 MobileFab(
                     onClick = { state.addTable() },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 16.dp, bottom = if (mobileDrawerOpen) 380.dp else 16.dp),
+                        .padding(end = 16.dp, bottom = fabBottom),
                 )
                 MobileEditDrawer(
                     palette = palette,
@@ -137,22 +142,23 @@ private fun MobileEditDrawer(
     modifier: Modifier = Modifier,
 ) {
     val drawerHeight: androidx.compose.ui.unit.Dp by animateDpAsState(
-        targetValue = if (open) 360.dp else 36.dp,
+        targetValue = if (open) 360.dp else 28.dp,
         animationSpec = tween(durationMillis = 240),
         label = "drawer-height",
     )
+    val sheetShape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)
     Column(
         modifier
             .fillMaxWidth()
             .height(drawerHeight)
-            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            .clip(sheetShape)
             .background(palette.editCanvas)
-            .border(1.dp, palette.editBorder, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+            .border(1.dp, palette.editBorder, sheetShape),
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(top = 8.dp, bottom = 4.dp)
                 .clickable(onClick = onToggle),
             contentAlignment = Alignment.Center,
         ) {
@@ -171,6 +177,18 @@ private fun MobileEditDrawer(
                     .padding(horizontal = 16.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Transparent)
+                        .border(2.dp, palette.editBorder, RoundedCornerShape(10.dp))
+                        .clickable { state.addTable() }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("+ Add table", color = palette.editText2, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                }
                 val sel = state.selectedTable
                 if (sel != null) {
                     Box(
@@ -244,56 +262,70 @@ private fun MobileEditDrawer(
                         }
                     }
                 } else {
-                    Text(
-                        "Tap a table to edit",
-                        color = palette.editText3,
-                        fontSize = 12.sp,
-                        modifier = Modifier
+                    Box(
+                        Modifier
                             .fillMaxWidth()
                             .padding(vertical = 24.dp),
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            "Tap a table to edit",
+                            color = palette.editText3,
+                            fontSize = 12.sp,
+                        )
+                    }
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(6.dp))
             }
         }
     }
 }
 
 @Composable
-private fun EditTopBar(palette: FloorPalette, state: FloorPlanState) {
+private fun EditTopBar(palette: FloorPalette, state: FloorPlanState, isMobile: Boolean) {
+    val gap = if (isMobile) 8.dp else 12.dp
+    val padH = if (isMobile) 12.dp else 16.dp
     Row(
         Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(if (isMobile) 52.dp else 56.dp)
             .background(palette.editCanvas)
             .border(1.dp, palette.editBorder)
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = padH),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(gap),
     ) {
+        Box(
+            Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .clickable {
+                    state.editMode = false
+                    state.selectedTableId = null
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("✕", color = palette.editText1, fontSize = 16.sp)
+        }
         Text(
-            "✕",
+            state.activeFloor.name,
             color = palette.editText1,
-            fontSize = 16.sp,
-            modifier = Modifier.clickable {
-                state.editMode = false
-                state.selectedTableId = null
-            },
+            fontWeight = FontWeight.SemiBold,
+            fontSize = if (isMobile) 13.sp else 14.sp,
         )
-        Text(state.activeFloor.name, color = palette.editText1, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-        Text("|", color = palette.editText3)
+        if (!isMobile) Text("|", color = palette.editText3)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Show seats", color = palette.editText2, fontSize = 13.sp)
+            if (!isMobile) Text("Show seats", color = palette.editText2, fontSize = 13.sp)
             Box(
                 Modifier
-                    .size(width = 36.dp, height = 20.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(width = 32.dp, height = 18.dp)
+                    .clip(RoundedCornerShape(9.dp))
                     .background(if (state.showSeats) Blue500 else palette.editBorder)
                     .clickable { state.showSeats = !state.showSeats },
             ) {
                 Box(
                     Modifier
-                        .size(16.dp)
+                        .size(14.dp)
                         .padding(2.dp)
                         .clip(CircleShape)
                         .background(Color.White)
@@ -302,14 +334,14 @@ private fun EditTopBar(palette: FloorPalette, state: FloorPlanState) {
             }
         }
         Spacer(Modifier.weight(1f))
-        ToolbarText("↺ Undo", enabled = state.canUndo, palette = palette) { state.undo() }
-        ToolbarText("↻ Redo", enabled = state.canRedo, palette = palette) { state.redo() }
+        IconToolbar("↶", enabled = state.canUndo, palette = palette) { state.undo() }
+        IconToolbar("↷", enabled = state.canRedo, palette = palette) { state.redo() }
         Box(
             Modifier
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(8.dp))
                 .background(Blue500)
                 .clickable { state.editMode = false; state.selectedTableId = null }
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = if (isMobile) 12.dp else 16.dp, vertical = 6.dp),
         ) {
             Text("Save", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         }
@@ -317,15 +349,20 @@ private fun EditTopBar(palette: FloorPalette, state: FloorPlanState) {
 }
 
 @Composable
-private fun ToolbarText(label: String, enabled: Boolean, palette: FloorPalette, onClick: () -> Unit) {
-    Text(
-        label,
-        color = if (enabled) palette.editText1 else palette.editText3,
-        fontSize = 13.sp,
-        modifier = Modifier
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-    )
+private fun IconToolbar(label: String, enabled: Boolean, palette: FloorPalette, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label,
+            color = if (enabled) palette.editText1 else palette.editText3,
+            fontSize = 18.sp,
+        )
+    }
 }
 
 @Composable

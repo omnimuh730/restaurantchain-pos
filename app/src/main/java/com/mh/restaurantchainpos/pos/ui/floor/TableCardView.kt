@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableStatus
+import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
+import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
 @Composable
@@ -37,11 +39,14 @@ fun TableCardView(
     tables: List<FloorTable>,
     onSelect: (FloorTable) -> Unit,
 ) {
+    val isMobile = rememberIsMobile()
+    val cols = if (isMobile) 2 else 4
+    val pad = if (isMobile) 12.dp else 24.dp
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(180.dp),
-        modifier = Modifier.fillMaxSize().background(palette.bg).padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        columns = GridCells.Fixed(cols),
+        modifier = Modifier.fillMaxSize().background(palette.editBg).padding(pad),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(tables) { table -> TableCard(palette, table, onSelect) }
     }
@@ -49,45 +54,56 @@ fun TableCardView(
 
 @Composable
 private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (FloorTable) -> Unit) {
-    val (fill, border, accent) = when (table.status) {
-        TableStatus.Occupied -> Triple(palette.occupiedFill, palette.occupiedBorder, palette.occupiedText)
-        TableStatus.Reserved -> Triple(palette.reservedFill, palette.reservedBorder, palette.reservedText)
-        TableStatus.Available -> Triple(palette.availableFill, palette.availableBorder, palette.availableText)
+    val occupied = table.status == TableStatus.Occupied
+    val reserved = table.status == TableStatus.Reserved
+    val (bg, borderC, textC) = when {
+        occupied -> Triple(Blue500, Color(0xFF3370E8), Color.White)
+        reserved -> Triple(palette.editTableDefault, palette.reservedBorder, palette.editText1)
+        else -> Triple(palette.editTableDefault, palette.border, palette.editText1)
     }
+    val borderW = if (occupied) 2.dp else 1.dp
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(palette.card)
-            .border(1.dp, palette.border, RoundedCornerShape(14.dp))
+            .height(110.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(bg)
+            .border(borderW, borderC, RoundedCornerShape(10.dp))
             .clickable { onSelect(table) }
             .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(CircleShape).background(border))
-            Spacer(Modifier.size(8.dp))
-            Text(table.label, color = palette.text1, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-            Spacer(Modifier.weight(1f))
-            Box(
-                Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(fill)
-                    .padding(horizontal = 8.dp, vertical = 2.dp),
-            ) {
-                Text(table.status.name.lowercase(), color = accent, fontSize = 10.sp, fontWeight = FontWeight.Medium)
-            }
+            Text(table.label, color = textC, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
         }
+        Spacer(Modifier.height(2.dp))
         Text(
-            "${table.seats} seats · ${table.guestName.ifBlank { "Available" }}",
-            color = palette.text2,
+            if (occupied) "${if (table.occupiedSeats > 0) table.occupiedSeats else table.seats}/${table.seats} seats"
+            else "${table.seats} seats",
+            color = if (occupied) Color.White.copy(alpha = 0.85f) else palette.editText2,
             fontSize = 12.sp,
         )
-        if (table.status == TableStatus.Occupied && table.revenue > 0) {
-            Text("₩%,d".format(table.revenue), color = accent, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-        }
-        if (table.status == TableStatus.Reserved && table.reservationTime.isNotBlank()) {
-            Text("Arrives ${table.reservationTime}", color = accent, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+        Spacer(Modifier.weight(1f))
+        when {
+            occupied && table.revenue > 0 -> Text(
+                "₩%,d".format(table.revenue),
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 13.sp,
+                modifier = Modifier.align(Alignment.End),
+            )
+            reserved && table.reservationTime.isNotBlank() -> Text(
+                "Reserved · ${table.reservationTime}",
+                color = palette.reservedText,
+                fontSize = 11.sp,
+            )
+            else -> Box(
+                Modifier
+                    .clip(CircleShape)
+                    .background(palette.availableFill)
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
+            ) {
+                Text("Available", color = palette.availableText, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+            }
         }
     }
 }

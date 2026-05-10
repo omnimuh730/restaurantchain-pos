@@ -1,9 +1,17 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,45 +42,110 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableStatus
+import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
 @Composable
 fun TableDrawer(
     palette: FloorPalette,
-    table: FloorTable,
+    table: FloorTable?,
     onClose: () -> Unit,
     onPay: (FloorTable) -> Unit,
 ) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0x80000000))
-            .clickable(onClick = onClose),
-    ) {
-        Box(
-            Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .width(360.dp)
-                .background(palette.card)
-                .border(1.dp, palette.border)
-                .clickable(enabled = false) {},
-        ) {
-            Column(Modifier.fillMaxSize()) {
-                Header(palette, table, onClose)
-                Divider(palette)
-                Box(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                    when (table.status) {
-                        TableStatus.Occupied -> OccupiedBody(palette, table)
-                        TableStatus.Reserved -> ReservedBody(palette, table)
-                        TableStatus.Available -> AvailableBody(palette)
-                    }
-                }
-                Divider(palette)
-                Footer(palette, table, onPay)
+    val isMobile = rememberIsMobile()
+    val open = table != null
+    Box(Modifier.fillMaxSize()) {
+        AnimatedVisibility(visible = open, enter = fadeIn(), exit = fadeOut()) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color(0x66000000))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClose,
+                    ),
+            )
+        }
+        if (isMobile) {
+            AnimatedVisibility(
+                visible = open,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it }),
+                modifier = Modifier.align(Alignment.BottomCenter),
+            ) {
+                table?.let { DrawerSheet(palette, it, onClose, onPay, mobile = true) }
+            }
+        } else {
+            AnimatedVisibility(
+                visible = open,
+                enter = slideInHorizontally(initialOffsetX = { it }),
+                exit = slideOutHorizontally(targetOffsetX = { it }),
+                modifier = Modifier.align(Alignment.CenterEnd),
+            ) {
+                table?.let { DrawerSheet(palette, it, onClose, onPay, mobile = false) }
             }
         }
+    }
+}
+
+@Composable
+private fun DrawerSheet(
+    palette: FloorPalette,
+    table: FloorTable,
+    onClose: () -> Unit,
+    onPay: (FloorTable) -> Unit,
+    mobile: Boolean,
+) {
+    val sheetShape = if (mobile) RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp) else RoundedCornerShape(0.dp)
+    val sheetModifier = if (mobile) {
+        Modifier
+            .fillMaxWidth()
+            .heightIn(max = 640.dp)
+    } else {
+        Modifier
+            .fillMaxHeight()
+            .width(360.dp)
+    }
+    Column(
+        sheetModifier
+            .clip(sheetShape)
+            .background(palette.card)
+            .border(1.dp, palette.border, sheetShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {},
+            ),
+    ) {
+        if (mobile) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 4.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    Modifier
+                        .size(width = 40.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(palette.text3),
+                )
+            }
+        }
+        Header(palette, table, onClose)
+        Divider(palette)
+        Box(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+            when (table.status) {
+                TableStatus.Occupied -> OccupiedBody(palette, table)
+                TableStatus.Reserved -> ReservedBody(palette, table)
+                TableStatus.Available -> AvailableBody(palette)
+            }
+        }
+        Divider(palette)
+        Footer(palette, table, onPay)
+        if (mobile) Spacer(Modifier.height(20.dp))
     }
 }
 

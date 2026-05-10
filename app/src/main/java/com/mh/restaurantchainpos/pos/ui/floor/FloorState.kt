@@ -142,4 +142,8 @@ class FloorPlanState(
 fun rememberFloorPlanState(): FloorPlanState =
     remember { FloorPlanState(PosMockData.floors, PosMockData.reservations) }
 
-enum class FloorViewMode(val label: String) { Floor("Floor"), Table("Table"), Calendar("Calendar") }
+enum class FloorViewMode(val label: String, val icon: String) {
+    Floor("Floor", "▦"),
+    Table("Table", "▤"),
+    Calendar("Calendar", "▧"),
+}

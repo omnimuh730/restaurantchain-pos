@@ -97,32 +97,31 @@ fun FloorTabsRow(
                 } else {
                     Column(
                         Modifier
-                            .clickable {
-                                onSelectFloor(f.id)
-                            }
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                            .clickable { onSelectFloor(f.id) }
+                            .padding(horizontal = 14.dp)
+                            .padding(top = 10.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        ) {
                             Text(
                                 f.name,
-                                color = if (isActive) Blue500 else palette.text2,
-                                fontWeight = if (isActive) FontWeight.Medium else FontWeight.Normal,
+                                color = if (isActive) palette.text1 else palette.text2,
+                                fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
                                 fontSize = 14.sp,
-                                modifier = Modifier.clickable {
-                                    renamingId = f.id
-                                    renameVal = f.name
-                                },
                             )
                             Box(
                                 Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(if (isActive) Blue500.copy(alpha = 0.15f) else palette.raised)
-                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                                    .background(palette.raised)
+                                    .padding(horizontal = 6.dp, vertical = 1.dp),
                             ) {
                                 Text(
                                     f.tables.size.toString(),
-                                    color = if (isActive) Blue500 else palette.text3,
+                                    color = if (isActive) palette.text2 else palette.text3,
                                     fontSize = 11.sp,
                                 )
                             }
@@ -130,7 +129,7 @@ fun FloorTabsRow(
                         Box(
                             Modifier
                                 .height(2.dp)
-                                .width(36.dp)
+                                .fillMaxWidth()
                                 .background(if (isActive) Blue500 else Color.Transparent),
                         )
                     }

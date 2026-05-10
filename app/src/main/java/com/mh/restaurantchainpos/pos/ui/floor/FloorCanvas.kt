@@ -19,8 +19,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -77,12 +79,47 @@ fun FloorCanvas(
     var viewportH by remember { mutableFloatStateOf(0f) }
     var panX by remember { mutableFloatStateOf(0f) }
     var panY by remember { mutableFloatStateOf(0f) }
+    var fitApplied by remember(editMode) { mutableStateOf(false) }
+
+    val canvasPxW = with(density) { FloorMetrics.CanvasW.dp.toPx() }
+    val canvasPxH = with(density) { FloorMetrics.CanvasH.dp.toPx() }
+
+    // Compute the "fit-to-content" zoom for the current viewport. Tables in the
+    // mock data are tightly clustered in the canvas top-left, so on a phone
+    // viewport zoom=1 leaves them stacked on top of each other. We use this to
+    // both clamp the minimum zoom and to apply once on first measurement so
+    // the initial render shows the full floor layout.
+    val fitZoom = remember(tables, viewportW, viewportH) {
+        val maxX = tables.maxOfOrNull { (it.x + it.width).toFloat() } ?: 0f
+        val maxY = tables.maxOfOrNull { (it.y + it.height).toFloat() } ?: 0f
+        val maxXPx = with(density) { maxX.dp.toPx() }
+        val maxYPx = with(density) { maxY.dp.toPx() }
+        if (maxXPx <= 0f || maxYPx <= 0f || viewportW <= 0f || viewportH <= 0f) {
+            1f
+        } else {
+            val fitW = viewportW / maxXPx
+            val fitH = viewportH / maxYPx
+            min(1f, max(0.1f, min(fitW, fitH)))
+        }
+    }
+
+    val minZoom = if (editMode) 0.1f else min(fitZoom, 1f)
+
+    LaunchedEffect(fitZoom, viewportW) {
+        if (!fitApplied && viewportW > 0f && fitZoom < 1f && !editMode) {
+            onZoomChange(fitZoom)
+            fitApplied = true
+        }
+    }
+    LaunchedEffect(minZoom) {
+        if (zoom < minZoom) onZoomChange(minZoom)
+    }
 
     fun clampPan() {
-        val canvasW = with(density) { FloorMetrics.CanvasW.dp.toPx() } * zoom
-        val canvasH = with(density) { FloorMetrics.CanvasH.dp.toPx() } * zoom
-        val minX = min(0f, viewportW - canvasW)
-        val minY = min(0f, viewportH - canvasH)
+        val w = canvasPxW * zoom
+        val h = canvasPxH * zoom
+        val minX = min(0f, viewportW - w)
+        val minY = min(0f, viewportH - h)
         panX = panX.coerceIn(minX, 0f)
         panY = panY.coerceIn(minY, 0f)
     }
@@ -97,9 +134,9 @@ fun FloorCanvas(
                 viewportH = it.height.toFloat()
                 clampPan()
             }
-            .pointerInput(zoom) {
+            .pointerInput(zoom, minZoom) {
                 detectTransformGestures { _, pan, gestureZoom, _ ->
-                    val next = (zoom * gestureZoom).coerceIn(0.4f, 3f)
+                    val next = (zoom * gestureZoom).coerceIn(minZoom, 3f)
                     if (next != zoom) onZoomChange(next)
                     panX += pan.x
                     panY += pan.y
@@ -188,11 +225,11 @@ private fun TableNode(
     val occupied = table.status == TableStatus.Occupied
     val reserved = table.status == TableStatus.Reserved
     val (fill, border, fg) = when {
-        editMode && isSelected -> Triple(palette.editSelected, palette.editSelected, Color.White)
+        editMode && isSelected -> Triple(palette.editSelected, Color(0xFF3370E8), Color.White)
         editMode -> Triple(palette.editTableDefault, palette.editBorder, palette.editText2)
-        occupied -> Triple(palette.occupiedFill, palette.occupiedBorder, palette.occupiedText)
-        reserved -> Triple(palette.reservedFill, palette.reservedBorder, palette.reservedText)
-        else -> Triple(palette.availableFill, palette.availableBorder, palette.availableText)
+        occupied -> Triple(palette.editSelected, Color(0xFF3370E8), Color.White)
+        reserved -> Triple(palette.editTableDefault, palette.reservedBorder, palette.editText1)
+        else -> Triple(palette.editTableDefault, palette.availableBorder, palette.editText1)
     }
     val shape = if (table.shape == TableShape.Circle) CircleShape else RoundedCornerShape(12.dp)
     val baseModifier = Modifier
@@ -204,18 +241,20 @@ private fun TableNode(
     val withGesture = if (editMode) {
         baseModifier
             .pointerInput(table.id, zoom) {
-                // Custom gesture loop: consume the drag so the parent canvas
-                // pan does not fire while the user is moving a table.
+                // Custom gesture loop. Eagerly consume the down so the parent
+                // canvas pan does not fire while the user is moving a table.
                 awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Main)
+                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    down.consume()
                     onSelect()
                     var pendingDx = 0f
                     var pendingDy = 0f
                     var moved = false
                     while (true) {
-                        val event = awaitPointerEvent(PointerEventPass.Main)
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
                         val pointer = event.changes.firstOrNull { it.id == down.id } ?: break
                         if (pointer.changedToUp()) {
+                            pointer.consume()
                             if (moved) onDrag(0, 0, true)
                             break
                         }

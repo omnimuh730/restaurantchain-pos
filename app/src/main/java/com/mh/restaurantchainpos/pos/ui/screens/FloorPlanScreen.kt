@@ -32,6 +32,7 @@ import com.mh.restaurantchainpos.pos.ui.floor.FloorViewMode
 import com.mh.restaurantchainpos.pos.ui.floor.TableCardView
 import com.mh.restaurantchainpos.pos.ui.floor.TableDrawer
 import com.mh.restaurantchainpos.pos.ui.floor.rememberFloorPlanState
+import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.DarkFloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.LightFloorPalette
@@ -55,42 +56,52 @@ fun FloorPlanScreen(
         return
     }
 
+    val isMobile = rememberIsMobile()
+
     Column(Modifier.fillMaxSize()) {
-        // View tabs
         Row(
             Modifier
                 .fillMaxWidth()
                 .background(palette.card)
                 .border(1.dp, palette.border)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Spacer(Modifier.weight(1f))
             Row(
                 Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(palette.raised)
-                    .padding(2.dp),
+                    .padding(3.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 FloorViewMode.entries.forEach { mode ->
                     val active = mode == state.view
-                    Box(
+                    Row(
                         Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(if (active) Blue500 else Color.Transparent)
                             .clickable { state.view = mode }
                             .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            mode.label,
+                            text = mode.icon,
                             color = if (active) Color.White else palette.text2,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp,
                         )
+                        if (!isMobile) {
+                            Text(
+                                mode.label,
+                                color = if (active) Color.White else palette.text2,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
                     }
                 }
             }
-            Spacer(Modifier.weight(1f))
         }
 
         FloorTabsRow(
@@ -134,17 +145,24 @@ fun FloorPlanScreen(
                     onDecline = { reservation ->
                         state.reservations.removeAll { it.id == reservation.id }
                     },
+                    onAssignTable = { reservationId, tableId ->
+                        val idx = state.reservations.indexOfFirst { it.id == reservationId }
+                        if (idx >= 0) {
+                            state.reservations[idx] = state.reservations[idx].copy(
+                                tableId = tableId,
+                                type = ReservationType.Confirmed,
+                            )
+                        }
+                    },
                 )
             }
         }
     }
 
-    state.selectedTable?.let { table ->
-        TableDrawer(
-            palette = palette,
-            table = table,
-            onClose = { state.selectedTableId = null },
-            onPay = { state.selectedTableId = null },
-        )
-    }
+    TableDrawer(
+        palette = palette,
+        table = state.selectedTable,
+        onClose = { state.selectedTableId = null },
+        onPay = { state.selectedTableId = null },
+    )
 }
