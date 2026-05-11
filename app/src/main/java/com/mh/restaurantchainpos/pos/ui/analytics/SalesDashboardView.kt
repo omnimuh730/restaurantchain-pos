@@ -62,7 +62,7 @@ fun SalesDashboardView(
         modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -74,7 +74,7 @@ fun SalesDashboardView(
         }
 
         // Total Revenue + payment split
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             BoxWithConstraints(Modifier.fillMaxWidth().padding(16.dp)) {
                 val compact = maxWidth < 360.dp
                 val revenueSummary: @Composable () -> Unit = {
@@ -185,7 +185,7 @@ fun SalesDashboardView(
         }
 
         // Sales Trend area
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Text("Sales Trend", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
@@ -211,7 +211,7 @@ fun SalesDashboardView(
         }
 
         // Peak revenue bar chart
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             val activeKey = data.map { it.revenueKrw.toFloat() }
             val peakIdx = activeKey.withIndex().maxByOrNull { it.value }?.index ?: 0
             Column(Modifier.padding(16.dp)) {
@@ -310,13 +310,3 @@ private fun ChangeChip(change: String) {
     }
 }
 
-@Composable
-private fun Card(card: Color, border: Color, content: @Composable () -> Unit) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp)),
-    ) { content() }
-}

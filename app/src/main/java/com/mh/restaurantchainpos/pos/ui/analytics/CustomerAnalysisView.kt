@@ -54,7 +54,7 @@ fun CustomerAnalysisView(
     val returningPct = segment.first { it.name == "Returning" }.value
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -78,7 +78,7 @@ fun CustomerAnalysisView(
         }
 
         // Traffic by hour
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Most visitors come at ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -102,7 +102,7 @@ fun CustomerAnalysisView(
         }
 
         // Returning vs New
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("$returningPct%", color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -133,7 +133,7 @@ fun CustomerAnalysisView(
         }
 
         // Visit frequency
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Text("Visit frequency", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
@@ -148,7 +148,7 @@ fun CustomerAnalysisView(
         }
 
         // Party size
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Groups of ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -225,13 +225,3 @@ private fun KpiCard(
     }
 }
 
-@Composable
-private fun Card(card: Color, border: Color, content: @Composable () -> Unit) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp)),
-    ) { content() }
-}

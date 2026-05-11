@@ -89,7 +89,7 @@ fun MenuAnalysisView(
     val peak = bestSellerScaled.maxOrNull() ?: 0
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -100,7 +100,7 @@ fun MenuAnalysisView(
             )
         }
 
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Text(
                     buildAnnotatedString {
@@ -155,7 +155,7 @@ fun MenuAnalysisView(
             }
         }
 
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
@@ -227,7 +227,7 @@ fun MenuAnalysisView(
         }
 
         if (bestSeller.weeklyBest != null) {
-            Card(card, border) {
+            AnalyticsCard(card, border) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(bestSeller.name, color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -313,13 +313,3 @@ private fun SortPill(label: String, active: Boolean, text2: Color, onClick: () -
     }
 }
 
-@Composable
-private fun Card(card: Color, border: Color, content: @Composable () -> Unit) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp)),
-    ) { content() }
-}
