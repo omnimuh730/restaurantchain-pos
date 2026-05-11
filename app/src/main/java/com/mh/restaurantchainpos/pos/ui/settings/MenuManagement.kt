@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,76 +31,95 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mh.restaurantchainpos.pos.data.MenuCategory
 import com.mh.restaurantchainpos.pos.data.MenuItem
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.data.formatMoney
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable
 fun MenuManagement(colors: PosColors) {
     val categories = remember { PosMockData.menuCategories }
     var activeCategoryId by remember { mutableStateOf(categories.first().id) }
-    var activeSubId by remember { mutableStateOf<String?>(categories.first().subCategories.firstOrNull()?.id) }
+    var activeSubId by remember { mutableStateOf<String?>(null) }
+    var query by remember { mutableStateOf("") }
+
     val active = categories.firstOrNull { it.id == activeCategoryId } ?: categories.first()
+    val totalItems by remember(categories) {
+        derivedStateOf { categories.sumOf { c -> c.subCategories.sumOf { it.items.size } } }
+    }
+    val totalSubCategories by remember(categories) {
+        derivedStateOf { categories.sumOf { it.subCategories.size } }
+    }
     val activeSub = active.subCategories.firstOrNull { it.id == activeSubId }
-    val items = activeSub?.items.orEmpty()
+    val items: List<MenuItem> = (activeSub?.items ?: active.subCategories.flatMap { it.items })
+        .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        SettingCard(colors = colors, title = "Categories", subtitle = "Tap to view, long-press to edit.") {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                categories.forEach { c ->
-                    CategoryPill(
-                        label = c.label,
-                        active = c.id == activeCategoryId,
-                        onClick = {
-                            activeCategoryId = c.id
-                            activeSubId = c.subCategories.firstOrNull()?.id
-                        },
-                    )
-                }
-            }
-        }
-
-        SettingCard(colors = colors, title = "Subcategories", subtitle = active.label) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                active.subCategories.forEach { sub ->
-                    CategoryPill(
-                        label = sub.label,
-                        active = sub.id == activeSubId,
-                        onClick = { activeSubId = sub.id },
-                    )
-                }
-            }
-        }
-
         SettingCard(
             colors = colors,
-            title = "Items",
-            subtitle = activeSub?.label ?: "—",
-            badge = "${items.size}",
-            badgeIcon = "🍽",
+            title = "Menu Management",
+            subtitle = "Select a sub-category and add items from the catalog",
+            badge = "$totalItems items",
+            badgeIcon = Icons.Outlined.Restaurant,
+            headerIcon = Icons.Outlined.Restaurant,
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(160.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.height(280.dp),
-            ) {
-                items(items) { item -> MenuTile(colors, item) }
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(96.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(colors.surfaceRaised)
-                            .border(2.dp, colors.border, RoundedCornerShape(10.dp))
-                            .clickable {},
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("+ Add item", color = colors.textMuted, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatBox(colors, "Categories", "${categories.size}", Modifier.weight(1f))
+                StatBox(colors, "Sub-Categories", "$totalSubCategories", Modifier.weight(1f))
+                StatBox(colors, "Total Items", "$totalItems", Modifier.weight(1f))
+            }
+        }
+
+        SettingCard(colors = colors, title = "Main Categories") {
+            CategoryGrid(
+                colors = colors,
+                items = categories.map { c -> CategoryCell(id = c.id, label = c.label, count = null) },
+                activeId = activeCategoryId,
+                onClick = { id ->
+                    activeCategoryId = id
+                    activeSubId = null
+                    query = ""
+                },
+            )
+        }
+
+        SettingCard(colors = colors, title = "${active.label} - Sub-Categories") {
+            CategoryGrid(
+                colors = colors,
+                items = active.subCategories.map { s -> CategoryCell(id = s.id, label = s.label, count = s.items.size) },
+                activeId = activeSubId,
+                onClick = { id ->
+                    activeSubId = if (activeSubId == id) null else id
+                },
+            )
+        }
+
+        SettingCard(colors = colors, title = "All ${active.label} Items") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SettingTextField(
+                    colors = colors,
+                    value = query,
+                    onChange = { query = it },
+                    placeholder = "Search items...",
+                    leadingIcon = Icons.Outlined.Search,
+                )
+                if (activeSub == null) {
+                    Text(
+                        "Select a sub-category above to add items",
+                        color = colors.textMuted,
+                        fontSize = 12.sp,
+                    )
+                }
+                if (items.isNotEmpty()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        items.chunked(2).forEach { row ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                row.forEach { item -> MenuItemTile(colors, item, Modifier.weight(1f)) }
+                                if (row.size == 1) Box(Modifier.weight(1f))
+                            }
+                        }
                     }
                 }
             }
@@ -106,32 +127,62 @@ fun MenuManagement(colors: PosColors) {
     }
 }
 
+private data class CategoryCell(val id: String, val label: String, val count: Int?)
+
 @Composable
-private fun CategoryPill(label: String, active: Boolean, onClick: () -> Unit) {
-    Box(
-        Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(if (active) Blue500 else Color.Transparent)
-            .border(1.dp, if (active) Blue500 else Color(0x33FFFFFF), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-    ) {
-        Text(label, color = if (active) Color.White else Color(0xFF94A3B8), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+private fun CategoryGrid(
+    colors: PosColors,
+    items: List<CategoryCell>,
+    activeId: String?,
+    onClick: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        items.chunked(2).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                row.forEach { cell ->
+                    val active = cell.id == activeId
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (active) Blue600 else colors.surfaceRaised)
+                            .clickable { onClick(cell.id) }
+                            .padding(horizontal = 14.dp, vertical = 14.dp),
+                    ) {
+                        Text(
+                            cell.label,
+                            color = if (active) Color.White else colors.text,
+                            fontSize = 13.sp,
+                            fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
+                        )
+                        if (cell.count != null) {
+                            Text(
+                                "${cell.count}",
+                                color = if (active) Color.White.copy(alpha = 0.8f) else colors.textMuted,
+                                fontSize = 11.sp,
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                            )
+                        }
+                    }
+                }
+                if (row.size == 1) Box(Modifier.weight(1f))
+            }
+        }
     }
 }
 
 @Composable
-private fun MenuTile(colors: PosColors, item: MenuItem) {
+private fun MenuItemTile(colors: PosColors, item: MenuItem, modifier: Modifier = Modifier) {
     Column(
-        Modifier
-            .fillMaxWidth()
+        modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Blue500)
+            .background(colors.surfaceRaised)
+            .border(1.dp, colors.border, RoundedCornerShape(10.dp))
             .clickable {}
-            .padding(12.dp),
+            .padding(14.dp),
     ) {
-        Text(item.name, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 2)
-        Spacer(Modifier.weight(1f))
-        Text(formatMoney(item.price, item.currency), color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+        Text(item.name, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
+        Spacer(Modifier.height(4.dp))
+        Text(formatMoney(item.price, item.currency), color = Blue500, fontSize = 12.sp, fontWeight = FontWeight.Medium)
     }
 }

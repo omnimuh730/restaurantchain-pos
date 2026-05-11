@@ -83,12 +83,17 @@ fun FloorEditMode(
                         state.selectedTableId = it
                         if (isMobile) mobileDrawerOpen = it != null
                     },
-                    onDragTable = { id, dx, dy, commit ->
-                        val table = state.tables.firstOrNull { it.id == id } ?: return@FloorCanvas
-                        val nx = if (commit) table.x else table.x + dx
-                        val ny = if (commit) table.y else table.y + dy
-                        state.updateTables(commit = commit) { list ->
-                            list.map { if (it.id == id) it.copy(x = nx, y = ny) else it }
+                    onDragTable = { id, x, y, commit ->
+                        // FloorCanvas already snapped + clamped, so `x` / `y` are
+                        // the final canvas coordinates. During the drag we mutate
+                        // tables without committing history; on release we commit
+                        // a single history entry for the whole gesture.
+                        if (commit) {
+                            state.updateTables(commit = true) { list -> list }
+                        } else {
+                            state.updateTables(commit = false) { list ->
+                                list.map { if (it.id == id) it.copy(x = x, y = y) else it }
+                            }
                         }
                     },
                     modifier = Modifier.weight(1f),

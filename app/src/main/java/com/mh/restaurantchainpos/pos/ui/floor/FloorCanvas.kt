@@ -5,9 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,7 +41,6 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
@@ -134,24 +134,31 @@ fun FloorCanvas(
                 viewportH = it.height.toFloat()
                 clampPan()
             }
-            .pointerInput(zoom, minZoom) {
-                detectTransformGestures { _, pan, gestureZoom, _ ->
-                    val next = (zoom * gestureZoom).coerceIn(minZoom, 3f)
-                    if (next != zoom) onZoomChange(next)
-                    panX += pan.x
-                    panY += pan.y
-                    clampPan()
+            // Single canvas-pan / pinch-zoom handler. Uses `requireUnconsumed = true`
+            // so the loop only starts when the down event was NOT swallowed by a
+            // table — that way single-touch background drag pans the canvas, but
+            // touching a table immediately routes events to the table's own
+            // gesture loop without competing with this one.
+            .pointerInput(editMode, minZoom) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = true)
+                    if (editMode) onSelectTable(null)
+                    do {
+                        val event = awaitPointerEvent()
+                        val pan = event.calculatePan()
+                        val gestureZoom = event.calculateZoom()
+                        if (gestureZoom != 1f) {
+                            val next = (zoom * gestureZoom).coerceIn(minZoom, 3f)
+                            if (next != zoom) onZoomChange(next)
+                        }
+                        if (pan != Offset.Zero) {
+                            panX += pan.x
+                            panY += pan.y
+                            clampPan()
+                        }
+                        event.changes.forEach { if (it.positionChange() != Offset.Zero) it.consume() }
+                    } while (event.changes.any { it.pressed })
                 }
-            }
-            .pointerInput(editMode, zoom) {
-                detectDragGestures(
-                    onDragStart = { if (editMode) onSelectTable(null) },
-                    onDrag = { _, drag ->
-                        panX += drag.x
-                        panY += drag.y
-                        clampPan()
-                    },
-                )
             },
     ) {
         Box(
@@ -186,13 +193,15 @@ fun FloorCanvas(
                     editMode = editMode,
                     showSeats = showSeats,
                     zoom = zoom,
+                    pxPerDp = density.density,
                     onSelect = { onSelectTable(table.id) },
-                    onDrag = { dx, dy, commit ->
-                        val nx = ((table.x + dx).toFloat() / FloorMetrics.SnapGrid).roundToInt() * FloorMetrics.SnapGrid
-                        val ny = ((table.y + dy).toFloat() / FloorMetrics.SnapGrid).roundToInt() * FloorMetrics.SnapGrid
-                        val cx = max(0, min(FloorMetrics.CanvasW - table.width, nx))
-                        val cy = max(0, min(FloorMetrics.CanvasH - table.height, ny))
-                        onDragTable(table.id, cx, cy, commit)
+                    onDragMove = { dragStartTable, totalDxDp, totalDyDp, commit ->
+                        val (cx, cy) = calculateDraggedTablePosition(
+                            table = dragStartTable,
+                            totalDxDp = totalDxDp,
+                            totalDyDp = totalDyDp,
+                        )
+                        onDragTable(dragStartTable.id, cx, cy, commit)
                     },
                 )
             }
@@ -211,6 +220,19 @@ fun FloorCanvas(
     }
 }
 
+internal fun calculateDraggedTablePosition(
+    table: FloorTable,
+    totalDxDp: Float,
+    totalDyDp: Float,
+): Pair<Int, Int> {
+    val snapped = FloorMetrics.SnapGrid
+    val nx = ((table.x + totalDxDp) / snapped).roundToInt() * snapped
+    val ny = ((table.y + totalDyDp) / snapped).roundToInt() * snapped
+    val cx = max(0, min(FloorMetrics.CanvasW - table.width, nx))
+    val cy = max(0, min(FloorMetrics.CanvasH - table.height, ny))
+    return cx to cy
+}
+
 @Composable
 private fun TableNode(
     palette: FloorPalette,
@@ -219,8 +241,9 @@ private fun TableNode(
     editMode: Boolean,
     showSeats: Boolean,
     zoom: Float,
+    pxPerDp: Float,
     onSelect: () -> Unit,
-    onDrag: (dx: Int, dy: Int, commit: Boolean) -> Unit,
+    onDragMove: (dragStartTable: FloorTable, totalDxDp: Float, totalDyDp: Float, commit: Boolean) -> Unit,
 ) {
     val occupied = table.status == TableStatus.Occupied
     val reserved = table.status == TableStatus.Reserved
@@ -232,45 +255,51 @@ private fun TableNode(
         else -> Triple(palette.editTableDefault, palette.availableBorder, palette.editText1)
     }
     val shape = if (table.shape == TableShape.Circle) CircleShape else RoundedCornerShape(12.dp)
+    // Canvas-space coordinates (`table.x`, etc.) are conceptual dp — the
+    // React reference uses CSS px which we mirror as dp on Android. Use the
+    // dp-overload of `offset` so positioning matches sizing.
     val baseModifier = Modifier
-        .offset { IntOffset(table.x, table.y) }
+        .offset(table.x.dp, table.y.dp)
         .size(table.width.dp, table.height.dp)
         .clip(shape)
         .background(fill)
         .border(if (isSelected) 2.dp else 1.5.dp, border, shape)
+    val currentTable by rememberUpdatedState(table)
+    val currentOnDragMove by rememberUpdatedState(onDragMove)
     val withGesture = if (editMode) {
         baseModifier
-            .pointerInput(table.id, zoom) {
-                // Custom gesture loop. Eagerly consume the down so the parent
-                // canvas pan does not fire while the user is moving a table.
+            .pointerInput(table.id, zoom, pxPerDp) {
+                // Custom gesture loop. Eagerly consume on the Initial pass so
+                // the parent canvas pan never sees this pointer.
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                     down.consume()
+                    val dragStartTable = currentTable
                     onSelect()
-                    var pendingDx = 0f
-                    var pendingDy = 0f
+                    var totalDx = 0f
+                    var totalDy = 0f
                     var moved = false
+                    // Convert finger motion (screen px) into canvas-space dp:
+                    //   dpDelta = (px / zoom) / pxPerDp.
+                    // The React reference computes each move from the drag
+                    // start, so keep total gesture movement instead of snapping
+                    // tiny per-frame deltas back to the start cell.
+                    val toDp = 1f / (zoom * pxPerDp)
                     while (true) {
                         val event = awaitPointerEvent(PointerEventPass.Initial)
                         val pointer = event.changes.firstOrNull { it.id == down.id } ?: break
-                        if (pointer.changedToUp()) {
-                            pointer.consume()
-                            if (moved) onDrag(0, 0, true)
-                            break
-                        }
                         val drag = pointer.positionChange()
                         if (drag != Offset.Zero) {
                             pointer.consume()
                             moved = true
-                            pendingDx += drag.x / zoom
-                            pendingDy += drag.y / zoom
-                            val ix = pendingDx.roundToInt()
-                            val iy = pendingDy.roundToInt()
-                            if (ix != 0 || iy != 0) {
-                                onDrag(ix, iy, false)
-                                pendingDx -= ix
-                                pendingDy -= iy
-                            }
+                            totalDx += drag.x * toDp
+                            totalDy += drag.y * toDp
+                            currentOnDragMove(dragStartTable, totalDx, totalDy, false)
+                        }
+                        if (pointer.changedToUp()) {
+                            pointer.consume()
+                            if (moved) currentOnDragMove(dragStartTable, totalDx, totalDy, true)
+                            break
                         }
                     }
                 }
@@ -306,4 +335,3 @@ private fun TableNode(
         }
     }
 }
-

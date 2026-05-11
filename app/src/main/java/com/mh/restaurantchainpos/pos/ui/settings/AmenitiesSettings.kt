@@ -12,94 +12,272 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Accessible
+import androidx.compose.material.icons.outlined.Air
+import androidx.compose.material.icons.outlined.Cake
+import androidx.compose.material.icons.outlined.Celebration
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ChildCare
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.DeviceThermostat
+import androidx.compose.material.icons.outlined.DinnerDining
+import androidx.compose.material.icons.outlined.DirectionsCar
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.FlashOn
+import androidx.compose.material.icons.outlined.Forest
+import androidx.compose.material.icons.outlined.Grain
+import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.House
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.LocalBar
+import androidx.compose.material.icons.outlined.LocalCafe
+import androidx.compose.material.icons.outlined.LocalDining
+import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.LocalParking
+import androidx.compose.material.icons.outlined.LocalPizza
+import androidx.compose.material.icons.outlined.LocalShipping
+import androidx.compose.material.icons.outlined.LunchDining
+import androidx.compose.material.icons.outlined.MeetingRoom
+import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.NightlightRound
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.RestaurantMenu
+import androidx.compose.material.icons.outlined.RoomService
+import androidx.compose.material.icons.outlined.SetMeal
+import androidx.compose.material.icons.outlined.SmokingRooms
+import androidx.compose.material.icons.outlined.Spa
+import androidx.compose.material.icons.outlined.SportsBar
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.ViewSidebar
+import androidx.compose.material.icons.outlined.Weekend
+import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material.icons.outlined.WineBar
+import androidx.compose.material.icons.outlined.Work
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
-private val Amenities = listOf(
-    "🅿 Parking", "🚗 Valet", "📶 Free WiFi", "💳 Credit Cards", "💵 Cash", "📱 Mobile Pay",
-    "♿ Wheelchair", "👶 High Chairs", "🍴 Kids Menu", "🐶 Dog Friendly", "🎵 Live Music",
-    "👔 Dress Code", "🚬 Smoking Area", "🎉 Private Events", "👨\u200d🍳 Catering", "🚚 Delivery",
-    "🥡 Takeout", "📅 Reservations", "👥 Walk-ins", "🪑 Outdoor", "🌡 Heated Patio", "❄ A/C",
-    "🌐 Multi-Lingual", "🍷 Bar / Lounge",
+private data class AmenityOption(val id: String, val label: String, val icon: ImageVector)
+
+private val AmenityList = listOf(
+    AmenityOption("parking", "Parking", Icons.Outlined.LocalParking),
+    AmenityOption("valet", "Valet", Icons.Outlined.DirectionsCar),
+    AmenityOption("wifi", "Free WiFi", Icons.Outlined.Wifi),
+    AmenityOption("credit-cards", "Credit Cards", Icons.Outlined.CreditCard),
+    AmenityOption("cash", "Cash", Icons.Outlined.Payments),
+    AmenityOption("mobile-pay", "Mobile Pay", Icons.Outlined.PhoneAndroid),
+    AmenityOption("wheelchair", "Wheelchair", Icons.Outlined.Accessible),
+    AmenityOption("high-chairs", "High Chairs", Icons.Outlined.ChildCare),
+    AmenityOption("kids-menu", "Kids Menu", Icons.Outlined.Restaurant),
+    AmenityOption("dog-friendly", "Dog Friendly", Icons.Outlined.Pets),
+    AmenityOption("live-music", "Live Music", Icons.Outlined.MusicNote),
+    AmenityOption("dress-code", "Dress Code", Icons.Outlined.Work),
+    AmenityOption("smoking", "Smoking Area", Icons.Outlined.SmokingRooms),
+    AmenityOption("private-events", "Private Events", Icons.Outlined.Celebration),
+    AmenityOption("catering", "Catering", Icons.Outlined.RoomService),
+    AmenityOption("delivery", "Delivery", Icons.Outlined.LocalShipping),
+    AmenityOption("takeout", "Takeout", Icons.Outlined.LunchDining),
+    AmenityOption("reservations", "Reservations", Icons.Outlined.AccessTime),
+    AmenityOption("walk-ins", "Walk-ins", Icons.Outlined.Group),
+    AmenityOption("outdoor", "Outdoor", Icons.Outlined.Weekend),
+    AmenityOption("heated-patio", "Heated Patio", Icons.Outlined.DeviceThermostat),
+    AmenityOption("ac", "A/C", Icons.Outlined.Air),
+    AmenityOption("multilingual", "Multi-Lingual", Icons.Outlined.Language),
+    AmenityOption("bar-lounge", "Bar / Lounge", Icons.Outlined.LocalBar),
 )
 
-private val Cuisines = listOf(
-    "🔥 Grilled Beef", "🍗 Grilled Pork", "🍺 Bar & Pub", "🥩 Meat", "💎 Fine Dining",
-    "🐟 Seafood", "🍜 Korean", "🍴 Western", "🍷 Wine", "☕ Brunch", "🥗 Vegan",
-    "🥩 Steakhouse", "✨ Fusion", "🥗 Healthy", "🥣 Noodles & Soup", "👨‍👩‍👧 Family Meal",
+private val CuisineList = listOf(
+    AmenityOption("grilled-beef", "Grilled Beef", Icons.Outlined.LocalFireDepartment),
+    AmenityOption("grilled-pork", "Grilled Pork", Icons.Outlined.DinnerDining),
+    AmenityOption("bar-pub", "Bar & Pub", Icons.Outlined.SportsBar),
+    AmenityOption("meat", "Meat", Icons.Outlined.RestaurantMenu),
+    AmenityOption("fine-dining", "Fine Dining", Icons.Outlined.Star),
+    AmenityOption("seafood", "Seafood", Icons.Outlined.SetMeal),
+    AmenityOption("korean", "Korean", Icons.Outlined.LocalDining),
+    AmenityOption("western", "Western Cuisine", Icons.Outlined.LocalPizza),
+    AmenityOption("wine", "Wine", Icons.Outlined.WineBar),
+    AmenityOption("brunch", "Brunch", Icons.Outlined.LocalCafe),
+    AmenityOption("vegan", "Vegan", Icons.Outlined.Spa),
+    AmenityOption("steakhouse", "Steakhouse", Icons.Outlined.RestaurantMenu),
+    AmenityOption("fusion", "Fusion", Icons.Outlined.FlashOn),
+    AmenityOption("healthy", "Healthy", Icons.Outlined.Grain),
+    AmenityOption("noodles-soup", "Noodles & Soup", Icons.Outlined.RoomService),
+    AmenityOption("family-meal", "Family Meal", Icons.Outlined.Group),
 )
 
-private val Occasions = listOf(
-    "❤ Date Night", "💼 Business Dinner", "🎂 Celebration", "🍴 Casual Dining",
-    "💕 Romantic", "👶 Family-friendly", "🌙 Late Night", "⚡ Quick Bite",
+private val OccasionList = listOf(
+    AmenityOption("date-night", "Date Night", Icons.Outlined.Favorite),
+    AmenityOption("business-dinner", "Business Dinner", Icons.Outlined.Work),
+    AmenityOption("celebration", "Celebration", Icons.Outlined.Cake),
+    AmenityOption("casual-dining", "Casual Dining", Icons.Outlined.Restaurant),
+    AmenityOption("romantic", "Romantic", Icons.Outlined.FavoriteBorder),
+    AmenityOption("family-friendly", "Family-friendly", Icons.Outlined.ChildCare),
+    AmenityOption("late-night", "Late Night", Icons.Outlined.NightlightRound),
+    AmenityOption("quick-bite", "Quick Bite", Icons.Outlined.FlashOn),
 )
 
-private val SeatingPrefs = listOf(
-    "🏠 Dining Hall", "🚪 Private Room", "🌳 Terrace", "🪟 Window Seat", "🍷 Bar",
+private val SeatingList = listOf(
+    AmenityOption("dining-hall", "Dining Hall", Icons.Outlined.House),
+    AmenityOption("private-room", "Private Room", Icons.Outlined.MeetingRoom),
+    AmenityOption("terrace", "Terrace", Icons.Outlined.Forest),
+    AmenityOption("window-seat", "Window Seat", Icons.Outlined.ViewSidebar),
+    AmenityOption("bar", "Bar", Icons.Outlined.LocalBar),
 )
 
 @Composable
 fun AmenitiesSettings(colors: PosColors) {
-    val amenities = remember { mutableStateListOf("📶 Free WiFi", "💳 Credit Cards", "💵 Cash", "📅 Reservations") }
-    val cuisines = remember { mutableStateListOf("🍴 Western", "🥩 Steakhouse") }
-    val occasions = remember { mutableStateListOf("❤ Date Night", "🎂 Celebration") }
-    val seating = remember { mutableStateListOf("🏠 Dining Hall", "🌳 Terrace") }
+    val amenities = remember { mutableStateListOf("parking", "wifi", "credit-cards", "cash", "mobile-pay", "high-chairs", "kids-menu", "reservations", "outdoor", "ac", "multilingual", "delivery", "takeout") }
+    val cuisines = remember { mutableStateListOf("korean", "fusion", "wine") }
+    val occasions = remember { mutableStateListOf("date-night", "celebration", "family-friendly") }
+    val seating = remember { mutableStateListOf("dining-hall", "terrace", "bar") }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        AmenityCard(colors, "Amenities", "Tap to enable.", Amenities, amenities)
-        AmenityCard(colors, "Cuisine", "Categorize the kind of food you serve.", Cuisines, cuisines)
-        AmenityCard(colors, "Occasion & vibe", "Help guests find you for the right moment.", Occasions, occasions)
-        AmenityCard(colors, "Seating preference", "Inside, outside, private — pick all that apply.", SeatingPrefs, seating)
+        AmenitiesGridCard(
+            colors = colors,
+            title = "Amenities & Services",
+            subtitle = "Toggle features and services your restaurant offers",
+            options = AmenityList,
+            selected = amenities,
+        )
+        AmenitiesGridCard(
+            colors = colors,
+            title = "Cuisine",
+            subtitle = "Select the cuisine types your restaurant serves",
+            options = CuisineList,
+            selected = cuisines,
+        )
+        AmenitiesGridCard(
+            colors = colors,
+            title = "Occasion & Vibe",
+            subtitle = "Highlight the occasions and vibes your restaurant fits best",
+            options = OccasionList,
+            selected = occasions,
+        )
+        AmenitiesGridCard(
+            colors = colors,
+            title = "Seating Preference",
+            subtitle = "Seating options available to your guests",
+            options = SeatingList,
+            selected = seating,
+        )
     }
 }
 
 @Composable
-private fun AmenityCard(
+private fun AmenitiesGridCard(
     colors: PosColors,
     title: String,
     subtitle: String,
-    options: List<String>,
-    selected: androidx.compose.runtime.snapshots.SnapshotStateList<String>,
+    options: List<AmenityOption>,
+    selected: SnapshotStateList<String>,
 ) {
-    SettingCard(colors = colors, title = title, subtitle = subtitle, badge = "${selected.size}/${options.size}") {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(140.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.height(48.dp * ((options.size / 3) + 1)),
-        ) {
-            items(options) { option -> AmenityChip(colors, option, selected.contains(option)) {
-                if (selected.contains(option)) selected.remove(option) else selected.add(option)
-            } }
+    SettingCard(
+        colors = colors,
+        title = title,
+        subtitle = subtitle,
+        badge = "${selected.size} active",
+        badgeIcon = null,
+    ) {
+        // Manually chunk into rows of 2 since we are inside a vertical-scroll container and
+        // nested LazyVerticalGrid won't measure correctly. The screenshots use 2 columns on mobile.
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            options.chunked(2).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    row.forEach { option ->
+                        AmenityTile(
+                            colors = colors,
+                            option = option,
+                            active = selected.contains(option.id),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            if (selected.contains(option.id)) selected.remove(option.id) else selected.add(option.id)
+                        }
+                    }
+                    if (row.size == 1) Box(Modifier.weight(1f))
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun AmenityChip(colors: PosColors, label: String, active: Boolean, onClick: () -> Unit) {
+private fun AmenityTile(
+    colors: PosColors,
+    option: AmenityOption,
+    active: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val borderColor = if (active) Blue600 else colors.border
+    val background = if (active) Blue500.copy(alpha = 0.08f) else colors.surface
+    val iconBg = if (active) Blue500.copy(alpha = 0.18f) else colors.surfaceRaised
+    val iconTint = if (active) Blue600 else colors.textMuted
+    val labelColor = if (active) Blue600 else colors.text
+
     Box(
-        Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(if (active) Blue500.copy(alpha = 0.15f) else colors.surfaceRaised)
-            .border(1.dp, if (active) Blue500 else colors.border, RoundedCornerShape(8.dp))
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(background)
+            .border(1.5.dp, borderColor, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 8.dp),
+            .padding(14.dp),
     ) {
-        Text(label, color = if (active) Blue500 else colors.text, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        if (active) {
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(Blue600),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+            }
+        }
+        Column(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(iconBg),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(option.icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                option.label,
+                color = labelColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }

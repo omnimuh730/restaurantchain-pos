@@ -19,6 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.WorkspacePremium
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +41,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -64,10 +71,17 @@ fun UpgradePlans(colors: PosColors) {
     var slidePay by remember { mutableStateOf<String?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        SettingCard(colors = colors, title = "Plans", subtitle = "Pick the tier that fits your restaurant.", badge = "Free tier", badgeIcon = "✦") {
-            PlanCard(colors, "Pro", "$29 / month", ProFeatures) { slidePay = "Pro" }
+        SettingCard(
+            colors = colors,
+            title = "Upgrade Your Plan",
+            subtitle = "Unlock premium features to grow your restaurant business",
+            badge = "Free Tier",
+            badgeIcon = Icons.Outlined.AutoAwesome,
+            headerIcon = Icons.Outlined.AutoAwesome,
+        ) {
+            PlanCard(colors, "Pro", "$29", ProFeatures, Icons.Outlined.AutoAwesome) { slidePay = "Pro" }
             Spacer(Modifier.height(12.dp))
-            PlanCard(colors, "Ultra", "$79 / month", UltraFeatures) { slidePay = "Ultra" }
+            PlanCard(colors, "Ultra", "$79", UltraFeatures, Icons.Outlined.WorkspacePremium) { slidePay = "Ultra" }
         }
     }
 
@@ -77,30 +91,67 @@ fun UpgradePlans(colors: PosColors) {
 }
 
 @Composable
-private fun PlanCard(colors: PosColors, plan: String, price: String, features: List<String>, onUpgrade: () -> Unit) {
+private fun PlanCard(
+    colors: PosColors,
+    plan: String,
+    price: String,
+    features: List<String>,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onUpgrade: () -> Unit,
+) {
+    val highlighted = plan == "Ultra"
     Column(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(if (plan == "Ultra") Blue500.copy(alpha = 0.1f) else colors.surfaceRaised)
-            .border(1.dp, if (plan == "Ultra") Blue500 else colors.border, RoundedCornerShape(12.dp))
+            .background(if (highlighted) Blue500.copy(alpha = 0.08f) else colors.surfaceRaised)
+            .border(1.5.dp, if (highlighted) Blue600 else colors.border, RoundedCornerShape(12.dp))
             .padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(plan, color = colors.text, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Spacer(Modifier.weight(1f))
-            Text(price, color = Blue500, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-        }
-        Spacer(Modifier.height(8.dp))
-        features.forEach { feature ->
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 3.dp)) {
-                Box(Modifier.size(6.dp).clip(CircleShape).background(Blue500))
-                Spacer(Modifier.size(8.dp))
-                Text(feature, color = colors.textMuted, fontSize = 12.sp)
+            Box(
+                Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Blue500.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, contentDescription = null, tint = Blue600, modifier = Modifier.size(20.dp))
+            }
+            Spacer(Modifier.size(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(plan, color = colors.text, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(
+                    if (plan == "Pro") "For growing restaurants" else "For enterprise restaurants",
+                    color = colors.textMuted,
+                    fontSize = 11.sp,
+                )
+            }
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(price, color = colors.text, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                Text(" /mo", color = colors.textMuted, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
             }
         }
         Spacer(Modifier.height(12.dp))
-        PrimaryButton(if (plan == "Ultra") "Slide to upgrade" else "Upgrade to $plan", onUpgrade, modifier = Modifier.fillMaxWidth())
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+        Spacer(Modifier.height(10.dp))
+        features.forEach { feature ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 4.dp),
+            ) {
+                Icon(Icons.Outlined.Check, contentDescription = null, tint = Blue600, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.size(8.dp))
+                Text(feature, color = colors.text, fontSize = 12.sp)
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        PrimaryButton(
+            "Choose $plan",
+            onUpgrade,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = Icons.Outlined.Bolt,
+        )
     }
 }
 

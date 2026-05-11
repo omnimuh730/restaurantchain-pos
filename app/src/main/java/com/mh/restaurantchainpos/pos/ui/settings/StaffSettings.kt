@@ -17,6 +17,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,12 +53,18 @@ fun StaffSettings(colors: PosColors) {
 
     SettingCard(
         colors = colors,
-        title = "Staff",
-        subtitle = "Manage who can access the POS.",
+        title = "Staff Management",
+        subtitle = "Register staff and manage permissions",
         badge = "${staff.size}",
-        badgeIcon = "👥",
+        badgeIcon = Icons.Outlined.Group,
+        headerIcon = Icons.Outlined.Group,
     ) {
-        PrimaryButton("+ Invite staff", { staff.add(StaffMember("New Member", "newmember", "Waiter", "pending", "May 2026", 4)) }, modifier = Modifier.fillMaxWidth())
+        PrimaryButton(
+            "Register Staff",
+            onClick = { staff.add(StaffMember("New Member", "newmember", "Waiter", "pending", "May 2026", 4)) },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = Icons.Outlined.PersonAdd,
+        )
         Spacer(Modifier.height(12.dp))
         staff.forEach { member ->
             StaffRow(

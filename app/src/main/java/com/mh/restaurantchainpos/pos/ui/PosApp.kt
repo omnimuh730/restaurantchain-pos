@@ -104,7 +104,7 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
             Box(Modifier.weight(1f).fillMaxWidth().padding(bottom = PosDimens.BottomNavHeight)) {
                 when (page) {
                     PosPage.FloorPlan -> FloorPlanScreen(colors, role, isDark = isDark, onPendingReservations = { badges[""] = it })
-                    PosPage.Orders -> OrdersScreen(colors)
+                    PosPage.Orders -> OrdersScreen(colors, role)
                     PosPage.Kitchen -> KitchenScreen(colors, role, onReceivedCount = { badges["kitchen"] = it })
                     PosPage.Analytics -> AnalyticsScreen(colors)
                     PosPage.Settings -> SettingsScreen(colors, role)
