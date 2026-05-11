@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,7 +54,6 @@ fun FloorPlanScreen(
             Modifier
                 .fillMaxWidth()
                 .background(palette.card)
-                .border(1.dp, palette.border)
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
