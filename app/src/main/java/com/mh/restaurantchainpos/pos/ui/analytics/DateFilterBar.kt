@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,12 +44,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-/**
- * Day picker + range button. Tapping a weekday selects a single-day range and
- * sets period to `Today` (if it matches today) or `Custom`. Tapping the date
- * pill opens the [CustomRangePicker]. Mirrors the React `DateFilterBar`
- * including the swipeable week strip.
- */
 @Composable
 fun DateFilterBar(
     period: Period,
@@ -60,7 +56,6 @@ fun DateFilterBar(
     val today = remember { Calendar.getInstance().also { it.zeroTime() } }
     var weekOffset by remember { mutableIntStateOf(0) }
     var pickerOpen by remember { mutableStateOf(false) }
-    var slideDir by remember { mutableIntStateOf(1) }
     var selectedDate by remember {
         mutableStateOf(Calendar.getInstance().also { it.zeroTime() }.timeInMillis)
     }
@@ -87,8 +82,8 @@ fun DateFilterBar(
         AnimatedContent(
             targetState = weekOffset,
             transitionSpec = {
-                (slideInHorizontally(tween(220)) { (slideDir * 60) } + fadeIn(tween(220))).togetherWith(
-                    slideOutHorizontally(tween(220)) { -slideDir * 60 } + fadeOut(tween(220)),
+                (slideInHorizontally(tween(220)) { 60 } + fadeIn(tween(220))).togetherWith(
+                    slideOutHorizontally(tween(220)) { -60 } + fadeOut(tween(220)),
                 )
             },
             label = "week-strip",
@@ -138,13 +133,17 @@ fun DateFilterBar(
                                     CircleShape,
                                 )
                                 .then(
-                                    if (isFuture) Modifier else Modifier.clickable {
-                                        selectedDate = d.timeInMillis
-                                        val start = d.timeInMillis
-                                        val end = d.timeInMillis + HistoryData.DAY - 1
-                                        onRangeChange(DateRange(start, end))
-                                        onPeriodChange(if (isToday) Period.Today else Period.Custom)
-                                    }
+                                    if (isFuture) {
+                                        Modifier
+                                    } else {
+                                        Modifier.clickable {
+                                            selectedDate = d.timeInMillis
+                                            val start = d.timeInMillis
+                                            val end = d.timeInMillis + HistoryData.DAY - 1
+                                            onRangeChange(DateRange(start, end))
+                                            onPeriodChange(if (isToday) Period.Today else Period.Custom)
+                                        }
+                                    },
                                 ),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -164,7 +163,6 @@ fun DateFilterBar(
             }
         }
 
-        // Today / range pill
         Box(
             Modifier
                 .padding(top = 4.dp)
@@ -178,31 +176,13 @@ fun DateFilterBar(
             val labelColor = if (active) Color.White else text2
             val label = when {
                 range != null && range.startMs != range.endMs - HistoryData.DAY + 1 ->
-                    "${shortDate(range.startMs)} – ${shortDate(range.endMs)}"
+                    "${shortDate(range.startMs)} - ${shortDate(range.endMs)}"
                 selectedDate == today.timeInMillis -> "Today"
                 else -> shortDate(selectedDate)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("📅", color = labelColor, fontSize = 13.sp)
+                Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = labelColor, modifier = Modifier.size(14.dp))
                 Text(label, color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            }
-        }
-
-        // Quick navigation arrows for week strip
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier.padding(top = 4.dp),
-        ) {
-            ArrowChip("‹", text2) {
-                slideDir = -1
-                weekOffset -= 1
-            }
-            val nextSunday = days.first().copyCal().apply { add(Calendar.DATE, 7) }
-            if (nextSunday.timeInMillis <= today.timeInMillis) {
-                ArrowChip("›", text2) {
-                    slideDir = 1
-                    weekOffset += 1
-                }
             }
         }
     }
@@ -220,19 +200,6 @@ fun DateFilterBar(
                 pickerOpen = false
             },
         )
-    }
-}
-
-@Composable
-private fun ArrowChip(text: String, color: Color, onClick: () -> Unit) {
-    Box(
-        Modifier
-            .size(24.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text, color = color, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -257,10 +224,6 @@ private fun Calendar.sameDayAs(other: Calendar): Boolean {
         get(Calendar.MONTH) == other.get(Calendar.MONTH) &&
         get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
 }
-
-// `Object.clone()` (returning Any) shadows extensions named `clone`, so use a
-// distinct name for the typed deep-copy helper used throughout this file.
-private fun Calendar.copyCal(): Calendar = Calendar.getInstance().apply { timeInMillis = this@copyCal.timeInMillis }
 
 private val weekdayFmt = SimpleDateFormat("EEEEE", Locale.US)
 private val dayFmt = SimpleDateFormat("d", Locale.US)

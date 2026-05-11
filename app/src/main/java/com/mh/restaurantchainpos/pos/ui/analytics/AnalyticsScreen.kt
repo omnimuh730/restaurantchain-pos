@@ -34,8 +34,8 @@ import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable
 fun AnalyticsScreen(colors: PosColors) {
-    var section by remember { mutableStateOf(AnalyticsSection.Dashboard) }
-    var period by remember { mutableStateOf(Period.Today) }
+    var section by remember { mutableStateOf(AnalyticsSection.SalesDashboard) }
+    var period by remember { mutableStateOf(Period.Week) }
     var range by remember { mutableStateOf<DateRange?>(null) }
     var drawerOpen by remember { mutableStateOf(false) }
 
@@ -94,7 +94,7 @@ fun AnalyticsScreen(colors: PosColors) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     when (section) {
-                        AnalyticsSection.Dashboard -> DashboardView(
+                        AnalyticsSection.SalesDashboard -> SalesDashboardView(
                             period = period,
                             onPeriodChange = { period = it },
                             range = range,
@@ -123,7 +123,6 @@ fun AnalyticsScreen(colors: PosColors) {
                             isDark = isDark,
                         )
                     }
-                    Spacer(Modifier.size(80.dp))
                 }
                 if (isMobile) {
                     AnalyticsSidebar(

@@ -1,5 +1,9 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.TableRestaurant
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -8,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
 import com.mh.restaurantchainpos.pos.data.FloorTable
@@ -142,8 +147,8 @@ class FloorPlanState(
 fun rememberFloorPlanState(): FloorPlanState =
     remember { FloorPlanState(PosMockData.floors, PosMockData.reservations) }
 
-enum class FloorViewMode(val label: String, val icon: String) {
-    Floor("Floor", "▦"),
-    Table("Table", "▤"),
-    Calendar("Calendar", "▧"),
+enum class FloorViewMode(val label: String, val icon: ImageVector) {
+    Floor("Floor", Icons.Outlined.GridView),
+    Table("Table", Icons.Outlined.TableRestaurant),
+    Calendar("Calendar", Icons.Outlined.CalendarMonth),
 }

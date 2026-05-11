@@ -33,7 +33,7 @@ data class ColumnBar(val label: String, val value: Float, val color: Color)
 
 /**
  * Vertical-bar chart with rounded tops, dashed gridlines and a tap tooltip.
- * Mirrors the React `<BarChart>` (recharts) used in DashboardView /
+ * Mirrors the React `<BarChart>` (recharts) used in SalesDashboardView /
  * MenuAnalysisView.
  */
 @Composable

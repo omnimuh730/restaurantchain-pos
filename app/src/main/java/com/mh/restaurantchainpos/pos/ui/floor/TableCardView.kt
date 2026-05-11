@@ -65,22 +65,23 @@ private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (Floor
     Column(
         Modifier
             .fillMaxWidth()
-            .height(110.dp)
+            .height(124.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(bg)
             .border(borderW, borderC, RoundedCornerShape(10.dp))
             .clickable { onSelect(table) }
-            .padding(12.dp),
+            .padding(14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(table.label, color = textC, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text(table.label, color = textC, fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
         }
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(4.dp))
         Text(
             if (occupied) "${if (table.occupiedSeats > 0) table.occupiedSeats else table.seats}/${table.seats} seats"
             else "${table.seats} seats",
-            color = if (occupied) Color.White.copy(alpha = 0.85f) else palette.editText2,
-            fontSize = 12.sp,
+            color = if (occupied) Color.White.copy(alpha = 0.9f) else palette.editText2,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
         )
         Spacer(Modifier.weight(1f))
         when {
@@ -88,21 +89,22 @@ private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (Floor
                 "₩%,d".format(table.revenue),
                 color = Color.White,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.align(Alignment.End),
             )
             reserved && table.reservationTime.isNotBlank() -> Text(
                 "Reserved · ${table.reservationTime}",
                 color = palette.reservedText,
-                fontSize = 11.sp,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
             )
             else -> Box(
                 Modifier
                     .clip(CircleShape)
                     .background(palette.availableFill)
-                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                    .padding(horizontal = 10.dp, vertical = 3.dp),
             ) {
-                Text("Available", color = palette.availableText, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                Text("Available", color = palette.availableText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }

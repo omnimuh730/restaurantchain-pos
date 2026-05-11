@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.ColumnBar
@@ -54,22 +60,21 @@ fun MenuAnalysisView(
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val grid = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val mutedTrack = if (isDark) Color(0xFF374151) else Color(0xFFCBD5E1)
-    val rowBg = if (isDark) Color(0xFF1E293B) else Color(0xFFF8FAFC)
     val highlightRowBg = if (isDark) Color(0xFF1E3A8A).copy(alpha = 0.18f) else Color(0xFFEFF6FF)
     val tabActive = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
 
     val mult = MenuAnalysisData.multiplier(period)
-    // Use the domestic pool to match the React demo's primary view (KRW).
     val pool = MenuAnalysisData.items.filter { it.currency == AnalyticsCurrency.Domestic }
-    val byCategory = pool.groupBy { it.categoryKey to it.category }
-    val categoryTotals = byCategory.map { (key, items) ->
-        val rev = items.sumOf { (it.basePrice * it.baseQty * mult) }
-        val orders = items.sumOf { (it.baseQty * mult).toInt() }
-        Triple(key, rev, orders)
-    }.sortedByDescending { it.second }
+    val categoryTotals = pool
+        .groupBy { it.categoryKey to it.category }
+        .map { (key, items) ->
+            val rev = items.sumOf { it.basePrice * it.baseQty * mult }
+            val orders = items.sumOf { (it.baseQty * mult).toInt() }
+            Triple(key, rev, orders)
+        }
+        .sortedByDescending { it.second }
     val totalRev = categoryTotals.sumOf { it.second }.coerceAtLeast(1.0)
-
-    val topCategoryName = categoryTotals.firstOrNull()?.first?.second ?: ""
+    val topCategoryName = categoryTotals.firstOrNull()?.first?.second.orEmpty()
 
     val filteredItems = (selectedCategory?.let { sel -> pool.filter { it.categoryKey == sel } } ?: pool)
         .map {
@@ -84,7 +89,7 @@ fun MenuAnalysisView(
     val peak = bestSellerScaled.maxOrNull() ?: 0
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -95,21 +100,26 @@ fun MenuAnalysisView(
             )
         }
 
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("The ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text(topCategoryName, color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text(" category is loved the most in ₩!", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Text("domestic (₩) — category breakdown", color = text2, fontSize = 12.sp)
+                Text(
+                    buildAnnotatedString {
+                        append("The ")
+                        withStyle(SpanStyle(color = Blue600)) { append(topCategoryName) }
+                        append(" category is loved the most in KRW.")
+                    },
+                    color = text1,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text("Domestic KRW - category breakdown", color = text2, fontSize = 12.sp)
                 Spacer(Modifier.height(16.dp))
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    val slices = categoryTotals.mapIndexed { i, (_, rev, _) ->
-                        DonutSlice(rev.toFloat(), Color(MenuAnalysisData.categoryColors[i % MenuAnalysisData.categoryColors.size]))
-                    }
-                    DonutChart(slices = slices, diameter = 160.dp, thickness = 28.dp)
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                val slices = categoryTotals.mapIndexed { i, (_, rev, _) ->
+                    DonutSlice(rev.toFloat(), Color(MenuAnalysisData.categoryColors[i % MenuAnalysisData.categoryColors.size]))
+                }
+                val legend: @Composable () -> Unit = {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         categoryTotals.forEachIndexed { i, (key, rev, _) ->
                             val accent = Color(MenuAnalysisData.categoryColors[i % MenuAnalysisData.categoryColors.size])
                             CategoryRow(
@@ -123,22 +133,38 @@ fun MenuAnalysisView(
                                 },
                                 text1 = text1,
                                 text2 = text2,
-                                rowBg = rowBg,
                                 highlightRowBg = highlightRowBg,
                             )
+                        }
+                    }
+                }
+
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    if (maxWidth < 520.dp) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                            DonutChart(slices = slices, diameter = 170.dp, thickness = 28.dp)
+                            legend()
+                        }
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                            DonutChart(slices = slices, diameter = 160.dp, thickness = 28.dp)
+                            Box(Modifier.weight(1f)) { legend() }
                         }
                     }
                 }
             }
         }
 
-        // All items table
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            if (selectedCategory != null) "Items — ${categoryTotals.first { it.first.first == selectedCategory }.first.second}" else "All domestic items",
+                            if (selectedCategory != null) {
+                                "Items - ${categoryTotals.first { it.first.first == selectedCategory }.first.second}"
+                            } else {
+                                "All domestic items"
+                            },
                             color = text1,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -162,8 +188,8 @@ fun MenuAnalysisView(
                 ) {
                     Text("Item", color = text2, fontSize = 11.sp, modifier = Modifier.weight(1f))
                     Text("Category", color = text2, fontSize = 11.sp, modifier = Modifier.width(96.dp))
-                    Text("Sold", color = text2, fontSize = 11.sp, modifier = Modifier.width(48.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
-                    Text("Revenue", color = text2, fontSize = 11.sp, modifier = Modifier.width(96.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                    Text("Sold", color = text2, fontSize = 11.sp, modifier = Modifier.width(48.dp), textAlign = TextAlign.End)
+                    Text("Revenue", color = text2, fontSize = 11.sp, modifier = Modifier.width(96.dp), textAlign = TextAlign.End)
                 }
                 Box(Modifier.fillMaxWidth().height(1.dp).background(border))
                 filteredItems.forEachIndexed { index, (item, m) ->
@@ -191,23 +217,23 @@ fun MenuAnalysisView(
                             )
                         }
                         Spacer(Modifier.width(8.dp))
-                        Text(item.name, color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                        Text(item.category, color = text2, fontSize = 12.sp, modifier = Modifier.width(96.dp))
-                        Text(AnalyticsFormat.int(m.first), color = text1, fontSize = 13.sp, modifier = Modifier.width(48.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
-                        Text(AnalyticsFormat.won(m.second), color = text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(96.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                        Text(item.name, color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(item.category, color = text2, fontSize = 12.sp, modifier = Modifier.width(96.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(AnalyticsFormat.int(m.first), color = text1, fontSize = 13.sp, modifier = Modifier.width(48.dp), textAlign = TextAlign.End)
+                        Text(AnalyticsFormat.won(m.second), color = text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(96.dp), textAlign = TextAlign.End)
                     }
                 }
             }
         }
 
         if (bestSeller.weeklyBest != null) {
-            Card(card, border) {
+            AnalyticsCard(card, border) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(bestSeller.name, color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                        Text(" — Weekly sales trend", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Text(" - Weekly sales trend", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                     }
-                    Text("Top domestic (₩) seller this week", color = text2, fontSize = 12.sp)
+                    Text("Top domestic KRW seller this week", color = text2, fontSize = 12.sp)
                     Spacer(Modifier.height(12.dp))
                     ColumnBarChart(
                         bars = MenuAnalysisData.weekAxis.mapIndexed { i, day ->
@@ -215,7 +241,7 @@ fun MenuAnalysisView(
                             ColumnBar(day, v, if (v.toInt() == peak) Blue600 else mutedTrack)
                         },
                         formatY = { v -> v.toInt().toString() },
-                        formatTooltip = { i -> "${MenuAnalysisData.weekAxis[i]} · ${bestSellerScaled.getOrNull(i) ?: 0}" },
+                        formatTooltip = { i -> "${MenuAnalysisData.weekAxis[i]} - ${bestSellerScaled.getOrNull(i) ?: 0}" },
                         grid = grid,
                         modifier = Modifier.fillMaxWidth().height(200.dp),
                     )
@@ -235,7 +261,6 @@ private fun CategoryRow(
     onClick: () -> Unit,
     text1: Color,
     text2: Color,
-    rowBg: Color,
     highlightRowBg: Color,
 ) {
     Row(
@@ -249,11 +274,10 @@ private fun CategoryRow(
     ) {
         Box(Modifier.size(10.dp).clip(CircleShape).background(color))
         Spacer(Modifier.width(8.dp))
-        Text(name, color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
-        Text("%.1f%%".format(pct), color = text2, fontSize = 12.sp)
-        Spacer(Modifier.width(12.dp))
-        Text(AnalyticsFormat.won(revenue), color = text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-        @Suppress("UNUSED_EXPRESSION") rowBg
+        Text(name, color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text("%.1f%%".format(pct), color = text2, fontSize = 12.sp, modifier = Modifier.width(54.dp), textAlign = TextAlign.End)
+        Spacer(Modifier.width(8.dp))
+        Text(AnalyticsFormat.won(revenue), color = text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(104.dp), textAlign = TextAlign.End)
     }
 }
 
@@ -289,13 +313,3 @@ private fun SortPill(label: String, active: Boolean, text2: Color, onClick: () -
     }
 }
 
-@Composable
-private fun Card(card: Color, border: Color, content: @Composable () -> Unit) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp)),
-    ) { content() }
-}

@@ -35,7 +35,7 @@ import kotlin.math.roundToInt
 
 /**
  * Smooth Catmull–Rom area chart with grid, labels and a tap tooltip. Mirrors
- * the React `<AreaChart>` (recharts) used in DashboardView/CustomerAnalysis.
+ * the React `<AreaChart>` (recharts) used in SalesDashboardView/CustomerAnalysis.
  */
 @Composable
 fun AreaCurveChart(
