@@ -125,6 +125,8 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
                     onAccept = state::acceptOrder,
                     onComplete = state::completeOrder,
                     onRecall = state::recallOrder,
+                    onToggleItem = { orderId, itemId -> state.toggleItemDone(orderId, itemId) },
+                    onSetItemQty = { orderId, itemId, count -> state.setItemSelectedQty(orderId, itemId, count) },
                 )
             }
         }

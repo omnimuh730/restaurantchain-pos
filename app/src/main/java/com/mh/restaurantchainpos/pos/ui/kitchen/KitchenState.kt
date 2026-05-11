@@ -22,16 +22,16 @@ enum class KitchenViewTab(val label: String) {
     }
 }
 
-enum class KitchenSortMode(val label: String) { Oldest("Oldest first"), Newest("Newest first") }
-
-enum class KitchenViewMode(val label: String) { ByTable("By table"), ByItem("By item") }
+enum class KitchenSortMode(val label: String, val triggerLabel: String) {
+    Oldest("Oldest first", "Oldest"),
+    Newest("Newest first", "Newest"),
+}
 
 class KitchenState(initial: List<KitchenOrder>) {
     val orders: SnapshotStateList<KitchenOrder> = mutableStateListOf<KitchenOrder>().apply { addAll(initial) }
     var activeTab by mutableStateOf(KitchenViewTab.InProgress)
     var sortMode by mutableStateOf(KitchenSortMode.Oldest)
     var sortOpen by mutableStateOf(false)
-    var viewMode by mutableStateOf(KitchenViewMode.ByTable)
     var detailOrderId by mutableStateOf<String?>(null)
     var sidebarOpen by mutableStateOf(false)
     val selectedTables: SnapshotStateList<String> = mutableStateListOf<String>().apply {
