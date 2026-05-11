@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.KitchenStatus
 import com.mh.restaurantchainpos.pos.data.PosMockData
-import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
+import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable

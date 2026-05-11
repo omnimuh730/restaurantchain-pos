@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.data.ReservationType
-import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
+import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette

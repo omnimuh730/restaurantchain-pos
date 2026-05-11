@@ -192,7 +192,6 @@ fun FloorCanvas(
                     isSelected = table.id == selectedTableId,
                     editMode = editMode,
                     showSeats = showSeats,
-                    zoom = zoom,
                     pxPerDp = density.density,
                     onSelect = { onSelectTable(table.id) },
                     onDragMove = { dragStartTable, totalDxDp, totalDyDp, commit ->
@@ -220,6 +219,8 @@ fun FloorCanvas(
     }
 }
 
+internal fun pointerDeltaPxToCanvasDp(deltaPx: Float, pxPerDp: Float): Float = deltaPx / pxPerDp
+
 internal fun calculateDraggedTablePosition(
     table: FloorTable,
     totalDxDp: Float,
@@ -240,7 +241,6 @@ private fun TableNode(
     isSelected: Boolean,
     editMode: Boolean,
     showSeats: Boolean,
-    zoom: Float,
     pxPerDp: Float,
     onSelect: () -> Unit,
     onDragMove: (dragStartTable: FloorTable, totalDxDp: Float, totalDyDp: Float, commit: Boolean) -> Unit,
@@ -268,7 +268,7 @@ private fun TableNode(
     val currentOnDragMove by rememberUpdatedState(onDragMove)
     val withGesture = if (editMode) {
         baseModifier
-            .pointerInput(table.id, zoom, pxPerDp) {
+            .pointerInput(table.id, pxPerDp) {
                 // Custom gesture loop. Eagerly consume on the Initial pass so
                 // the parent canvas pan never sees this pointer.
                 awaitEachGesture {
@@ -279,12 +279,13 @@ private fun TableNode(
                     var totalDx = 0f
                     var totalDy = 0f
                     var moved = false
-                    // Convert finger motion (screen px) into canvas-space dp:
-                    //   dpDelta = (px / zoom) / pxPerDp.
+                    // `positionChange` is already reported in the transformed
+                    // canvas' local coordinates, so only convert px -> dp here.
+                    // Dividing by zoom again makes the table outrun the finger
+                    // whenever the canvas is zoomed below 100%.
                     // The React reference computes each move from the drag
                     // start, so keep total gesture movement instead of snapping
                     // tiny per-frame deltas back to the start cell.
-                    val toDp = 1f / (zoom * pxPerDp)
                     while (true) {
                         val event = awaitPointerEvent(PointerEventPass.Initial)
                         val pointer = event.changes.firstOrNull { it.id == down.id } ?: break
@@ -292,8 +293,8 @@ private fun TableNode(
                         if (drag != Offset.Zero) {
                             pointer.consume()
                             moved = true
-                            totalDx += drag.x * toDp
-                            totalDy += drag.y * toDp
+                            totalDx += pointerDeltaPxToCanvasDp(drag.x, pxPerDp)
+                            totalDy += pointerDeltaPxToCanvasDp(drag.y, pxPerDp)
                             currentOnDragMove(dragStartTable, totalDx, totalDy, false)
                         }
                         if (pointer.changedToUp()) {

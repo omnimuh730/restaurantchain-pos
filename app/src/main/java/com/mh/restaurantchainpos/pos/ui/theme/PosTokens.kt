@@ -52,6 +52,8 @@ val DarkPosColors = PosColors(
 object PosDimens {
     val HeaderHeight = 64.dp
     val BottomNavHeight = 80.dp
+    /** Start-edge navigation rail width in the wide shell layout. */
+    val NavigationRailWidth = 76.dp
     val RadiusSm = 8.dp
     val RadiusMd = 10.dp
     val RadiusLg = 12.dp

@@ -1,4 +1,4 @@
-package com.mh.restaurantchainpos.pos.ui
+package com.mh.restaurantchainpos.pos.ui.layout.responsive
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Mirrors the React app's `useIsMobile` hook (Tailwind's `md` breakpoint at 768px).
- * Returns true when the current screen width is below 768dp.
+ * Returns true when the current screen width is below [breakpoint] dp.
  */
 @Composable
 @ReadOnlyComposable

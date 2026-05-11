@@ -21,6 +21,11 @@ class FloorDragMathTest {
     )
 
     @Test
+    fun pointerDeltaConversionDoesNotApplyZoomTwice() {
+        assertEquals(20f, pointerDeltaPxToCanvasDp(deltaPx = 60f, pxPerDp = 3f), 0.001f)
+    }
+
+    @Test
     fun dragPositionUsesTotalGestureDistanceBeforeSnapping() {
         assertEquals(216 to 48, calculateDraggedTablePosition(table, totalDxDp = 11f, totalDyDp = 0f))
         assertEquals(240 to 48, calculateDraggedTablePosition(table, totalDxDp = 12f, totalDyDp = 0f))
