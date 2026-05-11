@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.layout.header
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,7 +63,6 @@ fun PosAppHeader(
             .fillMaxWidth()
             .height(PosDimens.HeaderHeight)
             .background(colors.surface)
-            .border(width = 1.dp, color = colors.headerBorder.copy(alpha = 0.6f))
             .padding(horizontal = horizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
