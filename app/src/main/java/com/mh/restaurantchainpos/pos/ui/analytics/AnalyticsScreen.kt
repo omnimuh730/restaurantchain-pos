@@ -1,4 +1,4 @@
-package com.mh.restaurantchainpos.pos.ui.screens
+package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,14 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mh.restaurantchainpos.pos.ui.analytics.AnalyticsSection
-import com.mh.restaurantchainpos.pos.ui.analytics.AnalyticsSidebar
-import com.mh.restaurantchainpos.pos.ui.analytics.CustomerAnalysisView
-import com.mh.restaurantchainpos.pos.ui.analytics.DashboardView
-import com.mh.restaurantchainpos.pos.ui.analytics.DateRange
-import com.mh.restaurantchainpos.pos.ui.analytics.HistoryView
-import com.mh.restaurantchainpos.pos.ui.analytics.MenuAnalysisView
-import com.mh.restaurantchainpos.pos.ui.analytics.Period
 import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 

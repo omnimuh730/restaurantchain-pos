@@ -1,4 +1,4 @@
-package com.mh.restaurantchainpos.pos.ui.screens
+package com.mh.restaurantchainpos.pos.ui.kitchen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,10 +24,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,142 +32,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
-import com.mh.restaurantchainpos.pos.data.PosMockData
-import com.mh.restaurantchainpos.pos.ui.kitchen.ByItemView
-import com.mh.restaurantchainpos.pos.ui.kitchen.KitchenCard
-import com.mh.restaurantchainpos.pos.ui.kitchen.KitchenSortMode
-import com.mh.restaurantchainpos.pos.ui.kitchen.KitchenViewMode
-import com.mh.restaurantchainpos.pos.ui.kitchen.KitchenViewTab
-import com.mh.restaurantchainpos.pos.ui.kitchen.OrderDetailModal
-import com.mh.restaurantchainpos.pos.ui.kitchen.TableFilterPanel
-import com.mh.restaurantchainpos.pos.ui.kitchen.TableFilterSidebar
-import com.mh.restaurantchainpos.pos.ui.kitchen.rememberKitchenState
-import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
+import com.mh.restaurantchainpos.pos.data.KitchenOrder
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable
-fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) -> Unit) {
-    val state = rememberKitchenState()
-    val visible = state.visibleOrders()
-    val received = state.receivedDistinctItemCount()
-    val inProgress = state.inProgressDistinctItemCount()
-    val completed = state.completedDistinctItemCount()
-    val receivedOrders by remember {
-        derivedStateOf { state.orders.count { it.status == com.mh.restaurantchainpos.pos.data.KitchenStatus.Received } }
-    }
-    val inProgressOrders by remember {
-        derivedStateOf {
-            state.orders.count {
-                it.status == com.mh.restaurantchainpos.pos.data.KitchenStatus.InProgress &&
-                    it.items.any { i -> !i.previouslyCompleted }
-            }
-        }
-    }
-    val completedOrders by remember {
-        derivedStateOf {
-            state.orders.count {
-                it.status == com.mh.restaurantchainpos.pos.data.KitchenStatus.Completed ||
-                    (it.status == com.mh.restaurantchainpos.pos.data.KitchenStatus.InProgress &&
-                        it.items.any { i -> i.previouslyCompleted })
-            }
-        }
-    }
-
-    LaunchedEffect(received) { onReceivedCount(received) }
-    val isMobile = rememberIsMobile()
-
-    Row(Modifier.fillMaxSize()) {
-        if (!isMobile) {
-            TableFilterPanel(
-                colors = colors,
-                selectedTables = state.selectedTables,
-                onToggleTable = { tableId ->
-                    if (state.selectedTables.contains(tableId)) state.selectedTables.remove(tableId)
-                    else state.selectedTables.add(tableId)
-                },
-                onToggleFloor = { floor ->
-                    val all = floor.tables.all { state.selectedTables.contains(it) }
-                    if (all) state.selectedTables.removeAll(floor.tables.toSet())
-                    else floor.tables.forEach { if (!state.selectedTables.contains(it)) state.selectedTables.add(it) }
-                },
-                onToggleAll = {
-                    val allTables = PosMockData.kitchenFloors.flatMap { it.tables }
-                    val all = allTables.all { state.selectedTables.contains(it) }
-                    state.selectedTables.clear()
-                    if (!all) state.selectedTables.addAll(allTables)
-                },
-            )
-        }
-        Box(Modifier.weight(1f).fillMaxHeight()) {
-            Column(Modifier.fillMaxSize()) {
-                KitchenHeader(
-                    colors = colors,
-                    role = role,
-                    state = state,
-                    isMobile = isMobile,
-                    receivedItems = received,
-                    inProgressItems = inProgress,
-                    completedItems = completed,
-                    receivedOrders = receivedOrders,
-                    inProgressOrders = inProgressOrders,
-                    completedOrders = completedOrders,
-                )
-                KitchenContent(
-                    colors = colors,
-                    state = state,
-                    isMobile = isMobile,
-                    visible = visible,
-                )
-            }
-
-            if (isMobile) {
-                TableFilterSidebar(
-                    colors = colors,
-                    open = state.sidebarOpen,
-                    selectedTables = state.selectedTables,
-                    onToggleTable = { tableId ->
-                        if (state.selectedTables.contains(tableId)) state.selectedTables.remove(tableId)
-                        else state.selectedTables.add(tableId)
-                    },
-                    onToggleFloor = { floor ->
-                        val all = floor.tables.all { state.selectedTables.contains(it) }
-                        if (all) state.selectedTables.removeAll(floor.tables.toSet())
-                        else floor.tables.forEach { if (!state.selectedTables.contains(it)) state.selectedTables.add(it) }
-                    },
-                    onToggleAll = {
-                        val allTables = PosMockData.kitchenFloors.flatMap { it.tables }
-                        val all = allTables.all { state.selectedTables.contains(it) }
-                        state.selectedTables.clear()
-                        if (!all) state.selectedTables.addAll(allTables)
-                    },
-                    onClose = { state.sidebarOpen = false },
-                )
-            }
-
-            val detail = state.detailOrderId?.let { id -> state.orders.firstOrNull { it.id == id } }
-            if (detail != null) {
-                OrderDetailModal(
-                    colors = colors,
-                    order = detail,
-                    allOrders = state.orders,
-                    viewTab = state.activeTab,
-                    onClose = { state.detailOrderId = null },
-                    onAccept = state::acceptOrder,
-                    onComplete = state::completeOrder,
-                    onRecall = state::recallOrder,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun KitchenContent(
+internal fun KitchenContent(
     colors: PosColors,
-    state: com.mh.restaurantchainpos.pos.ui.kitchen.KitchenState,
+    state: KitchenState,
     isMobile: Boolean,
-    visible: List<com.mh.restaurantchainpos.pos.data.KitchenOrder>,
+    visible: List<KitchenOrder>,
 ) {
     if (visible.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -216,8 +85,8 @@ private fun KitchenContent(
 @Composable
 private fun OrderCard(
     colors: PosColors,
-    state: com.mh.restaurantchainpos.pos.ui.kitchen.KitchenState,
-    order: com.mh.restaurantchainpos.pos.data.KitchenOrder,
+    state: KitchenState,
+    order: KitchenOrder,
 ) {
     KitchenCard(
         colors = colors,
@@ -233,10 +102,10 @@ private fun OrderCard(
 }
 
 @Composable
-private fun KitchenHeader(
+internal fun KitchenHeader(
     colors: PosColors,
     role: ActiveRole,
-    state: com.mh.restaurantchainpos.pos.ui.kitchen.KitchenState,
+    state: KitchenState,
     isMobile: Boolean,
     receivedItems: Int,
     inProgressItems: Int,

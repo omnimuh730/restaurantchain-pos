@@ -1,4 +1,4 @@
-package com.mh.restaurantchainpos.pos.ui.screens
+package com.mh.restaurantchainpos.pos.ui.floor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,14 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.ReservationType
-import com.mh.restaurantchainpos.pos.ui.floor.FloorCalendarView
-import com.mh.restaurantchainpos.pos.ui.floor.FloorCanvas
-import com.mh.restaurantchainpos.pos.ui.floor.FloorEditMode
-import com.mh.restaurantchainpos.pos.ui.floor.FloorTabsRow
-import com.mh.restaurantchainpos.pos.ui.floor.FloorViewMode
-import com.mh.restaurantchainpos.pos.ui.floor.TableCardView
-import com.mh.restaurantchainpos.pos.ui.floor.TableDrawer
-import com.mh.restaurantchainpos.pos.ui.floor.rememberFloorPlanState
 import com.mh.restaurantchainpos.pos.ui.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.DarkFloorPalette

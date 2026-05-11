@@ -40,11 +40,11 @@ import com.mh.restaurantchainpos.pos.data.roleNavAccess
 import com.mh.restaurantchainpos.pos.ui.auth.LockScreen
 import com.mh.restaurantchainpos.pos.ui.auth.SignInScreen
 import com.mh.restaurantchainpos.pos.ui.auth.SignUpScreen
-import com.mh.restaurantchainpos.pos.ui.screens.AnalyticsScreen
-import com.mh.restaurantchainpos.pos.ui.screens.FloorPlanScreen
-import com.mh.restaurantchainpos.pos.ui.screens.KitchenScreen
-import com.mh.restaurantchainpos.pos.ui.screens.OrdersScreen
-import com.mh.restaurantchainpos.pos.ui.screens.SettingsScreen
+import com.mh.restaurantchainpos.pos.ui.analytics.AnalyticsScreen
+import com.mh.restaurantchainpos.pos.ui.floor.FloorPlanScreen
+import com.mh.restaurantchainpos.pos.ui.kitchen.KitchenScreen
+import com.mh.restaurantchainpos.pos.ui.orders.OrdersScreen
+import com.mh.restaurantchainpos.pos.ui.settings.SettingsScreen
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.DarkPosColors
 import com.mh.restaurantchainpos.pos.ui.theme.LightPosColors

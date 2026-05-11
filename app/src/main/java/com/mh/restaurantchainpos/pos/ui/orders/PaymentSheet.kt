@@ -1,4 +1,4 @@
-package com.mh.restaurantchainpos.pos.ui.screens
+package com.mh.restaurantchainpos.pos.ui.orders
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

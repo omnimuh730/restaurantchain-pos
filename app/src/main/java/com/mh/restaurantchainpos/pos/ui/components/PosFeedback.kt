@@ -5,11 +5,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,8 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
@@ -37,62 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
-
-@Composable
-fun PosCard(
-    colors: PosColors,
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(PosDimens.RadiusLg))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(PosDimens.RadiusLg))
-            .padding(PosDimens.SpaceLg),
-        content = content,
-    )
-}
-
-@Composable
-fun PillButton(
-    text: String,
-    active: Boolean,
-    colors: PosColors,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val bg = if (active) Blue600 else Color.Transparent
-    val fg = if (active) Color.White else colors.textMuted
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(PosDimens.RadiusMd))
-            .background(bg)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = text, color = fg, fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 1)
-    }
-}
-
-@Composable
-fun PosPrimaryButton(
-    text: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-) {
-    Button(
-        modifier = modifier.height(44.dp),
-        enabled = enabled,
-        shape = RoundedCornerShape(PosDimens.RadiusLg),
-        colors = ButtonDefaults.buttonColors(containerColor = Blue600, contentColor = Color.White),
-        onClick = onClick,
-    ) {
-        Text(text = text, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-    }
-}
 
 @Composable
 fun SectionTitle(title: String, subtitle: String = "", colors: PosColors) {
@@ -130,8 +71,9 @@ fun SimpleBars(values: List<Pair<String, Int>>, color: Color, colors: PosColors,
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(label, color = colors.textMuted, fontSize = 11.sp, modifier = Modifier.width(42.dp))
                 Canvas(Modifier.weight(1f).height(9.dp)) {
-                    drawLine(colors.border, start = androidx.compose.ui.geometry.Offset(0f, size.height / 2), end = androidx.compose.ui.geometry.Offset(size.width, size.height / 2), strokeWidth = size.height, cap = StrokeCap.Round)
-                    drawLine(color, start = androidx.compose.ui.geometry.Offset(0f, size.height / 2), end = androidx.compose.ui.geometry.Offset(size.width * value / max, size.height / 2), strokeWidth = size.height, cap = StrokeCap.Round)
+                    val cy = size.height / 2f
+                    drawLine(colors.border, start = Offset(0f, cy), end = Offset(size.width, cy), strokeWidth = size.height, cap = StrokeCap.Round)
+                    drawLine(color, start = Offset(0f, cy), end = Offset(size.width * value / max, cy), strokeWidth = size.height, cap = StrokeCap.Round)
                 }
                 Text(value.toString(), color = colors.text, fontSize = 11.sp, modifier = Modifier.width(42.dp).padding(start = 8.dp))
             }
