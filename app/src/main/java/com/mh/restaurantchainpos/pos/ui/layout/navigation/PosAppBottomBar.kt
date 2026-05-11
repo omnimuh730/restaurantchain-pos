@@ -56,7 +56,7 @@ fun PosAppBottomBar(
             ) {
                 Box(Modifier.size(width = 34.dp, height = 26.dp), contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = posPageNavIcon(item),
+                        painter = posPageNavPainter(item),
                         contentDescription = item.label,
                         tint = if (active) colors.text else colors.navInactive,
                         modifier = Modifier.size(22.dp),
