@@ -26,6 +26,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.GpsFixed
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,8 +42,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.Floor
@@ -45,6 +59,7 @@ import com.mh.restaurantchainpos.pos.data.ReservationType
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Green500
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
@@ -62,14 +77,27 @@ fun FloorCalendarView(
 ) {
     val isMobile = rememberIsMobile()
     var dayOffset by remember { mutableStateOf(0) }
-    var floorId by remember { mutableStateOf(floors.first().id) }
+    val floorId by remember { mutableStateOf(floors.first().id) }
     var panelOpen by remember { mutableStateOf(false) }
     var assigningId by remember { mutableStateOf<String?>(null) }
+    var previewTableId by remember { mutableStateOf<String?>(null) }
     val activeFloor = floors.firstOrNull { it.id == floorId } ?: floors.first()
     val dayReservations = reservations.filter { it.dayOffset == dayOffset }
     val pending = dayReservations.filter { it.type == ReservationType.Request }
     val confirmed = dayReservations.filter { it.type == ReservationType.Confirmed }
     val assigningRez = assigningId?.let { id -> reservations.firstOrNull { it.id == id } }
+    val previewTable = previewTableId?.let { id -> activeFloor.tables.firstOrNull { it.id == id } }
+
+    fun startAssign(rez: Reservation) {
+        assigningId = rez.id
+        previewTableId = null
+        panelOpen = false
+    }
+
+    fun cancelAssign() {
+        assigningId = null
+        previewTableId = null
+    }
 
     Box(Modifier.fillMaxSize().background(palette.bg)) {
         Column(Modifier.fillMaxSize()) {
@@ -85,19 +113,29 @@ fun FloorCalendarView(
                 AssignBanner(
                     palette = palette,
                     reservation = rez,
-                    onCancel = { assigningId = null },
+                    previewTableLabel = previewTable?.label,
+                    onCancel = { cancelAssign() },
+                    onConfirm = {
+                        val tableId = previewTableId
+                        if (tableId != null) {
+                            onAssignTable(rez.id, tableId)
+                            cancelAssign()
+                        }
+                    },
                 )
             }
             Row(Modifier.weight(1f).fillMaxWidth()) {
-                if (!isMobile) {
+                // On desktop the panel docks to the left, but it's hidden during assign mode
+                // so the user can see the highlighted timeline rows clearly.
+                if (!isMobile && assigningRez == null) {
                     CalendarPanel(
                         palette = palette,
                         pending = pending,
                         confirmed = confirmed,
-                        onAccept = onAccept,
+                        onApprove = { startAssign(it) },
                         onDecline = onDecline,
-                        onStartAssign = { assigningId = it.id },
-                        modifier = Modifier.width(280.dp).fillMaxSize(),
+                        onClose = null,
+                        modifier = Modifier.width(320.dp).fillMaxSize(),
                     )
                 }
                 Box(Modifier.weight(1f).fillMaxSize().background(palette.bg)) {
@@ -106,103 +144,113 @@ fun FloorCalendarView(
                         floor = activeFloor,
                         reservations = confirmed,
                         assigningRez = assigningRez,
-                        onAssignToTable = { tableId ->
-                            assigningRez?.let { rez ->
-                                onAssignTable(rez.id, tableId)
-                                assigningId = null
-                            }
-                        },
+                        previewTableId = previewTableId,
+                        onPickTable = { tableId -> previewTableId = tableId },
                     )
                 }
             }
         }
 
-        if (isMobile) {
-            AnimatedVisibility(
-                visible = panelOpen,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color(0x80000000))
-                        .clickable { panelOpen = false },
-                )
-            }
-            AnimatedVisibility(
-                visible = panelOpen,
-                enter = slideInHorizontally(initialOffsetX = { -it }),
-                exit = slideOutHorizontally(targetOffsetX = { -it }),
-            ) {
-                Column(
-                    Modifier
-                        .fillMaxHeight()
-                        .width(320.dp)
-                        .background(palette.card)
-                        .border(1.dp, palette.border),
-                ) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("Reservations", color = palette.text1, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, modifier = Modifier.weight(1f))
-                        Box(
-                            Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .clickable { panelOpen = false },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text("✕", color = palette.text2, fontSize = 14.sp)
-                        }
-                    }
-                    Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
-                    CalendarPanel(
-                        palette = palette,
-                        pending = pending,
-                        confirmed = confirmed,
-                        onAccept = onAccept,
-                        onDecline = onDecline,
-                        onStartAssign = {
-                            assigningId = it.id
-                            panelOpen = false
-                        },
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                    )
-                }
-            }
+        // Slide-over panel — used on mobile, and also on desktop when assigning (since
+        // the side panel is hidden in that case but the user might still want to browse).
+        AnimatedVisibility(
+            visible = panelOpen,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color(0x80000000))
+                    .clickable { panelOpen = false },
+            )
+        }
+        AnimatedVisibility(
+            visible = panelOpen,
+            enter = slideInHorizontally(initialOffsetX = { -it }),
+            exit = slideOutHorizontally(targetOffsetX = { -it }),
+        ) {
+            CalendarPanel(
+                palette = palette,
+                pending = pending,
+                confirmed = confirmed,
+                onApprove = { startAssign(it) },
+                onDecline = { onDecline(it) },
+                onClose = { panelOpen = false },
+                modifier = Modifier.fillMaxHeight().width(if (isMobile) 320.dp else 360.dp),
+            )
         }
     }
 }
 
 @Composable
-private fun AssignBanner(palette: FloorPalette, reservation: Reservation, onCancel: () -> Unit) {
+private fun AssignBanner(
+    palette: FloorPalette,
+    reservation: Reservation,
+    previewTableLabel: String?,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    val confirmPhase = previewTableLabel != null
     Row(
         Modifier
             .fillMaxWidth()
-            .background(Blue500.copy(alpha = 0.1f))
+            .background(Blue500.copy(alpha = 0.08f))
             .border(1.dp, Blue500.copy(alpha = 0.3f))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text("⌖", color = Blue500, fontSize = 14.sp)
-        Text(
-            "Assign ${reservation.guestName} (${reservation.partySize}P · ${reservation.startTime}) — tap a table row",
-            color = palette.text1,
-            fontSize = 12.sp,
-            modifier = Modifier.weight(1f),
+        Icon(
+            imageVector = Icons.Outlined.GpsFixed,
+            contentDescription = null,
+            tint = Blue600,
+            modifier = Modifier.size(16.dp),
         )
+        Column(Modifier.weight(1f)) {
+            if (confirmPhase) {
+                Text(
+                    "Confirm ${reservation.guestName} → Table $previewTableLabel",
+                    color = palette.text1,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            } else {
+                Text(
+                    "Assign ${reservation.guestName} (${reservation.partySize}P, ${reservation.startTime})",
+                    color = palette.text1,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    "Click a highlighted table row",
+                    color = palette.text2,
+                    fontSize = 11.sp,
+                )
+            }
+        }
+        if (confirmPhase) {
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Blue600)
+                    .clickable(onClick = onConfirm)
+                    .padding(horizontal = 12.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+                Spacer(Modifier.width(5.dp))
+                Text("Confirm", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
         Box(
             Modifier
-                .clip(RoundedCornerShape(6.dp))
-                .clickable(onClick = onCancel)
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .size(28.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onCancel),
+            contentAlignment = Alignment.Center,
         ) {
-            Text("✕ Cancel", color = palette.text2, fontSize = 11.sp)
+            Icon(Icons.Outlined.Close, contentDescription = "Cancel", tint = palette.text2, modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -225,28 +273,25 @@ private fun CalendarHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (isMobile) {
-            Box(
-                Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .clickable(onClick = onMenuClick),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(contentAlignment = Alignment.TopEnd) {
-                    Text("☰", color = palette.text2, fontSize = 18.sp)
-                    if (pendingCount > 0) {
-                        Box(
-                            Modifier
-                                .padding(top = 2.dp, end = 2.dp)
-                                .size(14.dp)
-                                .clip(CircleShape)
-                                .background(Amber500),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text("$pendingCount", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
+        Box(
+            Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onMenuClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(Icons.Outlined.Menu, contentDescription = "Reservations", tint = palette.text2, modifier = Modifier.size(20.dp))
+            if (pendingCount > 0) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 2.dp, end = 2.dp)
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(Amber500),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("$pendingCount", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -294,51 +339,50 @@ private fun CalendarPanel(
     palette: FloorPalette,
     pending: List<Reservation>,
     confirmed: List<Reservation>,
-    onAccept: (Reservation) -> Unit,
+    onApprove: (Reservation) -> Unit,
     onDecline: (Reservation) -> Unit,
-    onStartAssign: (Reservation) -> Unit,
+    onClose: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.background(palette.card).border(1.dp, palette.border)) {
-        Text(
-            "Requests · ${pending.size}",
-            color = palette.text2,
-            fontSize = 11.sp,
-            modifier = Modifier
+        Row(
+            Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-        )
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Reservations", color = palette.text1, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, modifier = Modifier.weight(1f))
+            if (onClose != null) {
+                Box(
+                    Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onClose),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.Outlined.Close, contentDescription = "Close", tint = palette.text2, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
         Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
+        SectionHeader(palette, "Requests", pending.size, Amber500)
         LazyColumn(Modifier.weight(1f)) {
             items(pending) { reservation ->
-                ReservationRow(palette, reservation, isRequest = true) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        ActionPill("Accept", Color.White, Blue500) { onAccept(reservation) }
-                        ActionPill("Assign", palette.text1, palette.raised) { onStartAssign(reservation) }
-                        ActionPill("Decline", Color(0xFFEF4444), Color(0x14EF4444)) { onDecline(reservation) }
-                    }
-                }
-            }
-            item {
-                Text(
-                    "Confirmed · ${confirmed.size}",
-                    color = palette.text2,
-                    fontSize = 11.sp,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                RequestCard(
+                    palette = palette,
+                    reservation = reservation,
+                    onApprove = { onApprove(reservation) },
+                    onDecline = { onDecline(reservation) },
                 )
-                Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
             }
-            items(confirmed) { reservation ->
-                ReservationRow(palette, reservation, isRequest = false) {
-                    Text(reservation.status.ifBlank { "Confirmed" }, color = palette.text2, fontSize = 11.sp)
-                }
-            }
+            item { SectionHeader(palette, "Confirmed", confirmed.size, Green500) }
+            items(confirmed) { reservation -> ConfirmedRow(palette, reservation) }
             if (pending.isEmpty() && confirmed.isEmpty()) {
                 item {
                     Text(
                         "No reservations on this day.",
                         color = palette.text3,
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         modifier = Modifier.fillMaxWidth().padding(24.dp),
                     )
                 }
@@ -348,42 +392,128 @@ private fun CalendarPanel(
 }
 
 @Composable
-private fun ReservationRow(
-    palette: FloorPalette,
-    reservation: Reservation,
-    isRequest: Boolean,
-    trailing: @Composable () -> Unit,
-) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(CircleShape).background(if (isRequest) Amber500 else Green500))
-            Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f)) {
-                Text(reservation.guestName, color = palette.text1, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Text(
-                    "${reservation.startTime} · party ${reservation.partySize} · ${reservation.durationHours}h",
-                    color = palette.text2,
-                    fontSize = 11.sp,
-                )
-            }
-            Text(reservation.tableId.ifBlank { "—" }, color = palette.text3, fontSize = 12.sp)
+private fun SectionHeader(palette: FloorPalette, title: String, count: Int, dotColor: Color) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(dotColor))
+        Spacer(Modifier.width(8.dp))
+        Text(title, color = palette.text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        Box(
+            Modifier
+                .clip(CircleShape)
+                .background(dotColor.copy(alpha = 0.15f))
+                .padding(horizontal = 8.dp, vertical = 2.dp),
+        ) {
+            Text("$count", color = dotColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
-        Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { trailing() }
     }
-    Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border.copy(alpha = 0.5f)))
 }
 
 @Composable
-private fun ActionPill(label: String, contentColor: Color, background: Color, onClick: () -> Unit) {
+private fun RequestCard(
+    palette: FloorPalette,
+    reservation: Reservation,
+    onApprove: () -> Unit,
+    onDecline: () -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(palette.raised)
+            .border(1.dp, palette.border, RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(8.dp).clip(CircleShape).background(Amber500))
+            Spacer(Modifier.width(8.dp))
+            Text(reservation.guestName, color = palette.text1, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(7.dp))
+                    .background(Blue500.copy(alpha = 0.12f))
+                    .clickable(onClick = onApprove)
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Blue600, modifier = Modifier.size(13.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Approve", color = Blue600, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Spacer(Modifier.width(6.dp))
+            Box(
+                Modifier
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = onDecline),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.Outlined.Close, contentDescription = "Decline", tint = palette.text3, modifier = Modifier.size(14.dp))
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            ChipText(palette, dayLabel(reservation.dayOffset))
+            ChipText(palette, "⏱ ${reservation.startTime}")
+            ChipText(palette, "${reservation.partySize}P")
+            ChipText(palette, formatHours(reservation.durationHours))
+            if (reservation.tableId.isNotBlank()) {
+                ChipText(palette, "Table ${reservation.tableId.removePrefix("T")}", emphasize = true)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConfirmedRow(palette: FloorPalette, reservation: Reservation) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(Green500))
+        Spacer(Modifier.width(8.dp))
+        Column(Modifier.weight(1f)) {
+            Text(reservation.guestName, color = palette.text1, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            Text(
+                "${reservation.startTime} · ${reservation.partySize}P · ${formatHours(reservation.durationHours)}",
+                color = palette.text2,
+                fontSize = 11.sp,
+            )
+        }
+        if (reservation.tableId.isNotBlank()) {
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Blue500.copy(alpha = 0.12f))
+                    .padding(horizontal = 8.dp, vertical = 3.dp),
+            ) {
+                Text("Table ${reservation.tableId.removePrefix("T")}", color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChipText(palette: FloorPalette, text: String, emphasize: Boolean = false) {
     Box(
         Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(background)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 6.dp),
+            .clip(RoundedCornerShape(6.dp))
+            .background(if (emphasize) Blue500.copy(alpha = 0.12f) else palette.card)
+            .padding(horizontal = 7.dp, vertical = 3.dp),
     ) {
-        Text(label, color = contentColor, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(
+            text,
+            color = if (emphasize) Blue600 else palette.text2,
+            fontSize = 11.sp,
+            fontWeight = if (emphasize) FontWeight.SemiBold else FontWeight.Medium,
+        )
     }
 }
 
@@ -393,7 +523,8 @@ private fun CalendarTimeline(
     floor: Floor,
     reservations: List<Reservation>,
     assigningRez: Reservation? = null,
-    onAssignToTable: (String) -> Unit = {},
+    previewTableId: String? = null,
+    onPickTable: (String) -> Unit = {},
 ) {
     val hScroll = rememberScrollState()
     Column(Modifier.fillMaxSize().background(palette.bg)) {
@@ -407,20 +538,28 @@ private fun CalendarTimeline(
             Spacer(Modifier.width(96.dp))
             Hours.forEach { hour ->
                 Box(Modifier.width(72.dp), contentAlignment = Alignment.Center) {
-                    Text("${hour.toString().padStart(2, '0')}:00", color = palette.text2, fontSize = 11.sp)
+                    Text("${hour.toString().padStart(2, '0')}:00", color = palette.text2, fontSize = 12.sp)
                 }
             }
         }
         LazyColumn(Modifier.weight(1f)) {
             items(floor.tables) { table ->
-                val canAssign = assigningRez != null && table.seats >= assigningRez.partySize
-                val rowBg = if (canAssign) Blue500.copy(alpha = 0.06f) else Color.Transparent
+                val isPreview = previewTableId == table.id
+                val canPick = assigningRez != null &&
+                    previewTableId == null &&
+                    table.seats >= assigningRez.partySize
+                val dimmed = assigningRez != null && previewTableId != null && !isPreview
+                val rowBg = when {
+                    isPreview -> Blue500.copy(alpha = 0.10f)
+                    canPick -> Blue500.copy(alpha = 0.05f)
+                    else -> Color.Transparent
+                }
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .background(rowBg)
                         .border(1.dp, palette.border.copy(alpha = 0.4f))
-                        .then(if (canAssign) Modifier.clickable { onAssignToTable(table.id) } else Modifier)
+                        .then(if (canPick) Modifier.clickable { onPickTable(table.id) } else Modifier)
                         .horizontalScroll(hScroll),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -428,13 +567,43 @@ private fun CalendarTimeline(
                         Modifier
                             .width(96.dp)
                             .height(40.dp)
-                            .background(if (canAssign) Blue500.copy(alpha = 0.15f) else palette.card)
+                            .background(
+                                when {
+                                    isPreview -> Blue600
+                                    canPick -> Blue500.copy(alpha = 0.15f)
+                                    else -> palette.card
+                                },
+                            )
                             .padding(horizontal = 12.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
-                        Column {
-                            Text(table.label, color = palette.text1, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                            if (canAssign) Text("✓ assignable", color = Blue500, fontSize = 9.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                table.label,
+                                color = when {
+                                    isPreview -> Color.White
+                                    canPick -> Blue600
+                                    dimmed -> palette.text3
+                                    else -> palette.text1
+                                },
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                "(${table.seats})",
+                                color = when {
+                                    isPreview -> Color.White.copy(alpha = 0.8f)
+                                    canPick -> Blue600.copy(alpha = 0.7f)
+                                    dimmed -> palette.text3
+                                    else -> palette.text2
+                                },
+                                fontSize = 11.sp,
+                            )
+                            if (canPick) {
+                                Spacer(Modifier.width(4.dp))
+                                Box(Modifier.size(6.dp).clip(CircleShape).background(Blue500))
+                            }
                         }
                     }
                     Box(Modifier.height(40.dp)) {
@@ -448,30 +617,13 @@ private fun CalendarTimeline(
                                 )
                             }
                         }
+                        // Existing confirmed reservations on this table.
                         reservations.filter { it.tableId == table.id }.forEach { reservation ->
-                            val startHour = reservation.startTime.substringBefore(":").toIntOrNull() ?: 0
-                            val startMin = reservation.startTime.substringAfter(":", "0").toIntOrNull() ?: 0
-                            val offsetHours = (startHour - Hours.first()).coerceAtLeast(0)
-                            val offsetXdp = (offsetHours * 72) + ((startMin / 60f) * 72f).toInt()
-                            val widthDp = (reservation.durationHours * 72).toInt()
-                            Box(
-                                Modifier
-                                    .padding(start = offsetXdp.dp, top = 4.dp, bottom = 4.dp)
-                                    .width(widthDp.dp)
-                                    .height(32.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(reservationColor(reservation).copy(alpha = 0.2f))
-                                    .border(1.dp, reservationColor(reservation), RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 6.dp),
-                                contentAlignment = Alignment.CenterStart,
-                            ) {
-                                Text(
-                                    "${reservation.guestName} · ${reservation.startTime}",
-                                    color = reservationColor(reservation),
-                                    fontSize = 10.sp,
-                                    maxLines = 1,
-                                )
-                            }
+                            ReservationBlock(reservation = reservation, dimmed = dimmed)
+                        }
+                        // Dashed preview placement once the user has picked this table.
+                        if (isPreview && assigningRez != null) {
+                            ReservationPreviewBlock(reservation = assigningRez)
                         }
                     }
                 }
@@ -479,6 +631,80 @@ private fun CalendarTimeline(
         }
     }
 }
+
+@Composable
+private fun ReservationBlock(reservation: Reservation, dimmed: Boolean) {
+    val color = reservationColor(reservation)
+    val startHour = reservation.startTime.substringBefore(":").toIntOrNull() ?: 0
+    val startMin = reservation.startTime.substringAfter(":", "0").toIntOrNull() ?: 0
+    val offsetHours = (startHour - Hours.first()).coerceAtLeast(0)
+    val offsetXdp = (offsetHours * 72) + ((startMin / 60f) * 72f).toInt()
+    val widthDp = (reservation.durationHours * 72).toInt()
+    val alpha = if (dimmed) 0.4f else 1f
+    Box(
+        Modifier
+            .padding(start = offsetXdp.dp, top = 4.dp, bottom = 4.dp)
+            .width(widthDp.dp)
+            .height(32.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(color.copy(alpha = 0.18f * alpha))
+            .border(1.dp, color.copy(alpha = alpha), RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Text(
+            "${reservation.guestName} · ${reservation.startTime}",
+            color = color.copy(alpha = if (dimmed) 0.6f else 1f),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun ReservationPreviewBlock(reservation: Reservation) {
+    val startHour = reservation.startTime.substringBefore(":").toIntOrNull() ?: 0
+    val startMin = reservation.startTime.substringAfter(":", "0").toIntOrNull() ?: 0
+    val offsetHours = (startHour - Hours.first()).coerceAtLeast(0)
+    val offsetXdp = (offsetHours * 72) + ((startMin / 60f) * 72f).toInt()
+    val widthDp = (reservation.durationHours * 72).toInt()
+    Box(
+        Modifier
+            .padding(start = offsetXdp.dp, top = 4.dp, bottom = 4.dp)
+            .width(widthDp.dp)
+            .height(32.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Blue500.copy(alpha = 0.10f))
+            .dashedBorder(color = Blue600, strokeWidth = 1.5.dp, cornerRadius = 8.dp)
+            .padding(horizontal = 8.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Text(
+            reservation.guestName,
+            color = Blue600,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+        )
+    }
+}
+
+private fun Modifier.dashedBorder(color: Color, strokeWidth: Dp, cornerRadius: Dp): Modifier =
+    this.drawBehind {
+        val w = strokeWidth.toPx()
+        val r = cornerRadius.toPx()
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(w / 2, w / 2),
+            size = Size(size.width - w, size.height - w),
+            cornerRadius = CornerRadius(r, r),
+            style = Stroke(
+                width = w,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 5f), 0f),
+            ),
+        )
+    }
 
 private fun reservationColor(reservation: Reservation): Color = when {
     reservation.status == "NO_SHOW" -> Red500
@@ -497,4 +723,10 @@ private fun dayLabel(offset: Int): String = when (offset) {
 private fun dayDate(offset: Int): String {
     val day = (15 + offset).coerceAtLeast(1)
     return "May $day, 2026"
+}
+
+private fun formatHours(hours: Double): String {
+    val intPart = hours.toInt()
+    val frac = hours - intPart
+    return if (frac == 0.0) "${intPart}h" else "${intPart}.${(frac * 10).toInt()}h"
 }

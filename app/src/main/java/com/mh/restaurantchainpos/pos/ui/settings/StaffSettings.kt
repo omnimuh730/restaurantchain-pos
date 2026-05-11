@@ -3,6 +3,7 @@ package com.mh.restaurantchainpos.pos.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +62,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.data.StaffMember
+import com.mh.restaurantchainpos.pos.ui.components.PosNotificationHost
+import com.mh.restaurantchainpos.pos.ui.components.rememberPosNotificationHostState
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -162,6 +165,7 @@ fun StaffSettings(colors: PosColors) {
     var confirmRequest by remember { mutableStateOf<ConfirmRequest?>(null) }
     var tempPinFor by remember { mutableStateOf<String?>(null) }
     var registerOpen by remember { mutableStateOf(false) }
+    val notifications = rememberPosNotificationHostState()
 
     val pending = staff.filter { it.status == "pending" }
     val nonPending = staff.filter { it.status != "pending" }
@@ -176,95 +180,109 @@ fun StaffSettings(colors: PosColors) {
     val inactiveCount = staff.count { it.status == "inactive" }
     val pendingCount = pending.size
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // Header card
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(colors.surface)
-                .border(1.dp, colors.border, RoundedCornerShape(12.dp))
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Outlined.Group, contentDescription = null, tint = Blue500, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.size(10.dp))
-            Column(Modifier.weight(1f)) {
-                Text("Staff Management", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(2.dp))
-                Text("Register staff and manage permissions", color = colors.textMuted, fontSize = 12.sp)
-            }
-            PrimaryButton(
-                label = "Register Staff",
-                onClick = { registerOpen = true },
-                leadingIcon = Icons.Outlined.Add,
-            )
-        }
-
-        // Stats row
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StaffStatCard(colors, "Total", staff.size, Icons.Outlined.Group, Blue500, Modifier.weight(1f))
-            StaffStatCard(colors, "Active", activeCount, Icons.Outlined.Check, Blue500, Modifier.weight(1f))
-            StaffStatCard(colors, "Inactive", inactiveCount, Icons.Outlined.Close, Slate400, Modifier.weight(1f))
-            StaffStatCard(colors, "Pending", pendingCount, Icons.Outlined.Schedule, Amber500, Modifier.weight(1f))
-        }
-
-        // Pending Requests
-        if (pending.isNotEmpty()) {
-            PendingRequestsCard(
-                colors = colors,
-                pending = pending,
-                onApprove = { member ->
-                    val idx = staff.indexOfFirst { it.id == member.id }
-                    if (idx >= 0) staff[idx] = staff[idx].copy(status = "active")
-                },
-                onReject = { member -> staff.removeAll { it.id == member.id } },
-            )
-        }
-
-        // Search
-        SettingTextField(
-            colors = colors,
-            value = search,
-            onChange = { search = it },
-            placeholder = "Search by name, username or card ID...",
-            leadingIcon = Icons.Outlined.Search,
-        )
-
-        // Role filters
-        RoleFilters(
-            colors = colors,
-            roleCounts = Roles.associateWith { r -> nonPending.count { it.role == r } },
-            allCount = nonPending.size,
-            active = roleFilter,
-            onChange = { roleFilter = it },
-        )
-
-        // Staff cards
-        filtered.forEach { member ->
-            StaffCard(
-                colors = colors,
-                member = member,
-                tempPin = if (tempPinFor == member.id) "123456" else null,
-                onPermissions = { permissionsTarget = member },
-                onToggleStatus = {
-                    confirmRequest = ConfirmRequest(
-                        if (member.status == "active") ConfirmKind.Deactivate else ConfirmKind.Activate,
-                        member,
-                    )
-                },
-                onResetPin = { confirmRequest = ConfirmRequest(ConfirmKind.ResetPin, member) },
-                onRemove = { confirmRequest = ConfirmRequest(ConfirmKind.Remove, member) },
-            )
-        }
-        if (filtered.isEmpty()) {
-            Box(
-                Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                contentAlignment = Alignment.Center,
+    Box(Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Header card
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.surface)
+                    .border(1.dp, colors.border, RoundedCornerShape(12.dp))
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("No matching staff", color = colors.textMuted, fontSize = 13.sp)
+                Icon(Icons.Outlined.Group, contentDescription = null, tint = Blue500, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.size(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("Staff Management", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(2.dp))
+                    Text("Register staff and manage permissions", color = colors.textMuted, fontSize = 12.sp)
+                }
+                PrimaryButton(
+                    label = "Register Staff",
+                    onClick = { registerOpen = true },
+                    leadingIcon = Icons.Outlined.Add,
+                )
+            }
+
+            // Stats row
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StaffStatCard(colors, "Total", staff.size, Icons.Outlined.Group, Blue500, Modifier.weight(1f))
+                StaffStatCard(colors, "Active", activeCount, Icons.Outlined.Check, Blue500, Modifier.weight(1f))
+                StaffStatCard(colors, "Inactive", inactiveCount, Icons.Outlined.Close, Slate400, Modifier.weight(1f))
+                StaffStatCard(colors, "Pending", pendingCount, Icons.Outlined.Schedule, Amber500, Modifier.weight(1f))
+            }
+
+            // Pending Requests
+            if (pending.isNotEmpty()) {
+                PendingRequestsCard(
+                    colors = colors,
+                    pending = pending,
+                    onApprove = { member ->
+                        val idx = staff.indexOfFirst { it.id == member.id }
+                        if (idx >= 0) {
+                            staff[idx] = staff[idx].copy(status = "active")
+                            notifications.success(
+                                title = "Staff approved",
+                                message = "${member.name} can now access the POS as ${member.role}.",
+                            )
+                        }
+                    },
+                    onReject = { member -> staff.removeAll { it.id == member.id } },
+                )
+            }
+
+            // Search
+            SettingTextField(
+                colors = colors,
+                value = search,
+                onChange = { search = it },
+                placeholder = "Search by name, username or card ID...",
+                leadingIcon = Icons.Outlined.Search,
+            )
+
+            // Role filters
+            RoleFilters(
+                colors = colors,
+                roleCounts = Roles.associateWith { r -> nonPending.count { it.role == r } },
+                allCount = nonPending.size,
+                active = roleFilter,
+                onChange = { roleFilter = it },
+            )
+
+            // Staff cards
+            filtered.forEach { member ->
+                StaffCard(
+                    colors = colors,
+                    member = member,
+                    tempPin = if (tempPinFor == member.id) "123456" else null,
+                    onPermissions = { permissionsTarget = member },
+                    onToggleStatus = {
+                        confirmRequest = ConfirmRequest(
+                            if (member.status == "active") ConfirmKind.Deactivate else ConfirmKind.Activate,
+                            member,
+                        )
+                    },
+                    onResetPin = { confirmRequest = ConfirmRequest(ConfirmKind.ResetPin, member) },
+                    onRemove = { confirmRequest = ConfirmRequest(ConfirmKind.Remove, member) },
+                )
+            }
+            if (filtered.isEmpty()) {
+                Box(
+                    Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("No matching staff", color = colors.textMuted, fontSize = 13.sp)
+                }
             }
         }
+
+        PosNotificationHost(
+            state = notifications,
+            colors = colors,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
     }
 
     permissionsTarget?.let { member ->
@@ -485,8 +503,10 @@ private fun RoleFilters(
     onChange: (String) -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         RolePill(
             colors = colors,
@@ -494,7 +514,6 @@ private fun RoleFilters(
             icon = null,
             selected = active == "all",
             onClick = { onChange("all") },
-            modifier = Modifier.weight(1f, fill = false),
         )
         Roles.forEach { r ->
             RolePill(
@@ -503,7 +522,6 @@ private fun RoleFilters(
                 icon = RoleConfigs[r]?.icon,
                 selected = active == r,
                 onClick = { onChange(if (active == r) "all" else r) },
-                modifier = Modifier.weight(1f, fill = false),
             )
         }
     }
@@ -535,7 +553,14 @@ private fun RolePill(
                 Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(13.dp))
                 Spacer(Modifier.size(5.dp))
             }
-            Text(label, color = textColor, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            Text(
+                label,
+                color = textColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            )
         }
     }
 }
