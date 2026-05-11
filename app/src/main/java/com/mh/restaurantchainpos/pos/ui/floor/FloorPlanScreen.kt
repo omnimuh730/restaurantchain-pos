@@ -130,6 +130,7 @@ fun FloorPlanScreen(
                 FloorViewMode.Calendar -> FloorCalendarView(
                     palette = palette,
                     floors = state.floors,
+                    activeFloorId = state.activeFloorId,
                     reservations = state.reservations,
                     onAccept = { reservation ->
                         val idx = state.reservations.indexOfFirst { it.id == reservation.id }

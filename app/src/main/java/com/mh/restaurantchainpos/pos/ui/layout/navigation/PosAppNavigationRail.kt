@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -59,15 +61,24 @@ fun PosAppNavigationRail(
                         .clickable { onSelect(item) }
                         .padding(horizontal = 6.dp, vertical = 10.dp),
                 ) {
-                    Box(Modifier.size(width = 34.dp, height = 26.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
                         Icon(
                             painter = posPageNavPainter(item),
                             contentDescription = item.label,
                             tint = if (active) colors.text else colors.navInactive,
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                         if (badge > 0) {
-                            CountBadge(count = badge, modifier = Modifier.align(Alignment.TopEnd), size = 16.dp)
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = 4.dp, y = (-4).dp)
+                                    .clip(CircleShape)
+                                    .background(colors.navBackground)
+                                    .padding(2.dp),
+                            ) {
+                                CountBadge(count = badge, size = 16.dp)
+                            }
                         }
                     }
                     Text(

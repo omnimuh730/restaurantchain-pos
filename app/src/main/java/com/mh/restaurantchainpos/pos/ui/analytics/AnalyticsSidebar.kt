@@ -104,11 +104,6 @@ private fun SidebarContent(
             .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("⚙", color = text2, fontSize = 14.sp)
-            Spacer(Modifier.width(8.dp))
-            Text("Analytics", color = text1, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-        }
         Spacer(Modifier.height(8.dp))
         AnalyticsSection.entries.forEach { section ->
             val isActive = section == active
