@@ -1,0 +1,604 @@
+﻿> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+.\gradlew : e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/Anal
+yticsData.kt:73:22 Unresolved reference 'Period'.
+At C:\Users\Administrator\AppData\Local\Temp\ps-script-2de0114d-f005-4a2a-af78-c9a777537c30.ps1:107 char:1
++ .\gradlew :app:compileDebugKotlin 2>&1 | Out-File -FilePath build_log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///D:/S...rence 'Period'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:73:50 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:74:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:75:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:76:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:77:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:77:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:80:26 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:80:50 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:81:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:81:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:81:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:82:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:82:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:82:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:83:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:83:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:83:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:84:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:84:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:84:24 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:85:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:85:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:85:23 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:87:27 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:87:51 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:88:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:88:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:88:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:89:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:89:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:89:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:90:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:90:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:90:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:91:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:91:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:91:24 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:92:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:92:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), DashboardKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:92:23 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:114:19 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:122:83 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:123:87 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:124:74 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:125:72 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:126:72 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:127:82 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:128:82 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:129:69 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:130:75 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:131:68 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:132:74 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:133:74 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:134:64 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:135:74 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:136:70 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:137:64 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:138:74 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:139:74 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:140:60 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:141:71 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:144:23 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:144:41 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:145:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:146:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:147:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:148:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:148:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:180:26 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:180:49 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:181:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:181:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), CustomerKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:181:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:182:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:182:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), CustomerKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:182:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:183:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:183:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), CustomerKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:183:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:184:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:184:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), CustomerKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:184:24 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:185:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:185:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), CustomerKpi>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:185:23 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:188:30 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:188:63 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:189:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:189:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<CustomerSegment>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:189:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:190:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:190:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<CustomerSegment>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:190:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:191:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:191:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<CustomerSegment>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:191:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:192:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:192:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<CustomerSegment>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:192:24 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:193:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:193:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<CustomerSegment>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:193:23 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:196:32 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:196:67 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:197:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:197:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<VisitFrequencyRow>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:197:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:204:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:204:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<VisitFrequencyRow>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:204:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:211:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:211:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<VisitFrequencyRow>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:211:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:218:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:218:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<VisitFrequencyRow>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:218:24 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:225:9 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:225:9 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'Pair<uninferred K (of fun <K, V> mapOf), List<VisitFrequencyRow>>' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:225:23 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:284:19 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:284:39 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:408:61 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:409:60 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:410:61 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:451:61 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:452:56 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:453:58 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:454:61 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:550:60 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:551:61 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:552:61 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsData.kt
+:553:57 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsFormat.
+kt:23:25 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsFormat.
+kt:24:9 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsFormat.
+kt:25:13 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsFormat.
+kt:26:13 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:43:13 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:44:16 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:80:64 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:92:13 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:93:16 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:113:9 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:113:44 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:115:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:125:30 Unresolved reference 'icon'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:138:33 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:138:61 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:139:5 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:140:5 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:141:5 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsSidebar
+.kt:142:5 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/AnalyticsTypes.k
+t:26:1 Syntax error: Unclosed comment.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:35:13 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:36:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:37:12 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:38:21 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:50:58 No value passed for parameter 'property'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:51:65 No value passed for parameter 'property'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/CustomerAnalysis
+View.kt:52:69 No value passed for parameter 'property'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:33:13 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:34:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:35:12 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:36:21 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:48:54 No value passed for parameter 'property'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:49:53 No value passed for parameter 'property'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:217:25 Unresolved reference 'width'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DashboardView.kt
+:271:25 Unresolved reference 'width'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:53:13 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:54:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:55:12 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:56:21 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:132:55 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:133:69 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:133:87 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:159:43 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:160:45 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:164:36 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:167:40 Unresolved reference 'startMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:167:57 Unresolved reference 'endMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:168:40 Unresolved reference 'startMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:168:70 Unresolved reference 'endMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:187:59 Unresolved reference 'add'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:188:28 Unresolved reference 'timeInMillis'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:199:35 Unresolved reference 'startMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:200:33 Unresolved reference 'endMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:204:31 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:205:32 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:226:39 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:228:72 Unresolved reference 'startMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/DateFilterBar.kt
+:229:70 Unresolved reference 'endMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:5
+5:13 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:5
+6:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:5
+7:12 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:5
+8:21 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+5:24 Function 'component1()' is ambiguous for this expression: 
+fun <T> Array<out T>.component1(): T
+fun ByteArray.component1(): Byte
+fun ShortArray.component1(): Short
+fun IntArray.component1(): Int
+fun LongArray.component1(): Long
+fun FloatArray.component1(): Float
+fun DoubleArray.component1(): Double
+fun BooleanArray.component1(): Boolean
+fun CharArray.component1(): Char
+fun <T> List<T>.component1(): T
+fun <K, V> Map.Entry<K, V>.component1(): K
+fun UIntArray.component1(): UInt
+fun ULongArray.component1(): ULong
+fun UByteArray.component1(): UByte
+fun UShortArray.component1(): UShort.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+5:24 Function 'component2()' is ambiguous for this expression: 
+fun <T> Array<out T>.component2(): T
+fun ByteArray.component2(): Byte
+fun ShortArray.component2(): Short
+fun IntArray.component2(): Int
+fun LongArray.component2(): Long
+fun FloatArray.component2(): Float
+fun DoubleArray.component2(): Double
+fun BooleanArray.component2(): Boolean
+fun CharArray.component2(): Char
+fun <T> List<T>.component2(): T
+fun <K, V> Map.Entry<K, V>.component2(): V
+fun UIntArray.component2(): UInt
+fun ULongArray.component2(): ULong
+fun UByteArray.component2(): UByte
+fun UShortArray.component2(): UShort.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+6:26 Argument type mismatch: actual type is 'Pair<uninferred A (of fun <A, B> A.to), uninferred B (of fun <A, B> 
+A.to)>', but 'K (of fun <K> WHEN_CALL)' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+6:32 Unresolved reference 'startMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+6:40 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+6:49 Unresolved reference 'endMs'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+7:19 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+7:35 Argument type mismatch: actual type is 'Pair<Long, Long>', but 'K (of fun <K> WHEN_CALL)' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+8:19 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+8:34 Argument type mismatch: actual type is 'Pair<Long, Long>', but 'K (of fun <K> WHEN_CALL)' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+9:19 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:7
+9:35 Argument type mismatch: actual type is 'Pair<Long, Long>', but 'K (of fun <K> WHEN_CALL)' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:8
+0:19 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:8
+0:37 Argument type mismatch: actual type is 'Pair<Long, Long>', but 'K (of fun <K> WHEN_CALL)' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:8
+1:17 Argument type mismatch: actual type is 'Pair<Long, Long>', but 'K (of fun <K> WHEN_CALL)' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:8
+6:19 Argument type mismatch: actual type is 'Long', but 'Double' was expected.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:5
+01:72 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:5
+02:72 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:6
+02:49 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:6
+03:5 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:6
+04:9 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/HistoryView.kt:6
+05:9 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/MenuAnalysisView
+.kt:41:13 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/MenuAnalysisView
+.kt:42:22 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/MenuAnalysisView
+.kt:43:12 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/MenuAnalysisView
+.kt:44:21 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/analytics/MenuAnalysisView
+.kt:63:63 Unresolved reference 'AnalyticsCurrency'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:32:51 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:36:51 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:39:51 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:20 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:20 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:20 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:20 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:31 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:31 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:45:46 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:19 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:19 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:19 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:19 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:30 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:30 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:46:45 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:47:18 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:47:18 Not enough information to infer type argument for 'T'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:47:44 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:47:56 Null cannot be a value of a non-null type 'uninferred T (of fun <T> mutableStateOf)'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:63:28 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:90:29 Unresolved reference 'label'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:105:25 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:107:46 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:109:45 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:112:25 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:114:46 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:116:45 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:119:25 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:121:46 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:123:45 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:126:25 Unresolved reference 'AnalyticsSection'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:128:46 Unresolved reference 'Period'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:130:45 Unresolved reference 'DateRange'.
+e: file:///D:/Startup/restaurantchain-pos/app/src/main/java/com/mh/restaurantchainpos/pos/ui/screens/AnalyticsScreen.kt
+:139:36 Unresolved reference 'AnalyticsSection'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+6 actionable tasks: 1 executed, 5 up-to-date
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 3s
