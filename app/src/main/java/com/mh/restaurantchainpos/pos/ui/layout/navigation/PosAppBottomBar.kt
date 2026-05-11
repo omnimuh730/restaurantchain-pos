@@ -10,18 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.PosPage
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import com.mh.restaurantchainpos.pos.ui.components.CountBadge
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
 
@@ -52,22 +49,15 @@ fun PosAppBottomBar(
                     .padding(vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Box(contentAlignment = Alignment.TopEnd) {
-                    Text(
-                        posPageNavGlyph(item),
-                        color = if (active) colors.text else colors.navInactive,
-                        fontSize = 21.sp,
-                        fontWeight = FontWeight.Bold,
+                Box(Modifier.size(width = 34.dp, height = 26.dp), contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = posPageNavIcon(item),
+                        contentDescription = item.label,
+                        tint = if (active) colors.text else colors.navInactive,
+                        modifier = Modifier.size(22.dp),
                     )
                     if (badge > 0) {
-                        Box(Modifier.size(18.dp).clip(CircleShape).background(Blue600), contentAlignment = Alignment.Center) {
-                            Text(
-                                if (badge > 99) "99+" else badge.toString(),
-                                color = Color.White,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
+                        CountBadge(count = badge, modifier = Modifier.align(Alignment.TopEnd))
                     }
                 }
                 Text(item.label, color = if (active) colors.text else colors.navInactive, fontSize = 11.sp, maxLines = 1)

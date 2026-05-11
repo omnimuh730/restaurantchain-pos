@@ -52,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.mh.restaurantchainpos.pos.data.CurrencyKind
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -229,47 +231,93 @@ private fun RestaurantInfoCard(
 
 @Composable
 private fun CurrencySwitch(currency: CurrencyKind, onChange: (CurrencyKind) -> Unit) {
-    // Pill button looking like screenshot: a blue rounded container with the active currency name
-    // on a blue background and the inactive symbol on a white inset pill.
-    val isForeign = currency == CurrencyKind.Foreign
-    Row(
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val trackWidth = 140.dp
+    val trackHeight = 44.dp
+    val pillSize = 36.dp
+    val padding = 4.dp
+    val maxOffsetPx = with(density) { (trackWidth - pillSize - padding * 2).toPx() }
+    val thresholdPx = with(density) { 45.dp.toPx() }
+
+    var dragOffset by remember { mutableStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+
+    val basePos = if (currency == CurrencyKind.Foreign) maxOffsetPx else 0f
+    val pillX = (basePos + dragOffset).coerceIn(0f, maxOffsetPx)
+    val animatedPillX by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = pillX,
+        animationSpec = if (isDragging) {
+            androidx.compose.animation.core.snap()
+        } else {
+            androidx.compose.animation.core.spring(
+                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
+            )
+        },
+        label = "currency-pill",
+    )
+
+    Box(
         Modifier
-            .height(44.dp)
+            .width(trackWidth)
+            .height(trackHeight)
             .clip(RoundedCornerShape(10.dp))
             .background(Blue600)
-            .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .pointerInput(currency) {
+                detectHorizontalDragGestures(
+                    onDragStart = {
+                        isDragging = true
+                        dragOffset = 0f
+                    },
+                    onDragEnd = {
+                        when {
+                            currency == CurrencyKind.Foreign && dragOffset < -thresholdPx ->
+                                onChange(CurrencyKind.Domestic)
+                            currency == CurrencyKind.Domestic && dragOffset > thresholdPx ->
+                                onChange(CurrencyKind.Foreign)
+                        }
+                        dragOffset = 0f
+                        isDragging = false
+                    },
+                    onDragCancel = {
+                        dragOffset = 0f
+                        isDragging = false
+                    },
+                    onHorizontalDrag = { _, dx ->
+                        // Constrain drag so the pill cannot leave the track.
+                        val proposed = dragOffset + dx
+                        dragOffset = when (currency) {
+                            CurrencyKind.Foreign -> proposed.coerceIn(-maxOffsetPx, 0f)
+                            CurrencyKind.Domestic -> proposed.coerceIn(0f, maxOffsetPx)
+                        }
+                    },
+                )
+            }
+            .padding(padding),
     ) {
-        if (isForeign) {
-            Box(Modifier.padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
-                Text("Foreign", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            }
-            Box(
-                Modifier
-                    .width(36.dp)
-                    .height(36.dp)
-                    .clip(RoundedCornerShape(7.dp))
-                    .background(Color.White)
-                    .clickable { onChange(CurrencyKind.Domestic) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("₩", color = Blue600, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
-        } else {
-            Box(
-                Modifier
-                    .width(36.dp)
-                    .height(36.dp)
-                    .clip(RoundedCornerShape(7.dp))
-                    .background(Color.White)
-                    .clickable { onChange(CurrencyKind.Foreign) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("$", color = Red500, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
-            Box(Modifier.padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
-                Text("Domestic", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            }
+        // The active currency label sits opposite to the pill.
+        val labelOnLeft = currency == CurrencyKind.Foreign
+        Text(
+            text = if (currency == CurrencyKind.Foreign) "Foreign" else "Domestic",
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .align(if (labelOnLeft) Alignment.CenterStart else Alignment.CenterEnd)
+                .padding(horizontal = 12.dp),
+        )
+        // The inactive currency pill — draggable handle.
+        Box(
+            Modifier
+                .offset { IntOffset(animatedPillX.roundToInt(), 0) }
+                .size(pillSize)
+                .clip(RoundedCornerShape(7.dp))
+                .background(Color.White),
+            contentAlignment = Alignment.Center,
+        ) {
+            val sym = if (currency == CurrencyKind.Foreign) "₩" else "$"
+            val symColor = if (currency == CurrencyKind.Foreign) Blue600 else Red500
+            Text(sym, color = symColor, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -544,13 +592,7 @@ private fun DayOffCalendarDialog(
     val selected = remember { mutableStateListOf<DayOff>().apply { addAll(initiallySelected) } }
     val hasChanges = selected.map { it.key() }.toSet() != initiallySelected.map { it.key() }.toSet()
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0x80000000))
-            .clickable(onClick = onDismiss),
-        contentAlignment = Alignment.Center,
-    ) {
+    ModalScrim(onDismiss = onDismiss) {
         Column(
             Modifier
                 .padding(horizontal = 24.dp)
@@ -558,7 +600,7 @@ private fun DayOffCalendarDialog(
                 .background(colors.surface)
                 .border(1.dp, colors.border, RoundedCornerShape(16.dp))
                 .widthIn(max = 380.dp)
-                .clickable(enabled = false) {},
+                .consumeModalTaps(),
         ) {
             Row(
                 Modifier

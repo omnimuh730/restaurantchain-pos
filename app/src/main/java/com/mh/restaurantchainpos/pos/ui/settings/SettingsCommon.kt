@@ -3,11 +3,14 @@ package com.mh.restaurantchainpos.pos.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -22,6 +25,7 @@ import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +37,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -307,4 +313,41 @@ fun IconBox(
     ) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(iconSize.dp))
     }
+}
+
+/**
+ * Full-window modal scrim. Renders via [Dialog] so it overlays the entire app
+ * (above the top header and bottom navigation). Tapping the dimmed background
+ * dismisses; taps on the inner content do not bubble up.
+ */
+@Composable
+fun ModalScrim(
+    onDismiss: () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        val scrimSource = remember { MutableInteractionSource() }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0x80000000))
+                .clickable(
+                    interactionSource = scrimSource,
+                    indication = null,
+                    onClick = onDismiss,
+                ),
+            contentAlignment = Alignment.Center,
+            content = content,
+        )
+    }
+}
+
+/** Modifier used on the modal content container to swallow taps so the scrim doesn't dismiss. */
+@Composable
+fun Modifier.consumeModalTaps(): Modifier {
+    val src = remember { MutableInteractionSource() }
+    return this.clickable(interactionSource = src, indication = null, enabled = true) {}
 }

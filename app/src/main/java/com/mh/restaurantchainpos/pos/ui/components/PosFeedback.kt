@@ -28,7 +28,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -83,8 +85,45 @@ fun SimpleBars(values: List<Pair<String, Int>>, color: Color, colors: PosColors,
 
 @Composable
 fun Badge(text: String, color: Color, modifier: Modifier = Modifier) {
-    Box(modifier.clip(RoundedCornerShape(999.dp)).background(color.copy(alpha = 0.14f)).padding(horizontal = 8.dp, vertical = 4.dp)) {
-        Text(text, color = color, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+    Box(
+        modifier.clip(RoundedCornerShape(999.dp)).background(color.copy(alpha = 0.14f)).padding(horizontal = 8.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text, color = color, fontSize = 11.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+fun CountBadge(
+    count: Int,
+    modifier: Modifier = Modifier,
+    color: Color = Blue600,
+    maxCount: Int = 99,
+    size: Dp = 18.dp,
+) {
+    if (count <= 0) return
+
+    val label = if (count > maxCount) "$maxCount+" else count.toString()
+    val width = if (label.length > 2) size + 8.dp else size
+
+    Box(
+        modifier
+            .width(width)
+            .height(size)
+            .clip(RoundedCornerShape(size / 2))
+            .background(color),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label,
+            color = Color.White,
+            fontSize = if (label.length > 2) 8.sp else 9.sp,
+            fontWeight = FontWeight.Bold,
+            lineHeight = if (label.length > 2) 8.sp else 9.sp,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

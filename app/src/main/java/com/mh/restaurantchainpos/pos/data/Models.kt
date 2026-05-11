@@ -117,12 +117,14 @@ data class KitchenOrder(
 data class KitchenFloor(val id: String, val label: String, val tables: List<String>)
 
 data class StaffMember(
+    val id: String,
     val name: String,
     val username: String,
     val role: String,
     val status: String,
     val joinDate: String,
     val permissionCount: Int,
+    val permissions: Map<String, Boolean> = emptyMap(),
 )
 
 data class PaymentCard(val brand: String, val last4: String, val expiry: String, val holderName: String, val isDefault: Boolean = false)

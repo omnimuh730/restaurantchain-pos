@@ -92,13 +92,26 @@ fun DateFilterBar(
                 )
             },
             label = "week-strip",
-        ) { _ ->
+        ) { animatedWeekOffset ->
+            val visibleDays = remember(today, animatedWeekOffset) {
+                val sunday = Calendar.getInstance().apply {
+                    timeInMillis = today.timeInMillis
+                    add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + animatedWeekOffset * 7)
+                }
+                (0 until 7).map {
+                    Calendar.getInstance().apply {
+                        timeInMillis = sunday.timeInMillis
+                        add(Calendar.DATE, it)
+                    }
+                }
+            }
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 6.dp),
             ) {
-                days.forEach { d ->
+                visibleDays.forEach { d ->
                     val isToday = d.sameDayAs(today)
                     val isSelected = d.timeInMillis == selectedDate
                     val isFuture = d.timeInMillis > today.timeInMillis
@@ -136,7 +149,7 @@ fun DateFilterBar(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = if (weekOffset == 0) weekdayShort(d) else dayOfMonth(d),
+                                text = if (animatedWeekOffset == 0) weekdayShort(d) else dayOfMonth(d),
                                 color = when {
                                     isFuture -> if (isDark) Color(0xFF475569) else Color(0xFFCBD5E1)
                                     isSelected -> text1

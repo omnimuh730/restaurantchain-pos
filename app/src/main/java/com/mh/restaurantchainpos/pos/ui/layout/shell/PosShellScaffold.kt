@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mh.restaurantchainpos.pos.ui.layout.metrics.PosLayoutMetrics
@@ -30,9 +32,13 @@ fun PosShellScaffold(
     Box(modifier.fillMaxSize().background(posBackground(colors))) {
         if (metrics.useStartNavigationRail) {
             Row(Modifier.fillMaxSize()) {
-                navigationRail()
+                Box(Modifier.statusBarsPadding().navigationBarsPadding()) {
+                    navigationRail()
+                }
                 Column(Modifier.weight(1f).fillMaxHeight()) {
-                    header()
+                    Box(Modifier.statusBarsPadding()) {
+                        header()
+                    }
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         content()
                     }
@@ -40,11 +46,15 @@ fun PosShellScaffold(
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                header()
+                Box(Modifier.statusBarsPadding()) {
+                    header()
+                }
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     content()
                 }
-                bottomBar()
+                Box(Modifier.navigationBarsPadding()) {
+                    bottomBar()
+                }
             }
         }
     }

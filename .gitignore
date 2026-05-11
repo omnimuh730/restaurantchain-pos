@@ -17,5 +17,8 @@ local.properties
 # Kotlin compiler / IDE session caches (not source)
 .kotlin/
 
-# Local temp / scratch files
+# Local scratch & Android release outputs (not committed)
 .tmp/
+app/release/
+*.apk
+**/release/

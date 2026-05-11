@@ -160,20 +160,14 @@ private fun SlideToPayDialog(colors: PosColors, plan: String, onClose: () -> Uni
     var dragX by remember { mutableStateOf(0f) }
     val maxDragPx = with(androidx.compose.ui.platform.LocalDensity.current) { 240.dp.toPx() }
     var done by remember { mutableStateOf(false) }
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0x99000000))
-            .clickable(onClick = onClose),
-        contentAlignment = Alignment.Center,
-    ) {
+    ModalScrim(onDismiss = onClose) {
         Column(
             Modifier
                 .clip(RoundedCornerShape(16.dp))
                 .background(colors.surface)
                 .border(1.dp, colors.border, RoundedCornerShape(16.dp))
                 .widthIn(max = 360.dp)
-                .clickable(enabled = false) {}
+                .consumeModalTaps()
                 .padding(20.dp),
         ) {
             Text("Confirm $plan upgrade", color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
