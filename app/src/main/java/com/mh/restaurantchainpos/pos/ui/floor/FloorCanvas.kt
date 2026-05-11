@@ -64,6 +64,7 @@ import kotlin.math.roundToInt
 
 private const val MaxFloorZoom = 3f
 private const val ZoomStep = 0.1f
+private const val FloorContentGutterDp = 24
 
 /**
  * Pan/zoom canvas for the floor plan. Mirrors the React FloorCanvas:
@@ -91,6 +92,7 @@ fun FloorCanvas(
     val bg = if (editMode) palette.editBg else palette.bg
     val currentZoom = rememberUpdatedState(zoom)
     val currentOnZoomChange = rememberUpdatedState(onZoomChange)
+    val contentGutterPx = with(density) { FloorContentGutterDp.dp.toPx() }
 
     var viewportW by remember { mutableFloatStateOf(0f) }
     var viewportH by remember { mutableFloatStateOf(0f) }
@@ -116,6 +118,7 @@ fun FloorCanvas(
             viewportH = viewportH,
             contentWidth = contentBoundsPx?.width ?: 0f,
             contentHeight = contentBoundsPx?.height ?: 0f,
+            viewportPadding = contentGutterPx,
         )
     }
     val minZoom = fitZoom
@@ -130,6 +133,7 @@ fun FloorCanvas(
             canvasW = canvasPxW,
             canvasH = canvasPxH,
             contentBounds = contentBoundsPx,
+            viewportPadding = contentGutterPx,
         )
 
     fun applyClampedPan(zoomForClamp: Float = currentZoom.value) {
@@ -297,10 +301,13 @@ internal fun calculateFitContentZoom(
     viewportH: Float,
     contentWidth: Float,
     contentHeight: Float,
+    viewportPadding: Float = 0f,
 ): Float {
     if (viewportW <= 0f || viewportH <= 0f || contentWidth <= 0f || contentHeight <= 0f) return 1f
-    val fitW = viewportW / contentWidth
-    val fitH = viewportH / contentHeight
+    val fitViewportW = (viewportW - viewportPadding * 2f).coerceAtLeast(1f)
+    val fitViewportH = (viewportH - viewportPadding * 2f).coerceAtLeast(1f)
+    val fitW = fitViewportW / contentWidth
+    val fitH = fitViewportH / contentHeight
     return min(1f, max(0.1f, min(fitW, fitH)))
 }
 
@@ -313,12 +320,19 @@ internal fun clampPanToContentBounds(
     canvasW: Float,
     canvasH: Float,
     contentBounds: FloorContentBoundsPx?,
+    viewportPadding: Float = 0f,
 ): Offset {
     val bounds = contentBounds ?: FloorContentBoundsPx(left = 0f, top = 0f, right = canvasW, bottom = canvasH)
-    val minX = min(viewportW - bounds.right * zoom, -bounds.left * zoom)
-    val maxX = max(viewportW - bounds.right * zoom, -bounds.left * zoom)
-    val minY = min(viewportH - bounds.bottom * zoom, -bounds.top * zoom)
-    val maxY = max(viewportH - bounds.bottom * zoom, -bounds.top * zoom)
+    val horizontalPadding = viewportPadding.coerceAtMost(viewportW / 2f)
+    val verticalPadding = viewportPadding.coerceAtMost(viewportH / 2f)
+    val leftAligned = horizontalPadding - bounds.left * zoom
+    val rightAligned = viewportW - horizontalPadding - bounds.right * zoom
+    val topAligned = verticalPadding - bounds.top * zoom
+    val bottomAligned = viewportH - verticalPadding - bounds.bottom * zoom
+    val minX = min(rightAligned, leftAligned)
+    val maxX = max(rightAligned, leftAligned)
+    val minY = min(bottomAligned, topAligned)
+    val maxY = max(bottomAligned, topAligned)
     return Offset(
         proposedX.coerceIn(minX, maxX),
         proposedY.coerceIn(minY, maxY),

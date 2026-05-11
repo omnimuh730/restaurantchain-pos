@@ -80,6 +80,34 @@ class FloorDragMathTest {
     }
 
     @Test
+    fun minimumZoomPreservesViewportGutterAroundFittedContent() {
+        val bounds = FloorContentBoundsPx(left = 40f, top = 48f, right = 860f, bottom = 620f)
+        val gutter = 24f
+        val minZoom = calculateFitContentZoom(
+            viewportW = 410f,
+            viewportH = 500f,
+            contentWidth = bounds.width,
+            contentHeight = bounds.height,
+            viewportPadding = gutter,
+        )
+
+        val pan = clampPanToContentBounds(
+            proposedX = 0f,
+            proposedY = 0f,
+            zoom = minZoom,
+            viewportW = 410f,
+            viewportH = 500f,
+            canvasW = 2400f,
+            canvasH = 1800f,
+            contentBounds = bounds,
+            viewportPadding = gutter,
+        )
+
+        assertEquals(gutter, pan.x + bounds.left * minZoom, 0.001f)
+        assertEquals(410f - gutter, pan.x + bounds.right * minZoom, 0.001f)
+    }
+
+    @Test
     fun zoomingAroundCentroidKeepsTheSameContentPointUnderTheFinger() {
         val pan = panForZoomAroundCentroid(
             panX = 0f,
