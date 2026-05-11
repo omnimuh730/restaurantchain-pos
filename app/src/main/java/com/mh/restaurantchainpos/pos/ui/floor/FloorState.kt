@@ -106,12 +106,12 @@ class FloorPlanState(
             height = FloorMetrics.BaseUnit,
             status = TableStatus.Available,
         )
-        updateTables { it + table }
+        updateTables(transform = { it + table })
         selectedTableId = table.id
     }
 
     fun deleteTable(id: String) {
-        updateTables { list -> list.filterNot { it.id == id } }
+        updateTables(transform = { list -> list.filterNot { it.id == id } })
         if (selectedTableId == id) selectedTableId = null
     }
 
@@ -123,13 +123,13 @@ class FloorPlanState(
             x = src.x + 30,
             y = src.y + 30,
         )
-        updateTables { it + dup }
+        updateTables(transform = { it + dup })
         selectedTableId = dup.id
     }
 
     fun updateSelected(transform: (FloorTable) -> FloorTable) {
         val id = selectedTableId ?: return
-        updateTables { list -> list.map { if (it.id == id) transform(it) else it } }
+        updateTables(transform = { list -> list.map { if (it.id == id) transform(it) else it } })
     }
 
     fun moveSelected(x: Int, y: Int, commit: Boolean) {
