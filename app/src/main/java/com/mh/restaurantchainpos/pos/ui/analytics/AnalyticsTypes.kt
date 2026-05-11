@@ -3,7 +3,7 @@ package com.mh.restaurantchainpos.pos.ui.analytics
 /**
  * Shared types for the Analytics screens. Mirrors the React demo's `Period`,
  * `AnalyticsSection`, and `Currency` types so the rest of the module can stay
- * near-1:1 with `restaurantchain-pos-ui-demo/src/app/pages/pos/analytics/*`.
+ * near-1:1 with the React sources under `pos/analytics/`.
  */
 enum class AnalyticsSection(val id: String, val label: String, val icon: String) {
     Dashboard("dashboard", "Sales Dashboard", "*"),

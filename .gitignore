@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Kotlin compiler / IDE session caches (not source)
+.kotlin/
+
+# Local temp / scratch files
+.tmp/

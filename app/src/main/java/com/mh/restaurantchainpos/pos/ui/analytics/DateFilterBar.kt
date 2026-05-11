@@ -184,7 +184,7 @@ fun DateFilterBar(
                 slideDir = -1
                 weekOffset -= 1
             }
-            val nextSunday = days.first().clone().apply { add(Calendar.DATE, 7) }
+            val nextSunday = days.first().copyCal().apply { add(Calendar.DATE, 7) }
             if (nextSunday.timeInMillis <= today.timeInMillis) {
                 ArrowChip("›", text2) {
                     slideDir = 1
@@ -245,7 +245,9 @@ private fun Calendar.sameDayAs(other: Calendar): Boolean {
         get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
 }
 
-private fun Calendar.clone(): Calendar = Calendar.getInstance().apply { timeInMillis = this@clone.timeInMillis }
+// `Object.clone()` (returning Any) shadows extensions named `clone`, so use a
+// distinct name for the typed deep-copy helper used throughout this file.
+private fun Calendar.copyCal(): Calendar = Calendar.getInstance().apply { timeInMillis = this@copyCal.timeInMillis }
 
 private val weekdayFmt = SimpleDateFormat("EEEEE", Locale.US)
 private val dayFmt = SimpleDateFormat("d", Locale.US)
