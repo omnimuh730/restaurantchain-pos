@@ -204,7 +204,7 @@ private fun MobileEditDrawer(
                         .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("+ Add table", color = palette.editText2, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("+ Add table", color = palette.editText2, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
                 val sel = state.selectedTable
                 if (sel != null) {
@@ -214,13 +214,13 @@ private fun MobileEditDrawer(
                             .clip(RoundedCornerShape(8.dp))
                             .background(palette.editCanvas)
                             .border(1.dp, palette.editBorder, RoundedCornerShape(8.dp))
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
                     ) {
                         BasicTextField(
                             value = sel.label,
                             onValueChange = { v -> state.updateSelected { it.copy(label = v) } },
                             singleLine = true,
-                            textStyle = TextStyle(color = palette.editText1, fontSize = 14.sp),
+                            textStyle = TextStyle(color = palette.editText1, fontSize = 16.sp, fontWeight = FontWeight.Medium),
                             cursorBrush = SolidColor(Blue500),
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -233,7 +233,7 @@ private fun MobileEditDrawer(
                         InspectorBlock(palette, "Seats") {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 CircleStepper(palette, "−") { state.updateSelected { it.copy(seats = (it.seats - 1).coerceAtLeast(1)) } }
-                                Text(sel.seats.toString(), color = palette.editText1, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                Text(sel.seats.toString(), color = palette.editText1, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 CircleStepper(palette, "+") { state.updateSelected { it.copy(seats = it.seats + 1) } }
                             }
                         }
@@ -288,7 +288,8 @@ private fun MobileEditDrawer(
                         Text(
                             "Tap a table to edit",
                             color = palette.editText3,
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
                         )
                     }
                 }
@@ -328,11 +329,11 @@ private fun EditTopBar(palette: FloorPalette, state: FloorPlanState, isMobile: B
             state.activeFloor.name,
             color = palette.editText1,
             fontWeight = FontWeight.SemiBold,
-            fontSize = if (isMobile) 13.sp else 14.sp,
+            fontSize = if (isMobile) 15.sp else 16.sp,
         )
         if (!isMobile) Text("|", color = palette.editText3)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (!isMobile) Text("Show seats", color = palette.editText2, fontSize = 13.sp)
+            if (!isMobile) Text("Show seats", color = palette.editText2, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Box(
                 Modifier
                     .size(width = 32.dp, height = 18.dp)
@@ -360,7 +361,7 @@ private fun EditTopBar(palette: FloorPalette, state: FloorPlanState, isMobile: B
                 .clickable { state.editMode = false; state.selectedTableId = null }
                 .padding(horizontal = if (isMobile) 12.dp else 16.dp, vertical = 6.dp),
         ) {
-            Text("Save", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text("Save", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -402,13 +403,13 @@ private fun EditSidebar(palette: FloorPalette, state: FloorPlanState, modifier: 
                 .clickable { state.addTable() },
             contentAlignment = Alignment.Center,
         ) {
-            Text("+ Add table", color = palette.editText2, fontSize = 13.sp)
+            Text("+ Add table", color = palette.editText2, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
         val sel = state.selectedTable
         if (sel != null) {
             TableInspector(palette, sel, state)
         } else {
-            Text("Tap a table to edit", color = palette.editText3, fontSize = 12.sp)
+            Text("Tap a table to edit", color = palette.editText3, fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -428,7 +429,7 @@ private fun TableInspector(palette: FloorPalette, sel: FloorTable, state: FloorP
                 value = sel.label,
                 onValueChange = { v -> state.updateSelected { it.copy(label = v) } },
                 singleLine = true,
-                textStyle = TextStyle(color = palette.editText1, fontSize = 14.sp),
+                textStyle = TextStyle(color = palette.editText1, fontSize = 16.sp, fontWeight = FontWeight.Medium),
                 cursorBrush = SolidColor(Blue500),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -492,7 +493,7 @@ private fun TableInspector(palette: FloorPalette, sel: FloorTable, state: FloorP
 @Composable
 private fun InspectorBlock(palette: FloorPalette, label: String, content: @Composable () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, color = palette.editText2, fontSize = 11.sp)
+        Text(label, color = palette.editText2, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
         content()
     }
@@ -502,13 +503,13 @@ private fun InspectorBlock(palette: FloorPalette, label: String, content: @Compo
 private fun CircleStepper(palette: FloorPalette, label: String, onClick: () -> Unit) {
     Box(
         Modifier
-            .size(32.dp)
+            .size(36.dp)
             .clip(CircleShape)
             .border(1.dp, palette.editBorder, CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = palette.editText2, fontSize = 14.sp)
+        Text(label, color = palette.editText2, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -530,6 +531,6 @@ private fun ActionButton(
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = contentColor, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(label, color = contentColor, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
     }
 }

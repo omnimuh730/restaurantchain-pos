@@ -136,7 +136,7 @@ private fun SidebarContent(
 }
 
 private fun sectionMenuLabel(s: AnalyticsSection): String = when (s) {
-    AnalyticsSection.Dashboard -> "Dashboard"
+    AnalyticsSection.SalesDashboard -> "Sales Dashboard"
     AnalyticsSection.Menu -> "Menu Analysis"
     AnalyticsSection.Customer -> "Customer Analysis"
     AnalyticsSection.History -> "History"

@@ -2,12 +2,12 @@ package com.mh.restaurantchainpos.pos.ui.analytics
 
 /**
  * Mock data for the Analytics screens. Lifted as faithfully as possible from
- * the React demo (`DashboardView.tsx`, `MenuAnalysisView.tsx`,
+ * the React demo (`SalesDashboardView.tsx`, `MenuAnalysisView.tsx`,
  * `CustomerAnalysisView.tsx`, `historyMockData.ts`).
  */
 
 // -----------------------------------------------------------------------------
-// Dashboard
+// Sales Dashboard
 // -----------------------------------------------------------------------------
 
 data class TrendPoint(
@@ -17,7 +17,7 @@ data class TrendPoint(
     val orders: Int,
 )
 
-data class DashboardKpi(
+data class SalesDashboardKpi(
     val totalRev: Double,
     val totalOrders: String,
     val avgTicket: Double,
@@ -30,7 +30,7 @@ data class DashboardKpi(
 
 data class PaymentSplit(val method: String, val pct: Int, val accent: Long)
 
-object DashboardData {
+object SalesDashboardData {
     val hourly: List<TrendPoint> = listOf(
         TrendPoint("8", 40.0, 680_000, 8),
         TrendPoint("9", 120.0, 1_240_000, 14),
@@ -77,19 +77,19 @@ object DashboardData {
         Period.Week, Period.Custom -> weekly
     }
 
-    val foreignKpis: Map<Period, DashboardKpi> = mapOf(
-        Period.Today to DashboardKpi(8450.0, "38", 22.24, "1", "+7.4%", "+2.1%", "+5.2%", "-50%"),
-        Period.Week to DashboardKpi(9920.0, "186", 53.34, "4", "-2.8%", "+11.0%", "-12.4%", "+33%"),
-        Period.Month to DashboardKpi(31120.0, "682", 45.63, "19", "+18.6%", "+6.4%", "+11.5%", "-14%"),
-        Period.Quarter to DashboardKpi(115020.0, "2,108", 54.56, "58", "+21.3%", "+8.2%", "+12.1%", "-6%"),
-        Period.Custom to DashboardKpi(9920.0, "186", 53.34, "4", "-2.8%", "+11.0%", "-12.4%", "+33%"),
+    val foreignKpis: Map<Period, SalesDashboardKpi> = mapOf(
+        Period.Today to SalesDashboardKpi(8450.0, "38", 22.24, "1", "+7.4%", "+2.1%", "+5.2%", "-50%"),
+        Period.Week to SalesDashboardKpi(9920.0, "186", 53.34, "4", "-2.8%", "+11.0%", "-12.4%", "+33%"),
+        Period.Month to SalesDashboardKpi(31120.0, "682", 45.63, "19", "+18.6%", "+6.4%", "+11.5%", "-14%"),
+        Period.Quarter to SalesDashboardKpi(115020.0, "2,108", 54.56, "58", "+21.3%", "+8.2%", "+12.1%", "-6%"),
+        Period.Custom to SalesDashboardKpi(9920.0, "186", 53.34, "4", "-2.8%", "+11.0%", "-12.4%", "+33%"),
     )
-    val domesticKpis: Map<Period, DashboardKpi> = mapOf(
-        Period.Today to DashboardKpi(3_840_000.0, "54", 71_100.0, "3", "-4.1%", "+18.6%", "-19.1%", "+200%"),
-        Period.Week to DashboardKpi(28_960_000.0, "312", 92_820.0, "11", "+24.6%", "+3.3%", "+20.6%", "-18%"),
-        Period.Month to DashboardKpi(82_840_000.0, "1,486", 55_740.0, "42", "+6.1%", "+14.2%", "-7.0%", "+9%"),
-        Period.Quarter to DashboardKpi(324_160_000.0, "4,820", 67_250.0, "172", "+9.8%", "+21.8%", "-9.8%", "-3%"),
-        Period.Custom to DashboardKpi(28_960_000.0, "312", 92_820.0, "11", "+24.6%", "+3.3%", "+20.6%", "-18%"),
+    val domesticKpis: Map<Period, SalesDashboardKpi> = mapOf(
+        Period.Today to SalesDashboardKpi(3_840_000.0, "54", 71_100.0, "3", "-4.1%", "+18.6%", "-19.1%", "+200%"),
+        Period.Week to SalesDashboardKpi(28_960_000.0, "312", 92_820.0, "11", "+24.6%", "+3.3%", "+20.6%", "-18%"),
+        Period.Month to SalesDashboardKpi(82_840_000.0, "1,486", 55_740.0, "42", "+6.1%", "+14.2%", "-7.0%", "+9%"),
+        Period.Quarter to SalesDashboardKpi(324_160_000.0, "4,820", 67_250.0, "172", "+9.8%", "+21.8%", "-9.8%", "-3%"),
+        Period.Custom to SalesDashboardKpi(28_960_000.0, "312", 92_820.0, "11", "+24.6%", "+3.3%", "+20.6%", "-18%"),
     )
 
     val paymentForeign: List<PaymentSplit> = listOf(

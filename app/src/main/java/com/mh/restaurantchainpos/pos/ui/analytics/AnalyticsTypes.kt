@@ -6,7 +6,7 @@ package com.mh.restaurantchainpos.pos.ui.analytics
  * near-1:1 with the React sources under `pos/analytics/`.
  */
 enum class AnalyticsSection(val id: String, val label: String, val icon: String) {
-    Dashboard("dashboard", "Sales Dashboard", "*"),
+    SalesDashboard("sales-dashboard", "Sales Dashboard", "\$"),
     Menu("menu-analysis", "Menu Analysis", "#"),
     Customer("customer-analysis", "Customer Analysis", "@"),
     History("history", "History", "~"),

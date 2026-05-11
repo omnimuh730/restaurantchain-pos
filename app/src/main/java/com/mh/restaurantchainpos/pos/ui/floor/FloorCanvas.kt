@@ -384,10 +384,10 @@ private fun ZoomControls(
         Text(
             "${(zoom * 100).roundToInt()}%",
             color = palette.text2,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.width(42.dp),
+            modifier = Modifier.width(50.dp),
         )
         ZoomButton(
             enabled = zoom < MaxFloorZoom - 0.001f,
@@ -522,22 +522,23 @@ private fun TableNode(
         Text(
             table.label,
             color = fg,
-            fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
         )
         if (editMode) {
-            if (showSeats) Text("(${table.seats})", color = fg.copy(alpha = 0.7f), fontSize = 11.sp)
+            if (showSeats) Text("(${table.seats})", color = fg.copy(alpha = 0.7f), fontSize = 13.sp)
         } else if (occupied) {
             Text(
                 "${if (table.occupiedSeats > 0) table.occupiedSeats else table.seats}/${table.seats}",
                 color = fg,
-                fontSize = 11.sp,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
             )
-            if (table.revenue > 0) Text("₩%,d".format(table.revenue), color = fg, fontSize = 12.sp)
+            if (table.revenue > 0) Text("₩%,d".format(table.revenue), color = fg, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         } else if (reserved) {
-            Text("Reserved · ${table.reservationTime}", color = fg, fontSize = 10.sp)
+            Text("Reserved · ${table.reservationTime}", color = fg, fontSize = 12.sp)
         } else {
-            Text("${table.seats}", color = fg, fontSize = 11.sp)
+            Text("${table.seats}", color = fg, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         }
     }
 }

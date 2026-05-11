@@ -18,8 +18,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -146,19 +152,54 @@ fun FloorTabsRow(
                         .clickable { menuOpen = true },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("⋮", color = if (menuOpen) Blue500 else palette.text2, fontSize = 18.sp)
+                    Icon(
+                        imageVector = Icons.Outlined.MoreVert,
+                        contentDescription = "Floor actions",
+                        tint = if (menuOpen) Blue500 else palette.text2,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                    DropdownMenuItem(text = { Text("+ Add Floor") }, onClick = {
-                        menuOpen = false
-                        addOpen = true
-                    })
-                    DropdownMenuItem(text = { Text("✎ Edit Layout") }, onClick = {
-                        menuOpen = false
-                        onEditLayout()
-                    })
                     DropdownMenuItem(
-                        text = { Text("🗑 Remove Floor", color = Color(0xFFEF4444)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Add,
+                                contentDescription = null,
+                                tint = palette.text1,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        },
+                        text = { Text("Add Floor", color = palette.text1) },
+                        onClick = {
+                            menuOpen = false
+                            addOpen = true
+                        },
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = null,
+                                tint = palette.text1,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        },
+                        text = { Text("Edit Layout", color = palette.text1) },
+                        onClick = {
+                            menuOpen = false
+                            onEditLayout()
+                        },
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = null,
+                                tint = Color(0xFFEF4444),
+                                modifier = Modifier.size(18.dp),
+                            )
+                        },
+                        text = { Text("Remove Floor", color = Color(0xFFEF4444)) },
                         onClick = {
                             menuOpen = false
                             if (floors.size > 1) removeOpen = true

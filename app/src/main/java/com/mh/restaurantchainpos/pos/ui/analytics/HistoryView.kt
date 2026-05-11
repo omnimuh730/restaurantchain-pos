@@ -12,21 +12,23 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -388,7 +390,7 @@ private fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: ()
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val tile = if (isDark) Color(0xFF111827) else Color(0xFFF8FAFC)
 
-    Box(Modifier.fillMaxSize()) {
+    BoxWithConstraints(Modifier.fillMaxSize()) {
         AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
             Box(
                 Modifier
@@ -410,7 +412,8 @@ private fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: ()
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .heightIn(max = maxHeight * 0.75f)
+                    .verticalScroll(rememberScrollState())
                     .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
                     .background(card),
             ) {

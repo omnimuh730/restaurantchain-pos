@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,38 +56,39 @@ fun FloorPlanScreen(
             Modifier
                 .fillMaxWidth()
                 .background(palette.card)
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
             Row(
                 Modifier
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .background(palette.raised)
-                    .padding(3.dp),
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    .padding(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 FloorViewMode.entries.forEach { mode ->
                     val active = mode == state.view
                     Row(
                         Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(11.dp))
                             .background(if (active) Blue500 else Color.Transparent)
                             .clickable { state.view = mode }
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Text(
-                            text = mode.icon,
-                            color = if (active) Color.White else palette.text2,
-                            fontSize = 14.sp,
+                        Icon(
+                            imageVector = mode.icon,
+                            contentDescription = mode.label,
+                            tint = if (active) Color.White else palette.text2,
+                            modifier = Modifier.size(if (isMobile) 22.dp else 20.dp),
                         )
                         if (!isMobile) {
                             Text(
                                 mode.label,
                                 color = if (active) Color.White else palette.text2,
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                         }
