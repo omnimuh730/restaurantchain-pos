@@ -20,8 +20,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
@@ -50,12 +54,6 @@ internal fun KitchenContent(
                 Spacer(Modifier.height(8.dp))
                 Text("No tickets in this lane.", color = colors.textMuted, fontSize = 13.sp)
             }
-        }
-        return
-    }
-    if (state.viewMode == KitchenViewMode.ByItem) {
-        Box(Modifier.fillMaxSize().padding(16.dp)) {
-            ByItemView(colors = colors, sorted = visible)
         }
         return
     }
@@ -135,55 +133,67 @@ internal fun KitchenHeader(
                 }
             }
             Spacer(Modifier.weight(1f))
-            Row(
-                Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(colors.surfaceRaised)
-                    .padding(2.dp),
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                KitchenViewMode.entries.forEach { mode ->
-                    val active = state.viewMode == mode
-                    Box(
-                        Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(if (active) Blue500 else Color.Transparent)
-                            .clickable { state.viewMode = mode }
-                            .padding(horizontal = 10.dp, vertical = 5.dp),
-                    ) {
-                        Text(
-                            mode.label,
-                            color = if (active) Color.White else colors.textMuted,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.size(8.dp))
             Box {
-                Box(
+                val pillShape = RoundedCornerShape(999.dp)
+                Row(
                     Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(colors.surfaceRaised)
+                        .clip(pillShape)
+                        .border(1.dp, colors.border, pillShape)
+                        .background(colors.surface)
                         .clickable { state.sortOpen = !state.sortOpen }
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("↕", color = colors.textMuted, fontSize = 11.sp)
-                        Text(state.sortMode.label, color = colors.textMuted, fontSize = 11.sp)
-                        Text("▾", color = colors.textMuted, fontSize = 9.sp)
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.SwapVert,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = colors.textMuted,
+                    )
+                    Text(
+                        state.sortMode.triggerLabel,
+                        color = colors.textMuted,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = colors.textMuted,
+                    )
                 }
-                DropdownMenu(expanded = state.sortOpen, onDismissRequest = { state.sortOpen = false }) {
+                DropdownMenu(
+                    expanded = state.sortOpen,
+                    onDismissRequest = { state.sortOpen = false },
+                    modifier = Modifier.width(168.dp),
+                    offset = DpOffset(x = (-58).dp, y = 2.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    containerColor = colors.surface,
+                    tonalElevation = 0.dp,
+                    shadowElevation = 6.dp,
+                ) {
                     KitchenSortMode.entries.forEach { mode ->
-                        DropdownMenuItem(
-                            text = { Text(mode.label) },
-                            onClick = {
-                                state.sortMode = mode
-                                state.sortOpen = false
-                            },
-                        )
+                        val selected = state.sortMode == mode
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(if (selected) Blue500.copy(alpha = 0.12f) else Color.Transparent)
+                                .clickable {
+                                    state.sortMode = mode
+                                    state.sortOpen = false
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                        ) {
+                            Text(
+                                text = mode.label,
+                                color = if (selected) Blue500 else colors.text,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 13.sp,
+                            )
+                        }
                     }
                 }
             }

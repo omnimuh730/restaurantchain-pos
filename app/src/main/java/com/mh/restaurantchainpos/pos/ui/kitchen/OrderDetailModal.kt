@@ -13,19 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.KitchenItem
@@ -35,6 +42,8 @@ import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Green500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+
+private data class DetailLine(val orderId: String, val item: KitchenItem)
 
 @Composable
 fun OrderDetailModal(
@@ -46,9 +55,11 @@ fun OrderDetailModal(
     onAccept: (String) -> Unit,
     onComplete: (String) -> Unit,
     onRecall: (String) -> Unit,
+    onToggleItem: (orderId: String, itemId: String) -> Unit,
+    onSetItemQty: (orderId: String, itemId: String, count: Int) -> Unit,
 ) {
     val tableOrders = allOrders.filter { it.table == order.table }
-    val allItems = tableOrders.flatMap { it.items }
+    val lines = detailLinesForTable(tableOrders, viewTab)
     val receivedCount = tableOrders.filter { it.status == KitchenStatus.Received }.flatMap { it.items }.distinctBy { it.name + it.modifier }.size
     val inProgressCount = tableOrders.filter { it.status == KitchenStatus.InProgress }
         .flatMap { it.items.filter { i -> !i.previouslyCompleted } }
@@ -58,6 +69,17 @@ fun OrderDetailModal(
         tableOrders.filter { it.status == KitchenStatus.InProgress }.flatMap { it.items.filter { i -> i.previouslyCompleted } })
         .distinctBy { it.name + it.modifier }
         .size
+
+    val checkedToCompleteCount = lines.count { it.item.done && !it.item.previouslyCompleted }
+    val recallSelectedCount = lines.count { line ->
+        val o = tableOrders.firstOrNull { it.id == line.orderId } ?: return@count false
+        when (o.status) {
+            KitchenStatus.Completed -> line.item.done
+            else -> line.item.done && line.item.previouslyCompleted
+        }
+    }
+
+    var countModalTarget by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     ModalScaffold(onDismiss = onClose) {
         Column(
@@ -97,8 +119,19 @@ fun OrderDetailModal(
                 Modifier.weight(1f).padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(allItems) { item ->
-                    DetailRow(colors, item)
+                items(lines, key = { "${it.orderId}_${it.item.id}" }) { line ->
+                    DetailItemRow(
+                        colors = colors,
+                        viewTab = viewTab,
+                        item = line.item,
+                        onClick = {
+                            if (line.item.qty > 1 && !line.item.done) {
+                                countModalTarget = line.orderId to line.item.id
+                            } else {
+                                onToggleItem(line.orderId, line.item.id)
+                            }
+                        },
+                    )
                 }
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
@@ -109,24 +142,55 @@ fun OrderDetailModal(
                             tableOrders.filter { it.status == KitchenStatus.Received }.forEach { onAccept(it.id) }
                             onClose()
                         }
-                        SolidActionButton("Complete", Modifier.weight(1f)) {
+                        SolidActionButton("Complete", Modifier.weight(1f), enabled = true) {
                             tableOrders.filter { it.status == KitchenStatus.Received }.forEach { onComplete(it.id) }
                             onClose()
                         }
                     }
-                    KitchenViewTab.InProgress -> SolidActionButton("Complete", Modifier.weight(1f)) {
-                        tableOrders.filter { it.status == KitchenStatus.InProgress }.forEach { onComplete(it.id) }
-                        onClose()
+                    KitchenViewTab.InProgress -> {
+                        val label = if (checkedToCompleteCount == 0) "Complete" else "Complete ($checkedToCompleteCount)"
+                        SolidActionButton(label, Modifier.weight(1f), enabled = checkedToCompleteCount > 0) {
+                            tableOrders.filter { it.status == KitchenStatus.InProgress }.forEach { onComplete(it.id) }
+                            onClose()
+                        }
                     }
-                    KitchenViewTab.Completed -> SolidActionButton("Recall", Modifier.weight(1f)) {
-                        tableOrders.forEach { onRecall(it.id) }
-                        onClose()
+                    KitchenViewTab.Completed -> {
+                        val label = if (recallSelectedCount == 0) "Recall" else "Recall ($recallSelectedCount)"
+                        SolidActionButton(label, Modifier.weight(1f), enabled = recallSelectedCount > 0) {
+                            tableOrders.forEach { onRecall(it.id) }
+                            onClose()
+                        }
                     }
                 }
             }
         }
     }
+
+    countModalTarget?.let { (targetOrderId, itemId) ->
+        val parentOrder = tableOrders.firstOrNull { it.id == targetOrderId } ?: return@let
+        val target = parentOrder.items.firstOrNull { it.id == itemId } ?: return@let
+        ItemCountModal(
+            colors = colors,
+            item = target,
+            action = if (viewTab == KitchenViewTab.Completed) "recall" else "complete",
+            onConfirm = { count ->
+                onSetItemQty(targetOrderId, itemId, count)
+                countModalTarget = null
+            },
+            onCancel = { countModalTarget = null },
+        )
+    }
 }
+
+private fun detailLinesForTable(tableOrders: List<KitchenOrder>, viewTab: KitchenViewTab): List<DetailLine> =
+    tableOrders.flatMap { o ->
+        val itemsForDisplay = when {
+            viewTab == KitchenViewTab.Completed && o.status == KitchenStatus.Completed -> o.items
+            viewTab == KitchenViewTab.Completed -> o.items.filter { it.previouslyCompleted }
+            else -> o.items.filter { !it.previouslyCompleted }
+        }
+        itemsForDisplay.map { DetailLine(o.id, it) }
+    }
 
 @Composable
 private fun StatusBadge(label: String, color: Color) {
@@ -141,33 +205,81 @@ private fun StatusBadge(label: String, color: Color) {
 }
 
 @Composable
-private fun DetailRow(colors: PosColors, item: KitchenItem) {
+private fun DetailItemRow(
+    colors: PosColors,
+    viewTab: KitchenViewTab,
+    item: KitchenItem,
+    onClick: () -> Unit,
+) {
+    val isCompletedTab = viewTab == KitchenViewTab.Completed
+    val checked = item.done
+    val checkedFill = when {
+        isCompletedTab -> Amber500
+        else -> Green500
+    }
     Row(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, colors.border, RoundedCornerShape(10.dp))
             .background(colors.surfaceRaised)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        Box(
+            Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(if (checked) checkedFill else Color.Transparent)
+                .border(2.dp, if (checked) checkedFill else Blue500, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (checked) {
+                Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+        }
         Column(Modifier.weight(1f)) {
-            Text(item.name, color = colors.text, fontSize = 13.sp)
+            Text(
+                item.name,
+                color = if (checked) colors.textMuted else colors.text,
+                fontSize = 13.sp,
+                textDecoration = if (checked) TextDecoration.LineThrough else null,
+            )
             if (item.modifier.isNotBlank()) {
                 Text("∟ ${item.modifier}", color = colors.textMuted, fontSize = 10.sp)
             }
         }
-        Text("${item.qty}", color = colors.text, fontSize = 13.sp)
+        Text(
+            text = if (checked && (item.selectedQty ?: item.qty) < item.qty) {
+                "${item.selectedQty ?: item.qty}/${item.qty}"
+            } else {
+                item.qty.toString()
+            },
+            color = if (checked) colors.textMuted else colors.text,
+            fontSize = 13.sp,
+        )
     }
 }
 
 @Composable
-private fun SolidActionButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun SolidActionButton(
+    label: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
     Box(
         modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Blue500)
-            .clickable(onClick = onClick)
+            .background(if (enabled) Blue500 else Blue500.copy(alpha = 0.4f))
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
