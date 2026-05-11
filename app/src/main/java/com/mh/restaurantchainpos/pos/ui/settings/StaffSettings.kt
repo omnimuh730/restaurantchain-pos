@@ -161,6 +161,7 @@ fun StaffSettings(colors: PosColors) {
     var permissionsTarget by remember { mutableStateOf<StaffMember?>(null) }
     var confirmRequest by remember { mutableStateOf<ConfirmRequest?>(null) }
     var tempPinFor by remember { mutableStateOf<String?>(null) }
+    var registerOpen by remember { mutableStateOf(false) }
 
     val pending = staff.filter { it.status == "pending" }
     val nonPending = staff.filter { it.status != "pending" }
@@ -195,23 +196,7 @@ fun StaffSettings(colors: PosColors) {
             }
             PrimaryButton(
                 label = "Register Staff",
-                onClick = {
-                    // Stub: add a placeholder pending staff for demo purposes
-                    val nextId = (staff.size + 10).toString()
-                    val defaults = RoleDefaults["Waiter"] ?: emptyMap()
-                    staff.add(
-                        StaffMember(
-                            id = nextId,
-                            name = "New Staff",
-                            username = "new.staff.$nextId",
-                            role = "Waiter",
-                            status = "active",
-                            joinDate = "May 2026",
-                            permissionCount = defaults.values.count { it },
-                            permissions = defaults,
-                        ),
-                    )
-                },
+                onClick = { registerOpen = true },
                 leadingIcon = Icons.Outlined.Add,
             )
         }
@@ -297,6 +282,30 @@ fun StaffSettings(colors: PosColors) {
                 permissionsTarget = null
             },
             onClose = { permissionsTarget = null },
+        )
+    }
+
+    if (registerOpen) {
+        RegisterStaffDialog(
+            colors = colors,
+            onDismiss = { registerOpen = false },
+            onRegister = { name, username, role ->
+                val nextId = "n${System.currentTimeMillis()}"
+                val defaults = RoleDefaults[role] ?: emptyMap()
+                staff.add(
+                    StaffMember(
+                        id = nextId,
+                        name = name,
+                        username = username,
+                        role = role,
+                        status = "active",
+                        joinDate = "May 2026",
+                        permissionCount = defaults.values.count { it },
+                        permissions = defaults,
+                    ),
+                )
+                registerOpen = false
+            },
         )
     }
 
@@ -394,48 +403,68 @@ private fun PendingRequestsCard(
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
         pending.forEachIndexed { idx, member ->
-            Row(
+            Column(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Avatar(colors, member.name, 36.dp)
-                Spacer(Modifier.size(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(member.name, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("@${member.username}", color = colors.textMuted, fontSize = 11.sp)
-                        Spacer(Modifier.size(6.dp))
-                        RoleBadge(member.role)
+                // Info row: avatar + name + username + role badge.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Avatar(colors, member.name, 36.dp)
+                    Spacer(Modifier.size(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            member.name,
+                            color = colors.text,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            "@${member.username}",
+                            color = colors.textMuted,
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        )
                     }
+                    Spacer(Modifier.size(8.dp))
+                    RoleBadge(member.role)
                 }
-                Spacer(Modifier.size(8.dp))
-                Box(
-                    Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Blue600)
-                        .clickable { onApprove(member) }
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
-                        Spacer(Modifier.size(4.dp))
-                        Text("Approve", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(10.dp))
+                // Action row: full-width Approve and Reject buttons.
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Blue600)
+                            .clickable { onApprove(member) }
+                            .padding(vertical = 9.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.size(5.dp))
+                            Text("Approve", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
-                }
-                Spacer(Modifier.size(6.dp))
-                Box(
-                    Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, Blue600, RoundedCornerShape(8.dp))
-                        .clickable { onReject(member) }
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.Close, contentDescription = null, tint = Blue600, modifier = Modifier.size(13.dp))
-                        Spacer(Modifier.size(4.dp))
-                        Text("Reject", color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, Blue600, RoundedCornerShape(8.dp))
+                            .clickable { onReject(member) }
+                            .padding(vertical = 9.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Outlined.Close, contentDescription = null, tint = Blue600, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.size(5.dp))
+                            Text("Reject", color = Blue600, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
@@ -929,5 +958,200 @@ private fun ConfirmActionDialog(
                 }
             }
         }
+    }
+}
+
+// ─── Register Staff dialog ───────────────────────────────
+@Composable
+private fun RegisterStaffDialog(
+    colors: PosColors,
+    onDismiss: () -> Unit,
+    onRegister: (name: String, username: String, role: String) -> Unit,
+) {
+    var name by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf("Waiter") }
+    val canSubmit = name.isNotBlank() && username.isNotBlank()
+    val defaults = RoleDefaults[role] ?: emptyMap()
+    val activePerms = AllPerms.filter { defaults[it.id] == true }
+
+    ModalScrim(onDismiss = onDismiss) {
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp)
+                .widthIn(max = 480.dp)
+                .heightIn(max = 720.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .background(colors.surface)
+                .border(1.dp, colors.border, RoundedCornerShape(18.dp))
+                .consumeModalTaps(),
+        ) {
+            // Header
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Outlined.Add, contentDescription = null, tint = Blue500, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.size(10.dp))
+                Text("Register New Staff", color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+
+            // Form body
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Column {
+                    RequiredLabel(colors, "Full Name")
+                    Spacer(Modifier.height(6.dp))
+                    SettingTextField(
+                        colors = colors,
+                        value = name,
+                        onChange = { name = it },
+                        placeholder = "e.g. John Smith",
+                    )
+                }
+                Column {
+                    RequiredLabel(colors, "Username")
+                    Spacer(Modifier.height(6.dp))
+                    SettingTextField(
+                        colors = colors,
+                        value = username,
+                        onChange = { username = it.replace(' ', '.') },
+                        placeholder = "e.g. john.smith",
+                    )
+                }
+                Column {
+                    RequiredLabel(colors, "Role")
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Roles.forEach { r ->
+                            val cfg = RoleConfigs[r]
+                            val rDefaults = RoleDefaults[r] ?: emptyMap()
+                            val permCount = rDefaults.values.count { it }
+                            RoleSelectCard(
+                                colors = colors,
+                                label = r,
+                                icon = cfg?.icon,
+                                permCount = permCount,
+                                selected = role == r,
+                                modifier = Modifier.weight(1f),
+                            ) { role = r }
+                        }
+                    }
+                }
+
+                // Default permissions preview
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.surfaceRaised)
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                ) {
+                    Text(
+                        "DEFAULT PERMISSIONS FOR ${role.uppercase()}",
+                        color = colors.textMuted,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.6.sp,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    if (activePerms.isEmpty()) {
+                        Text("No default permissions", color = colors.textMuted, fontSize = 11.sp)
+                    } else {
+                        androidx.compose.foundation.layout.FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            activePerms.forEach { p -> PermChip(colors, p) }
+                        }
+                    }
+                }
+            }
+
+            Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+            // Footer
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlineButton("Cancel", colors.text, onClick = onDismiss)
+                Spacer(Modifier.size(8.dp))
+                PrimaryButton(
+                    label = "Register",
+                    onClick = { if (canSubmit) onRegister(name.trim(), username.trim(), role) },
+                    enabled = canSubmit,
+                    leadingIcon = Icons.Outlined.Check,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RequiredLabel(colors: PosColors, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(" *", color = Red500, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun RoleSelectCard(
+    colors: PosColors,
+    label: String,
+    icon: ImageVector?,
+    permCount: Int,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val borderColor = if (selected) Blue600 else colors.border
+    val background = if (selected) Blue500.copy(alpha = 0.08f) else colors.surface
+    val iconTint = if (selected) Blue600 else colors.textMuted
+    val labelColor = if (selected) Blue600 else colors.text
+
+    Column(
+        modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(background)
+            .border(2.dp, borderColor, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.height(6.dp))
+        }
+        Text(label, color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(2.dp))
+        Text("$permCount perms", color = colors.textMuted, fontSize = 10.sp)
+    }
+}
+
+@Composable
+private fun PermChip(colors: PosColors, perm: PermItem) {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(7.dp))
+            .background(Blue500.copy(alpha = 0.12f))
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(perm.icon, contentDescription = null, tint = Blue600, modifier = Modifier.size(11.dp))
+        Spacer(Modifier.size(4.dp))
+        Text(perm.label, color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.Medium)
     }
 }

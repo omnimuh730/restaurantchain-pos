@@ -3,20 +3,28 @@ package com.mh.restaurantchainpos.pos.ui.floor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Remove
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +49,8 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
@@ -51,6 +61,10 @@ import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+
+private const val MaxFloorZoom = 3f
+private const val ZoomStep = 0.1f
+private const val FloorContentGutterDp = 24
 
 /**
  * Pan/zoom canvas for the floor plan. Mirrors the React FloorCanvas:
@@ -70,10 +84,15 @@ fun FloorCanvas(
     onZoomChange: (Float) -> Unit,
     onSelectTable: (String?) -> Unit,
     onDragTable: (id: String, x: Int, y: Int, commit: Boolean) -> Unit,
+    zoomControlsBottomPadding: Dp = 12.dp,
+    zoomControlsEndPadding: Dp = 12.dp,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val bg = if (editMode) palette.editBg else palette.bg
+    val currentZoom = rememberUpdatedState(zoom)
+    val currentOnZoomChange = rememberUpdatedState(onZoomChange)
+    val contentGutterPx = with(density) { FloorContentGutterDp.dp.toPx() }
 
     var viewportW by remember { mutableFloatStateOf(0f) }
     var viewportH by remember { mutableFloatStateOf(0f) }
@@ -83,27 +102,45 @@ fun FloorCanvas(
 
     val canvasPxW = with(density) { FloorMetrics.CanvasW.dp.toPx() }
     val canvasPxH = with(density) { FloorMetrics.CanvasH.dp.toPx() }
-
-    // Compute the "fit-to-content" zoom for the current viewport. Tables in the
-    // mock data are tightly clustered in the canvas top-left, so on a phone
-    // viewport zoom=1 leaves them stacked on top of each other. We use this to
-    // both clamp the minimum zoom and to apply once on first measurement so
-    // the initial render shows the full floor layout.
-    val fitZoom = remember(tables, viewportW, viewportH) {
-        val maxX = tables.maxOfOrNull { (it.x + it.width).toFloat() } ?: 0f
-        val maxY = tables.maxOfOrNull { (it.y + it.height).toFloat() } ?: 0f
-        val maxXPx = with(density) { maxX.dp.toPx() }
-        val maxYPx = with(density) { maxY.dp.toPx() }
-        if (maxXPx <= 0f || maxYPx <= 0f || viewportW <= 0f || viewportH <= 0f) {
-            1f
-        } else {
-            val fitW = viewportW / maxXPx
-            val fitH = viewportH / maxYPx
-            min(1f, max(0.1f, min(fitW, fitH)))
-        }
+    val contentBoundsDp = remember(tables) { calculateTableContentBoundsDp(tables) }
+    val contentBoundsPx = contentBoundsDp?.let { bounds ->
+        FloorContentBoundsPx(
+            left = with(density) { bounds.left.dp.toPx() },
+            top = with(density) { bounds.top.dp.toPx() },
+            right = with(density) { bounds.right.dp.toPx() },
+            bottom = with(density) { bounds.bottom.dp.toPx() },
+        )
     }
 
-    val minZoom = if (editMode) 0.1f else min(fitZoom, 1f)
+    val fitZoom = remember(contentBoundsPx, viewportW, viewportH) {
+        calculateFitContentZoom(
+            viewportW = viewportW,
+            viewportH = viewportH,
+            contentWidth = contentBoundsPx?.width ?: 0f,
+            contentHeight = contentBoundsPx?.height ?: 0f,
+            viewportPadding = contentGutterPx,
+        )
+    }
+    val minZoom = fitZoom
+
+    fun clampPanAt(proposedX: Float, proposedY: Float, zoomForClamp: Float): Offset =
+        clampPanToContentBounds(
+            proposedX = proposedX,
+            proposedY = proposedY,
+            zoom = zoomForClamp,
+            viewportW = viewportW,
+            viewportH = viewportH,
+            canvasW = canvasPxW,
+            canvasH = canvasPxH,
+            contentBounds = contentBoundsPx,
+            viewportPadding = contentGutterPx,
+        )
+
+    fun applyClampedPan(zoomForClamp: Float = currentZoom.value) {
+        val clamped = clampPanAt(panX, panY, zoomForClamp)
+        panX = clamped.x
+        panY = clamped.y
+    }
 
     LaunchedEffect(fitZoom, viewportW) {
         if (!fitApplied && viewportW > 0f && fitZoom < 1f && !editMode) {
@@ -111,17 +148,14 @@ fun FloorCanvas(
             fitApplied = true
         }
     }
-    LaunchedEffect(minZoom) {
-        if (zoom < minZoom) onZoomChange(minZoom)
-    }
-
-    fun clampPan() {
-        val w = canvasPxW * zoom
-        val h = canvasPxH * zoom
-        val minX = min(0f, viewportW - w)
-        val minY = min(0f, viewportH - h)
-        panX = panX.coerceIn(minX, 0f)
-        panY = panY.coerceIn(minY, 0f)
+    LaunchedEffect(zoom, minZoom, viewportW, viewportH, contentBoundsPx) {
+        val clampedZoom = zoom.coerceIn(minZoom, MaxFloorZoom)
+        if (clampedZoom != zoom) {
+            onZoomChange(clampedZoom)
+        }
+        val clamped = clampPanAt(panX, panY, clampedZoom)
+        panX = clamped.x
+        panY = clamped.y
     }
 
     Box(
@@ -132,29 +166,43 @@ fun FloorCanvas(
             .onSizeChanged {
                 viewportW = it.width.toFloat()
                 viewportH = it.height.toFloat()
-                clampPan()
+                applyClampedPan()
             }
             // Single canvas-pan / pinch-zoom handler. Uses `requireUnconsumed = true`
             // so the loop only starts when the down event was NOT swallowed by a
             // table — that way single-touch background drag pans the canvas, but
             // touching a table immediately routes events to the table's own
             // gesture loop without competing with this one.
-            .pointerInput(editMode, minZoom) {
+            .pointerInput(editMode, minZoom, contentBoundsPx, viewportW, viewportH) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = true)
                     if (editMode) onSelectTable(null)
+                    var gestureZoomLevel = currentZoom.value
                     do {
                         val event = awaitPointerEvent()
                         val pan = event.calculatePan()
                         val gestureZoom = event.calculateZoom()
                         if (gestureZoom != 1f) {
-                            val next = (zoom * gestureZoom).coerceIn(minZoom, 3f)
-                            if (next != zoom) onZoomChange(next)
+                            val nextZoom = (gestureZoomLevel * gestureZoom).coerceIn(minZoom, MaxFloorZoom)
+                            if (nextZoom != gestureZoomLevel) {
+                                val zoomPan = panForZoomAroundCentroid(
+                                    panX = panX,
+                                    panY = panY,
+                                    centroid = event.calculateCentroid(useCurrent = true),
+                                    oldZoom = gestureZoomLevel,
+                                    newZoom = nextZoom,
+                                )
+                                val clamped = clampPanAt(zoomPan.x, zoomPan.y, nextZoom)
+                                panX = clamped.x
+                                panY = clamped.y
+                                gestureZoomLevel = nextZoom
+                                currentOnZoomChange.value(nextZoom)
+                            }
                         }
                         if (pan != Offset.Zero) {
-                            panX += pan.x
-                            panY += pan.y
-                            clampPan()
+                            val clamped = clampPanAt(panX + pan.x, panY + pan.y, gestureZoomLevel)
+                            panX = clamped.x
+                            panY = clamped.y
                         }
                         event.changes.forEach { if (it.positionChange() != Offset.Zero) it.consume() }
                     } while (event.changes.any { it.pressed })
@@ -206,16 +254,173 @@ fun FloorCanvas(
             }
         }
 
-        Box(
-            Modifier
+        ZoomControls(
+            palette = palette,
+            zoom = zoom,
+            minZoom = minZoom,
+            onZoomChange = onZoomChange,
+            modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(12.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(palette.editBorder.copy(alpha = 0.3f))
-                .padding(horizontal = 10.dp, vertical = 4.dp),
-        ) {
-            Text("${(zoom * 100).roundToInt()}%", color = palette.text2, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        }
+                .padding(end = zoomControlsEndPadding, bottom = zoomControlsBottomPadding),
+        )
+    }
+}
+
+internal data class FloorContentBoundsDp(
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int,
+) {
+    val width: Int get() = (right - left).coerceAtLeast(1)
+    val height: Int get() = (bottom - top).coerceAtLeast(1)
+}
+
+internal data class FloorContentBoundsPx(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float,
+) {
+    val width: Float get() = (right - left).coerceAtLeast(1f)
+    val height: Float get() = (bottom - top).coerceAtLeast(1f)
+}
+
+internal fun calculateTableContentBoundsDp(tables: List<FloorTable>): FloorContentBoundsDp? {
+    if (tables.isEmpty()) return null
+    return FloorContentBoundsDp(
+        left = tables.minOf { it.x },
+        top = tables.minOf { it.y },
+        right = tables.maxOf { it.x + it.width },
+        bottom = tables.maxOf { it.y + it.height },
+    )
+}
+
+internal fun calculateFitContentZoom(
+    viewportW: Float,
+    viewportH: Float,
+    contentWidth: Float,
+    contentHeight: Float,
+    viewportPadding: Float = 0f,
+): Float {
+    if (viewportW <= 0f || viewportH <= 0f || contentWidth <= 0f || contentHeight <= 0f) return 1f
+    val fitViewportW = (viewportW - viewportPadding * 2f).coerceAtLeast(1f)
+    val fitViewportH = (viewportH - viewportPadding * 2f).coerceAtLeast(1f)
+    val fitW = fitViewportW / contentWidth
+    val fitH = fitViewportH / contentHeight
+    return min(1f, max(0.1f, min(fitW, fitH)))
+}
+
+internal fun clampPanToContentBounds(
+    proposedX: Float,
+    proposedY: Float,
+    zoom: Float,
+    viewportW: Float,
+    viewportH: Float,
+    canvasW: Float,
+    canvasH: Float,
+    contentBounds: FloorContentBoundsPx?,
+    viewportPadding: Float = 0f,
+): Offset {
+    val bounds = contentBounds ?: FloorContentBoundsPx(left = 0f, top = 0f, right = canvasW, bottom = canvasH)
+    val horizontalPadding = viewportPadding.coerceAtMost(viewportW / 2f)
+    val verticalPadding = viewportPadding.coerceAtMost(viewportH / 2f)
+    val leftAligned = horizontalPadding - bounds.left * zoom
+    val rightAligned = viewportW - horizontalPadding - bounds.right * zoom
+    val topAligned = verticalPadding - bounds.top * zoom
+    val bottomAligned = viewportH - verticalPadding - bounds.bottom * zoom
+    val minX = min(rightAligned, leftAligned)
+    val maxX = max(rightAligned, leftAligned)
+    val minY = min(bottomAligned, topAligned)
+    val maxY = max(bottomAligned, topAligned)
+    return Offset(
+        proposedX.coerceIn(minX, maxX),
+        proposedY.coerceIn(minY, maxY),
+    )
+}
+
+internal fun panForZoomAroundCentroid(
+    panX: Float,
+    panY: Float,
+    centroid: Offset,
+    oldZoom: Float,
+    newZoom: Float,
+): Offset {
+    if (oldZoom <= 0f) return Offset(panX, panY)
+    val zoomRatio = newZoom / oldZoom
+    return Offset(
+        x = centroid.x - (centroid.x - panX) * zoomRatio,
+        y = centroid.y - (centroid.y - panY) * zoomRatio,
+    )
+}
+
+private fun nextZoom(zoom: Float, delta: Float, minZoom: Float): Float =
+    (zoom + delta).coerceIn(minZoom, MaxFloorZoom)
+
+@Composable
+private fun ZoomControls(
+    palette: FloorPalette,
+    zoom: Float,
+    minZoom: Float,
+    onZoomChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(palette.editBorder.copy(alpha = 0.32f))
+            .border(1.dp, palette.editBorder.copy(alpha = 0.38f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        ZoomButton(
+            enabled = zoom > minZoom + 0.001f,
+            palette = palette,
+            icon = Icons.Outlined.Remove,
+            contentDescription = "Zoom out",
+            onClick = { onZoomChange(nextZoom(zoom, -ZoomStep, minZoom)) },
+        )
+        Text(
+            "${(zoom * 100).roundToInt()}%",
+            color = palette.text2,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(42.dp),
+        )
+        ZoomButton(
+            enabled = zoom < MaxFloorZoom - 0.001f,
+            palette = palette,
+            icon = Icons.Outlined.Add,
+            contentDescription = "Zoom in",
+            onClick = { onZoomChange(nextZoom(zoom, ZoomStep, minZoom)) },
+        )
+    }
+}
+
+@Composable
+private fun ZoomButton(
+    enabled: Boolean,
+    palette: FloorPalette,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+    Box(
+        Modifier
+            .size(26.dp)
+            .clip(RoundedCornerShape(7.dp))
+            .background(if (enabled) Color.White.copy(alpha = 0.72f) else Color.White.copy(alpha = 0.32f))
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = if (enabled) palette.editText1 else palette.editText3,
+            modifier = Modifier.size(15.dp),
+        )
     }
 }
 
