@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +35,7 @@ import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
 import com.mh.restaurantchainpos.pos.ui.theme.PosSizes
+import com.mh.restaurantchainpos.ui.theme.InterFontFamily
 
 @Composable
 fun PosAppBottomBar(
@@ -99,10 +102,16 @@ fun PosAppBottomBar(
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        label,
+                        text = label,
                         color = if (active) colors.navSelectedForeground else colors.navInactive,
-                        fontSize = if (active) 12.sp else 11.sp,
-                        fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                        style = LocalTextStyle.current.merge(
+                            TextStyle(
+                                fontFamily = InterFontFamily,
+                                fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = if (active) 12.sp else 11.sp,
+                                lineHeight = if (active) 14.sp else 13.sp,
+                            ),
+                        ),
                         maxLines = 1,
                     )
                 }

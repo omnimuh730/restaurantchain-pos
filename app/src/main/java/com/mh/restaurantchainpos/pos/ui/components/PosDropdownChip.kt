@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,6 +53,35 @@ val PosDropdownMenuElevation: Dp = 8.dp
 enum class PosDropdownChipVariant { Soft, Outlined }
 
 /**
+ * Material3 [DropdownMenu] with the same surface treatment as [PosDropdownChip]
+ * menus (rounded corners, POS surface color, unified shadow).
+ */
+@Composable
+fun PosDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    colors: PosColors,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 4.dp),
+    shape: RoundedCornerShape = RoundedCornerShape(PosDropdownMenuRadius),
+    menuWidth: Dp? = null,
+    content: @Composable () -> Unit,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = if (menuWidth != null) modifier.width(menuWidth) else modifier,
+        offset = offset,
+        shape = shape,
+        containerColor = colors.surface,
+        tonalElevation = 0.dp,
+        shadowElevation = PosDropdownMenuElevation,
+    ) {
+        content()
+    }
+}
+
+/**
  * The unified dropdown trigger used across the app. Provides a consistent
  * look (rounded pill, semi-bold label, animated chevron) and a Material3
  * [DropdownMenu] surface configured to match.
@@ -91,8 +121,9 @@ fun PosDropdownChip(
     Box(modifier) {
         Row(
             triggerModifier
+                .height(36.dp)
                 .clickable { onExpandedChange(!expanded) }
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 0.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
@@ -121,15 +152,13 @@ fun PosDropdownChip(
                 tint = resolvedChevronTint,
             )
         }
-        DropdownMenu(
+        PosDropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
+            colors = colors,
             modifier = if (menuWidth != null) Modifier.width(menuWidth) else Modifier,
             offset = menuOffset,
             shape = menuShape,
-            containerColor = colors.surface,
-            tonalElevation = 0.dp,
-            shadowElevation = PosDropdownMenuElevation,
         ) {
             content()
         }
@@ -149,18 +178,31 @@ fun PosDropdownMenuRow(
     onClick: () -> Unit,
     secondaryText: String? = null,
     leadingIcon: ImageVector? = null,
+    danger: Boolean = false,
 ) {
     val shape = posMenuRowShape(index, totalCount)
-    val bg = if (selected) colors.accent else colors.surface
-    val fg = if (selected) colors.onAccent else colors.text
-    val secondaryFg = if (selected) colors.onAccent.copy(alpha = 0.88f) else colors.textMuted
+    val bg = when {
+        danger -> colors.surface
+        selected -> colors.accent
+        else -> colors.surface
+    }
+    val fg = when {
+        danger -> Color(0xFFEF4444)
+        selected -> colors.onAccent
+        else -> colors.text
+    }
+    val secondaryFg = when {
+        danger -> Color(0xFFEF4444).copy(alpha = 0.85f)
+        selected -> colors.onAccent.copy(alpha = 0.88f)
+        else -> colors.textMuted
+    }
     Row(
         Modifier
             .fillMaxWidth()
             .clip(shape)
             .background(bg)
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(horizontal = 6.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {

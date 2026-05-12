@@ -1,10 +1,5 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +35,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.i18n.fmtTimeLocalized
 import com.mh.restaurantchainpos.pos.ui.i18n.historyGuestLine
@@ -61,8 +58,13 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val tile = if (isDark) Color(0xFF111827) else Color(0xFFF8FAFC)
 
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
+    // Own window so the sheet works above vertically-scrolled History content
+    // (unbounded height there breaks fillMaxSize overlays).
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    ) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -73,15 +75,9 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                         onClick = onClose,
                     ),
             )
-        }
-        AnimatedVisibility(
-            visible = true,
-            enter = slideInVertically { it },
-            exit = slideOutVertically { it },
-            modifier = Modifier.align(Alignment.BottomCenter),
-        ) {
             Column(
                 Modifier
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .heightIn(max = maxHeight * 0.75f)
                     .verticalScroll(rememberScrollState())

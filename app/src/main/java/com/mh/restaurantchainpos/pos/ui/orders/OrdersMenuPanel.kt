@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.orders
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,12 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.theme.Blue300
 import com.mh.restaurantchainpos.pos.ui.theme.Blue400
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
 import com.mh.restaurantchainpos.pos.ui.i18n.rememberOrderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.pos.ui.theme.posBackground
 
 @Composable
 internal fun MenuPanel(
@@ -61,29 +58,29 @@ internal fun MenuPanel(
     }
     Column(
         modifier
-            .background(colors.surfaceRaised)
+            .background(posBackground(colors))
             .fillMaxHeight(),
     ) {
         Box(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
             SearchBox(value = query, onValueChange = onQuery, colors = colors)
         }
-        GridButtons(
+        OrdersCategoryCarousel(
             entries = catEntries,
             selected = selectedCategory,
             colors = colors,
-            columns = 4,
             activeStrong = true,
             selectedBorder = Blue400,
             onClick = onCategory,
+            resetKey = "main_categories",
         )
-        GridButtons(
+        OrdersCategoryCarousel(
             entries = subEntries,
             selected = selectedSub,
             colors = colors,
-            columns = 4,
             activeStrong = false,
             selectedBorder = Blue300,
             onClick = onSub,
+            resetKey = selectedCategory,
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
@@ -96,63 +93,6 @@ internal fun MenuPanel(
         ) {
             gridItems(items, key = { it.second.id }) { (sub, item) ->
                 MenuTile(colors = colors, item = item, onClick = { onAdd(sub, item) })
-            }
-        }
-    }
-}
-
-@Composable
-private fun GridButtons(
-    entries: List<Pair<String, String>>,
-    selected: String?,
-    colors: PosColors,
-    columns: Int,
-    activeStrong: Boolean,
-    selectedBorder: Color,
-    onClick: (String) -> Unit,
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(if (entries.size > columns) 92.dp else 46.dp)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        userScrollEnabled = false,
-    ) {
-        gridItems(entries, key = { it.first }) { (id, label) ->
-            val active = selected == id
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(38.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(
-                        when {
-                            active && activeStrong -> Blue600
-                            active -> Blue500
-                            else -> colors.chip
-                        },
-                    )
-                    .border(
-                        1.dp,
-                        if (active) selectedBorder else Color.Transparent,
-                        RoundedCornerShape(4.dp),
-                    )
-                    .clickable { onClick(id) }
-                    .padding(horizontal = 7.dp, vertical = 5.dp),
-                contentAlignment = Alignment.BottomStart,
-            ) {
-                Text(
-                    label,
-                    color = if (active) Color.White else colors.text,
-                    fontSize = 11.sp,
-                    fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
-                    lineHeight = 12.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
     }

@@ -61,8 +61,9 @@ data class PosColors(
 )
 
 val LightPosColors = PosColors(
-    backgroundTop = Color(0xFFE2E8F0),
-    backgroundBottom = Color(0xFFF8FAFC),
+    /** Darker scaffold so white/surface cards read with stronger separation. */
+    backgroundTop = Color(0xFFD9E1EB),
+    backgroundBottom = Color(0xFFD9E1EB),
     headerBorder = Color(0xFFCBD5E1),
     navBackground = Color.White,
     navInactive = Color(0xFF94A3B8),
@@ -70,7 +71,7 @@ val LightPosColors = PosColors(
     text = Color(0xFF1E293B),
     textMuted = Color(0xFF64748B),
     surface = Color.White,
-    surfaceRaised = Color(0xFFF1F5F9),
+    surfaceRaised = Color(0xFFEEF2F7),
     border = Color(0xFFE2E8F0),
     inputOutline = Color(0xFFCBD5E1),
     /** Foreground "tile" surface for category buttons / food tiles - lighter than the panel bg. */
@@ -110,7 +111,8 @@ val DarkPosColors = PosColors(
     onAccentContainer = Blue300,
     navSelectedBackground = Blue500.copy(alpha = PosOpacity.NavSelectedDark),
     navSelectedIndicator = Blue400,
-    navSelectedForeground = Blue300,
+    /** Active tab icon + label: bright white on tinted blue chip (reads clearly in dark). */
+    navSelectedForeground = Color(0xFFF9FAFB),
 )
 
 object PosDimens {
@@ -162,7 +164,8 @@ data class FloorPalette(
 )
 
 val LightFloorPalette = FloorPalette(
-    bg = Color.Transparent,
+    /** Solid canvas so dot grid reads; darker than table cards for contrast. */
+    bg = Color(0xFFD9E1EB),
     card = Color.White,
     raised = Color(0xFFF8FAFC),
     border = Color(0xFFE2E8F0),
@@ -191,7 +194,7 @@ val LightFloorPalette = FloorPalette(
 )
 
 val DarkFloorPalette = FloorPalette(
-    bg = Color.Transparent,
+    bg = Color(0xFF0A0D12),
     card = Color(0xFF141A22),
     raised = Color(0xFF1C242F),
     border = Color(0xFF222C38),

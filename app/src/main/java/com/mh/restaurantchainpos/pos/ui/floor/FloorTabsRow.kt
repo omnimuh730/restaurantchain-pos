@@ -23,8 +23,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,12 +43,16 @@ import androidx.compose.ui.res.stringResource
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.Floor
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenu
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
+import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
 @Composable
 fun FloorTabsRow(
+    colors: PosColors,
     palette: FloorPalette,
     role: ActiveRole,
     floors: List<Floor>,
@@ -167,47 +169,44 @@ fun FloorTabsRow(
                             modifier = Modifier.size(20.dp),
                         )
                     }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Add,
-                                    contentDescription = null,
-                                    tint = palette.text1,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            },
-                            text = { Text(stringResource(R.string.floor_menu_add_floor), color = palette.text1) },
+                    PosDropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false },
+                        colors = colors,
+                        menuWidth = 200.dp,
+                    ) {
+                        PosDropdownMenuRow(
+                            index = 0,
+                            totalCount = 3,
+                            text = stringResource(R.string.floor_menu_add_floor),
+                            selected = false,
+                            colors = colors,
+                            leadingIcon = Icons.Outlined.Add,
                             onClick = {
                                 menuOpen = false
                                 addOpen = true
                             },
                         )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Edit,
-                                    contentDescription = null,
-                                    tint = palette.text1,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            },
-                            text = { Text(stringResource(R.string.floor_menu_edit_layout), color = palette.text1) },
+                        PosDropdownMenuRow(
+                            index = 1,
+                            totalCount = 3,
+                            text = stringResource(R.string.floor_menu_edit_layout),
+                            selected = false,
+                            colors = colors,
+                            leadingIcon = Icons.Outlined.Edit,
                             onClick = {
                                 menuOpen = false
                                 onEditLayout()
                             },
                         )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = null,
-                                    tint = Color(0xFFEF4444),
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            },
-                            text = { Text(stringResource(R.string.floor_menu_remove_floor), color = Color(0xFFEF4444)) },
+                        PosDropdownMenuRow(
+                            index = 2,
+                            totalCount = 3,
+                            text = stringResource(R.string.floor_menu_remove_floor),
+                            selected = false,
+                            colors = colors,
+                            leadingIcon = Icons.Outlined.Delete,
+                            danger = true,
                             onClick = {
                                 menuOpen = false
                                 if (floors.size > 1) removeOpen = true

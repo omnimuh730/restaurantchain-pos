@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -212,6 +213,7 @@ fun CustomRangePicker(
                 muted = muted,
                 text1 = text1,
                 text2 = text2,
+                todayDot = if (isDark) Color(0xFFF3F4F6) else Color(0xFF111827),
             )
 
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
@@ -268,7 +270,9 @@ private fun MonthGrid(
     muted: Color,
     text1: Color,
     text2: Color,
+    todayDot: Color,
 ) {
+    val todayCal = remember { Calendar.getInstance().also { it.zeroDay() } }
     val nav = Calendar.getInstance().apply { timeInMillis = navMillis; set(Calendar.DAY_OF_MONTH, 1); zeroDay() }
     val firstWeekday = nav.get(Calendar.DAY_OF_WEEK) - 1
     val daysInMonth = nav.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -289,8 +293,32 @@ private fun MonthGrid(
                     val e = maxOf(start, end)
                     val inRange = cellMs in s..e
                     val edge = cellMs == s || cellMs == e
-                    Box(Modifier.weight(1f).padding(vertical = 2.dp), contentAlignment = Alignment.Center) {
+                    val isToday = day in 1..daysInMonth &&
+                        cell.get(Calendar.YEAR) == todayCal.get(Calendar.YEAR) &&
+                        cell.get(Calendar.MONTH) == todayCal.get(Calendar.MONTH) &&
+                        cell.get(Calendar.DAY_OF_MONTH) == todayCal.get(Calendar.DAY_OF_MONTH)
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .padding(vertical = 2.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
                         if (day in 1..daysInMonth) {
+                            Box(
+                                Modifier
+                                    .height(6.dp)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.BottomCenter,
+                            ) {
+                                if (isToday) {
+                                    Box(
+                                        Modifier
+                                            .size(5.dp)
+                                            .clip(CircleShape)
+                                            .background(todayDot),
+                                    )
+                                }
+                            }
                             Box(
                                 Modifier
                                     .size(34.dp)
@@ -300,7 +328,7 @@ private fun MonthGrid(
                                             edge -> Blue600
                                             inRange -> if (isDark) Color(0x333B82F6) else Color(0xFFDBEAFE)
                                             else -> Color.Transparent
-                                        }
+                                        },
                                     )
                                     .clickable { onPick(cellMs) },
                                 contentAlignment = Alignment.Center,

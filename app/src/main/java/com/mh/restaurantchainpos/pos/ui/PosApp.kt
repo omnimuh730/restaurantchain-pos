@@ -1,6 +1,9 @@
 package com.mh.restaurantchainpos.pos.ui
 
+import android.app.Activity
+import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -8,6 +11,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.AuthRoute
 import com.mh.restaurantchainpos.pos.data.AuthSession
@@ -69,6 +75,22 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
 
     LaunchedEffect(role) {
         if (page !in allowed) page = allowed.first()
+    }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val ctx = view.context
+            if (ctx is Activity) {
+                val window = ctx.window
+                @Suppress("DEPRECATION")
+                window.navigationBarColor = colors.navBackground.toArgb()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.isNavigationBarContrastEnforced = false
+                }
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDark
+            }
+        }
     }
 
     RestaurantchainPOSTheme(darkTheme = isDark) {

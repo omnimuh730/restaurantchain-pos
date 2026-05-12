@@ -39,6 +39,7 @@ import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.DarkPosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.pos.ui.theme.posBackground
 
 @Composable
 fun AnalyticsScreen(colors: PosColors) {
@@ -53,12 +54,17 @@ fun AnalyticsScreen(colors: PosColors) {
     val border = colors.border
     val cardBg = colors.surface
 
-    val pageBg = if (isDark) Color(0xFF0F172A) else Color(0xFFF1F5F9)
-
     // Outer Box gives the mobile drawer overlay the full screen body height —
     // it spans the analytics section header AND the content below, rather than
     // only the area underneath the header that triggered it.
-    Box(Modifier.fillMaxSize().background(pageBg)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .then(
+                if (isDark) Modifier.background(Color(0xFF0F172A))
+                else Modifier.background(posBackground(colors)),
+            ),
+    ) {
         Row(Modifier.fillMaxSize()) {
             if (!isMobile) {
                 AnalyticsSidebar(

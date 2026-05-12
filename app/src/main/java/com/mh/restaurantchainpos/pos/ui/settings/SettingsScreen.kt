@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.pos.ui.theme.posBackground
 
 @Composable
 fun SettingsScreen(colors: PosColors, role: ActiveRole) {
@@ -47,7 +48,7 @@ fun SettingsScreen(colors: PosColors, role: ActiveRole) {
     // Outer Box gives the mobile drawer overlay full screen-body height —
     // the same pattern Analytics uses so the drawer can cover both the
     // section header and the content area below it.
-    Box(Modifier.fillMaxSize().background(colors.surfaceRaised)) {
+    Box(Modifier.fillMaxSize().background(posBackground(colors))) {
         Row(Modifier.fillMaxSize()) {
             // Wide-mode docked sidebar. Only render when the user actually has
             // more than one section, otherwise it's wasted chrome.

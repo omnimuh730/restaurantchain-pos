@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,6 +32,7 @@ import com.mh.restaurantchainpos.pos.ui.components.CountBadge
 import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
+import com.mh.restaurantchainpos.ui.theme.InterFontFamily
 
 @Composable
 fun PosAppNavigationRail(
@@ -87,13 +90,18 @@ fun PosAppNavigationRail(
                         }
                     }
                     Text(
-                        label,
+                        text = label,
                         color = if (active) colors.navSelectedForeground else colors.navInactive,
-                        fontSize = 10.sp,
-                        fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                        style = LocalTextStyle.current.merge(
+                            TextStyle(
+                                fontFamily = InterFontFamily,
+                                fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = 10.sp,
+                                lineHeight = 11.sp,
+                                textAlign = TextAlign.Center,
+                            ),
+                        ),
                         maxLines = 2,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 11.sp,
                     )
                 }
             }

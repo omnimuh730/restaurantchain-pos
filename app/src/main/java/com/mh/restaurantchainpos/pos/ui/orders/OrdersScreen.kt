@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.pos.ui.theme.posBackground
 import kotlin.math.min
 import java.util.UUID
 import kotlinx.coroutines.delay
@@ -185,7 +186,7 @@ fun OrdersScreen(
         setCurrentOrder(merged)
     }
 
-    Box(Modifier.fillMaxSize().background(colors.surfaceRaised)) {
+    Box(Modifier.fillMaxSize().background(posBackground(colors))) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             /** Use layout width so the order + menu split matches the real content area (not just screen config). */
             val useVerticalSplit = maxWidth < 768.dp

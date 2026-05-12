@@ -4,11 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mh.restaurantchainpos.pos.ui.layout.metrics.PosLayoutMetrics
@@ -42,6 +46,12 @@ fun PosShellScaffold(
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         content()
                     }
+                    Spacer(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(colors.navBackground)
+                            .windowInsetsBottomHeight(WindowInsets.navigationBars),
+                    )
                 }
             }
         } else {
@@ -52,8 +62,15 @@ fun PosShellScaffold(
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     content()
                 }
-                Box(Modifier.navigationBarsPadding()) {
+                // Extend navBackground through the system gesture / nav inset so it
+                // does not show the shell gradient (gray strip) under the bar.
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(colors.navBackground),
+                ) {
                     bottomBar()
+                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
                 }
             }
         }

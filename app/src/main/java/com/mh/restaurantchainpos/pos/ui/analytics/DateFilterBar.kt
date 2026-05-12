@@ -1,12 +1,5 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,14 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,6 +40,9 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+private const val WeekPagerCenterPage = 260
+private const val WeekPagerPageCount = 521
+
 @Composable
 fun DateFilterBar(
     period: Period,
@@ -55,22 +53,23 @@ fun DateFilterBar(
     modifier: Modifier = Modifier,
 ) {
     val today = remember { Calendar.getInstance().also { it.zeroTime() } }
-    var weekOffset by remember { mutableIntStateOf(0) }
+    val weekPager = rememberPagerState(
+        initialPage = WeekPagerCenterPage,
+        pageCount = { WeekPagerPageCount },
+    )
     var pickerOpen by remember { mutableStateOf(false) }
     var selectedDate by remember {
         mutableStateOf(Calendar.getInstance().also { it.zeroTime() }.timeInMillis)
     }
 
-    val days = remember(today, weekOffset) {
-        val sunday = Calendar.getInstance().apply {
-            timeInMillis = today.timeInMillis
-            add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + weekOffset * 7)
-        }
-        (0 until 7).map {
-            Calendar.getInstance().apply {
-                timeInMillis = sunday.timeInMillis
-                add(Calendar.DATE, it)
-            }
+    val weekOffset = weekPager.settledPage - WeekPagerCenterPage
+    val days = remember(today, weekOffset) { buildWeekDays(today, weekOffset) }
+
+    LaunchedEffect(selectedDate) {
+        val delta = weekPageDeltaForSelectedDay(selectedDate, today)
+        val target = (WeekPagerCenterPage + delta).coerceIn(0, WeekPagerPageCount - 1)
+        if (weekPager.settledPage != target) {
+            weekPager.scrollToPage(target)
         }
     }
 
@@ -79,28 +78,14 @@ fun DateFilterBar(
     val pillBg = if (isDark) Color(0xFF1F2937) else Color.White
 
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        AnimatedContent(
-            targetState = weekOffset,
-            transitionSpec = {
-                (slideInHorizontally(tween(220)) { 60 } + fadeIn(tween(220))).togetherWith(
-                    slideOutHorizontally(tween(220)) { -60 } + fadeOut(tween(220)),
-                )
-            },
-            label = "week-strip",
-        ) { animatedWeekOffset ->
-            val visibleDays = remember(today, animatedWeekOffset) {
-                val sunday = Calendar.getInstance().apply {
-                    timeInMillis = today.timeInMillis
-                    add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + animatedWeekOffset * 7)
-                }
-                (0 until 7).map {
-                    Calendar.getInstance().apply {
-                        timeInMillis = sunday.timeInMillis
-                        add(Calendar.DATE, it)
-                    }
-                }
-            }
-
+        HorizontalPager(
+            state = weekPager,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+        ) { page ->
+            val off = page - WeekPagerCenterPage
+            val visibleDays = remember(today, off) { buildWeekDays(today, off) }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -145,7 +130,7 @@ fun DateFilterBar(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = if (animatedWeekOffset == 0) weekdayShort(d) else dayOfMonth(d),
+                                text = if (off == 0) weekdayShort(d) else dayOfMonth(d),
                                 color = when {
                                     isFuture -> if (isDark) Color(0xFF475569) else Color(0xFFCBD5E1)
                                     isSelected -> Color.White
@@ -196,6 +181,37 @@ fun DateFilterBar(
                 pickerOpen = false
             },
         )
+    }
+}
+
+private fun buildWeekDays(today: Calendar, weekOffset: Int): List<Calendar> {
+    val sunday = Calendar.getInstance().apply {
+        timeInMillis = today.timeInMillis
+        add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + weekOffset * 7)
+    }
+    return (0 until 7).map {
+        Calendar.getInstance().apply {
+            timeInMillis = sunday.timeInMillis
+            add(Calendar.DATE, it)
+        }
+    }
+}
+
+private fun weekPageDeltaForSelectedDay(selectedMs: Long, today: Calendar): Int {
+    val d = Calendar.getInstance().apply {
+        timeInMillis = selectedMs
+        zeroTime()
+    }
+    val sunD = startOfWeekSunday(d)
+    val sunT = startOfWeekSunday(today)
+    return ((sunD.timeInMillis - sunT.timeInMillis) / (7 * HistoryData.DAY)).toInt()
+}
+
+private fun startOfWeekSunday(c: Calendar): Calendar {
+    return Calendar.getInstance().apply {
+        timeInMillis = c.timeInMillis
+        zeroTime()
+        add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1)
     }
 }
 

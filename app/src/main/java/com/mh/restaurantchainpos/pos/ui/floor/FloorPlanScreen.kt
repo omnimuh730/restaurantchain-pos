@@ -115,6 +115,7 @@ fun FloorPlanScreen(
             Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
 
             FloorTabsRow(
+                colors = colors,
                 palette = palette,
                 role = role,
                 floors = state.floors,

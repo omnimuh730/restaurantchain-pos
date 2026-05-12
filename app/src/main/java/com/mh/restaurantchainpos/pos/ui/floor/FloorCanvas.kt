@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -34,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
+import kotlin.math.ceil
+import kotlin.math.floor
 
 /**
  * Pan/zoom canvas for the floor plan. Mirrors the React FloorCanvas:
@@ -178,6 +181,20 @@ fun FloorCanvas(
                 }
             },
     ) {
+        Canvas(Modifier.fillMaxSize()) {
+            drawFloorWorldDotGridCulled(
+                palette = palette,
+                editMode = editMode,
+                panX = panX,
+                panY = panY,
+                zoom = zoom,
+                worldW = canvasPxW,
+                worldH = canvasPxH,
+                viewportW = viewportW,
+                viewportH = viewportH,
+                gridStepPx = FloorMetrics.SnapGrid.dp.toPx(),
+            )
+        }
         Box(
             Modifier
                 .size(width = FloorMetrics.CanvasW.dp, height = FloorMetrics.CanvasH.dp)
@@ -189,19 +206,6 @@ fun FloorCanvas(
                     translationY = panY
                 },
         ) {
-            Canvas(Modifier.matchParentSize()) {
-                val step = FloorMetrics.SnapGrid.dp.toPx()
-                val dotColor = palette.editBorder.copy(alpha = if (editMode) 0.4f else 0.18f)
-                var y = 0f
-                while (y < size.height) {
-                    var x = 0f
-                    while (x < size.width) {
-                        drawCircle(dotColor, radius = 1.5f, center = Offset(x, y))
-                        x += step
-                    }
-                    y += step
-                }
-            }
             tables.forEach { table ->
                 TableNode(
                     palette = palette,
@@ -232,5 +236,48 @@ fun FloorCanvas(
                 .align(Alignment.TopEnd)
                 .padding(end = zoomControlsEndPadding, top = zoomControlsTopPadding),
         )
+    }
+}
+
+/**
+ * Snap-grid dots in **world** coordinates, but only points visible in the viewport,
+ * so the texture fills the screen (not only the virtual canvas rect) when zoomed.
+ */
+private fun DrawScope.drawFloorWorldDotGridCulled(
+    palette: FloorPalette,
+    editMode: Boolean,
+    panX: Float,
+    panY: Float,
+    zoom: Float,
+    worldW: Float,
+    worldH: Float,
+    viewportW: Float,
+    viewportH: Float,
+    gridStepPx: Float,
+) {
+    if (viewportW <= 1f || viewportH <= 1f || zoom <= 0.001f || gridStepPx <= 0.001f) return
+    val z = zoom
+    val dotColor = if (editMode) {
+        palette.editBorder.copy(alpha = 0.52f)
+    } else {
+        palette.text3.copy(alpha = 0.72f)
+    }
+    val dotR = (2f * z).coerceIn(1.15f, 2.4f)
+    val minWx = (floor((-panX / z) / gridStepPx) * gridStepPx).toFloat().coerceIn(0f, worldW)
+    val maxWx = (ceil(((-panX + viewportW) / z) / gridStepPx) * gridStepPx + gridStepPx).toFloat()
+        .coerceIn(0f, worldW + gridStepPx)
+    val minWy = (floor((-panY / z) / gridStepPx) * gridStepPx).toFloat().coerceIn(0f, worldH)
+    val maxWy = (ceil(((-panY + viewportH) / z) / gridStepPx) * gridStepPx + gridStepPx).toFloat()
+        .coerceIn(0f, worldH + gridStepPx)
+    var wy = minWy
+    while (wy <= maxWy) {
+        var wx = minWx
+        while (wx <= maxWx) {
+            val sx = wx * z + panX
+            val sy = wy * z + panY
+            drawCircle(dotColor, dotR, Offset(sx, sy))
+            wx += gridStepPx
+        }
+        wy += gridStepPx
     }
 }
