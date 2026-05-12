@@ -16,7 +16,7 @@ enum class ActiveRole(val label: String) {
 }
 
 val roleNavAccess: Map<ActiveRole, List<PosPage>> = mapOf(
-    ActiveRole.Admin to listOf(PosPage.FloorPlan, PosPage.Orders, PosPage.Kitchen, PosPage.Analytics, PosPage.Settings),
+    ActiveRole.Admin to listOf(PosPage.Analytics, PosPage.FloorPlan, PosPage.Orders, PosPage.Kitchen, PosPage.Settings),
     ActiveRole.Cashier to listOf(PosPage.FloorPlan, PosPage.Orders, PosPage.Kitchen, PosPage.Settings),
     ActiveRole.Chef to listOf(PosPage.Kitchen, PosPage.Settings),
     ActiveRole.Waiter to listOf(PosPage.Orders, PosPage.Kitchen, PosPage.Settings),

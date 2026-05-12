@@ -3,20 +3,28 @@ package com.mh.restaurantchainpos.pos.ui.floor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Remove
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +49,8 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
@@ -70,10 +80,15 @@ fun FloorCanvas(
     onZoomChange: (Float) -> Unit,
     onSelectTable: (String?) -> Unit,
     onDragTable: (id: String, x: Int, y: Int, commit: Boolean) -> Unit,
+    zoomControlsTopPadding: Dp = 12.dp,
+    zoomControlsEndPadding: Dp = 12.dp,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val bg = if (editMode) palette.editBg else palette.bg
+    val currentZoom = rememberUpdatedState(zoom)
+    val currentOnZoomChange = rememberUpdatedState(onZoomChange)
+    val contentGutterPx = with(density) { FloorContentGutterDp.dp.toPx() }
 
     var viewportW by remember { mutableFloatStateOf(0f) }
     var viewportH by remember { mutableFloatStateOf(0f) }
@@ -83,27 +98,45 @@ fun FloorCanvas(
 
     val canvasPxW = with(density) { FloorMetrics.CanvasW.dp.toPx() }
     val canvasPxH = with(density) { FloorMetrics.CanvasH.dp.toPx() }
-
-    // Compute the "fit-to-content" zoom for the current viewport. Tables in the
-    // mock data are tightly clustered in the canvas top-left, so on a phone
-    // viewport zoom=1 leaves them stacked on top of each other. We use this to
-    // both clamp the minimum zoom and to apply once on first measurement so
-    // the initial render shows the full floor layout.
-    val fitZoom = remember(tables, viewportW, viewportH) {
-        val maxX = tables.maxOfOrNull { (it.x + it.width).toFloat() } ?: 0f
-        val maxY = tables.maxOfOrNull { (it.y + it.height).toFloat() } ?: 0f
-        val maxXPx = with(density) { maxX.dp.toPx() }
-        val maxYPx = with(density) { maxY.dp.toPx() }
-        if (maxXPx <= 0f || maxYPx <= 0f || viewportW <= 0f || viewportH <= 0f) {
-            1f
-        } else {
-            val fitW = viewportW / maxXPx
-            val fitH = viewportH / maxYPx
-            min(1f, max(0.1f, min(fitW, fitH)))
-        }
+    val contentBoundsDp = remember(tables) { calculateTableContentBoundsDp(tables) }
+    val contentBoundsPx = contentBoundsDp?.let { bounds ->
+        FloorContentBoundsPx(
+            left = with(density) { bounds.left.dp.toPx() },
+            top = with(density) { bounds.top.dp.toPx() },
+            right = with(density) { bounds.right.dp.toPx() },
+            bottom = with(density) { bounds.bottom.dp.toPx() },
+        )
     }
 
-    val minZoom = if (editMode) 0.1f else min(fitZoom, 1f)
+    val fitZoom = remember(contentBoundsPx, viewportW, viewportH) {
+        calculateFitContentZoom(
+            viewportW = viewportW,
+            viewportH = viewportH,
+            contentWidth = contentBoundsPx?.width ?: 0f,
+            contentHeight = contentBoundsPx?.height ?: 0f,
+            viewportPadding = contentGutterPx,
+        )
+    }
+    val minZoom = fitZoom
+
+    fun clampPanAt(proposedX: Float, proposedY: Float, zoomForClamp: Float): Offset =
+        clampPanToContentBounds(
+            proposedX = proposedX,
+            proposedY = proposedY,
+            zoom = zoomForClamp,
+            viewportW = viewportW,
+            viewportH = viewportH,
+            canvasW = canvasPxW,
+            canvasH = canvasPxH,
+            contentBounds = contentBoundsPx,
+            viewportPadding = contentGutterPx,
+        )
+
+    fun applyClampedPan(zoomForClamp: Float = currentZoom.value) {
+        val clamped = clampPanAt(panX, panY, zoomForClamp)
+        panX = clamped.x
+        panY = clamped.y
+    }
 
     LaunchedEffect(fitZoom, viewportW) {
         if (!fitApplied && viewportW > 0f && fitZoom < 1f && !editMode) {
@@ -111,17 +144,14 @@ fun FloorCanvas(
             fitApplied = true
         }
     }
-    LaunchedEffect(minZoom) {
-        if (zoom < minZoom) onZoomChange(minZoom)
-    }
-
-    fun clampPan() {
-        val w = canvasPxW * zoom
-        val h = canvasPxH * zoom
-        val minX = min(0f, viewportW - w)
-        val minY = min(0f, viewportH - h)
-        panX = panX.coerceIn(minX, 0f)
-        panY = panY.coerceIn(minY, 0f)
+    LaunchedEffect(zoom, minZoom, viewportW, viewportH, contentBoundsPx) {
+        val clampedZoom = zoom.coerceIn(minZoom, MaxFloorZoom)
+        if (clampedZoom != zoom) {
+            onZoomChange(clampedZoom)
+        }
+        val clamped = clampPanAt(panX, panY, clampedZoom)
+        panX = clamped.x
+        panY = clamped.y
     }
 
     Box(
@@ -132,29 +162,43 @@ fun FloorCanvas(
             .onSizeChanged {
                 viewportW = it.width.toFloat()
                 viewportH = it.height.toFloat()
-                clampPan()
+                applyClampedPan()
             }
             // Single canvas-pan / pinch-zoom handler. Uses `requireUnconsumed = true`
             // so the loop only starts when the down event was NOT swallowed by a
             // table — that way single-touch background drag pans the canvas, but
             // touching a table immediately routes events to the table's own
             // gesture loop without competing with this one.
-            .pointerInput(editMode, minZoom) {
+            .pointerInput(editMode, minZoom, contentBoundsPx, viewportW, viewportH) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = true)
                     if (editMode) onSelectTable(null)
+                    var gestureZoomLevel = currentZoom.value
                     do {
                         val event = awaitPointerEvent()
                         val pan = event.calculatePan()
                         val gestureZoom = event.calculateZoom()
                         if (gestureZoom != 1f) {
-                            val next = (zoom * gestureZoom).coerceIn(minZoom, 3f)
-                            if (next != zoom) onZoomChange(next)
+                            val nextZoom = (gestureZoomLevel * gestureZoom).coerceIn(minZoom, MaxFloorZoom)
+                            if (nextZoom != gestureZoomLevel) {
+                                val zoomPan = panForZoomAroundCentroid(
+                                    panX = panX,
+                                    panY = panY,
+                                    centroid = event.calculateCentroid(useCurrent = true),
+                                    oldZoom = gestureZoomLevel,
+                                    newZoom = nextZoom,
+                                )
+                                val clamped = clampPanAt(zoomPan.x, zoomPan.y, nextZoom)
+                                panX = clamped.x
+                                panY = clamped.y
+                                gestureZoomLevel = nextZoom
+                                currentOnZoomChange.value(nextZoom)
+                            }
                         }
                         if (pan != Offset.Zero) {
-                            panX += pan.x
-                            panY += pan.y
-                            clampPan()
+                            val clamped = clampPanAt(panX + pan.x, panY + pan.y, gestureZoomLevel)
+                            panX = clamped.x
+                            panY = clamped.y
                         }
                         event.changes.forEach { if (it.positionChange() != Offset.Zero) it.consume() }
                     } while (event.changes.any { it.pressed })
@@ -206,133 +250,14 @@ fun FloorCanvas(
             }
         }
 
-        Box(
-            Modifier
-                .align(Alignment.BottomEnd)
-                .padding(12.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(palette.editBorder.copy(alpha = 0.3f))
-                .padding(horizontal = 10.dp, vertical = 4.dp),
-        ) {
-            Text("${(zoom * 100).roundToInt()}%", color = palette.text2, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
-internal fun pointerDeltaPxToCanvasDp(deltaPx: Float, pxPerDp: Float): Float = deltaPx / pxPerDp
-
-internal fun calculateDraggedTablePosition(
-    table: FloorTable,
-    totalDxDp: Float,
-    totalDyDp: Float,
-): Pair<Int, Int> {
-    val snapped = FloorMetrics.SnapGrid
-    val nx = ((table.x + totalDxDp) / snapped).roundToInt() * snapped
-    val ny = ((table.y + totalDyDp) / snapped).roundToInt() * snapped
-    val cx = max(0, min(FloorMetrics.CanvasW - table.width, nx))
-    val cy = max(0, min(FloorMetrics.CanvasH - table.height, ny))
-    return cx to cy
-}
-
-@Composable
-private fun TableNode(
-    palette: FloorPalette,
-    table: FloorTable,
-    isSelected: Boolean,
-    editMode: Boolean,
-    showSeats: Boolean,
-    pxPerDp: Float,
-    onSelect: () -> Unit,
-    onDragMove: (dragStartTable: FloorTable, totalDxDp: Float, totalDyDp: Float, commit: Boolean) -> Unit,
-) {
-    val occupied = table.status == TableStatus.Occupied
-    val reserved = table.status == TableStatus.Reserved
-    val (fill, border, fg) = when {
-        editMode && isSelected -> Triple(palette.editSelected, Color(0xFF3370E8), Color.White)
-        editMode -> Triple(palette.editTableDefault, palette.editBorder, palette.editText2)
-        occupied -> Triple(palette.editSelected, Color(0xFF3370E8), Color.White)
-        reserved -> Triple(palette.editTableDefault, palette.reservedBorder, palette.editText1)
-        else -> Triple(palette.editTableDefault, palette.availableBorder, palette.editText1)
-    }
-    val shape = if (table.shape == TableShape.Circle) CircleShape else RoundedCornerShape(12.dp)
-    // Canvas-space coordinates (`table.x`, etc.) are conceptual dp — the
-    // React reference uses CSS px which we mirror as dp on Android. Use the
-    // dp-overload of `offset` so positioning matches sizing.
-    val baseModifier = Modifier
-        .offset(table.x.dp, table.y.dp)
-        .size(table.width.dp, table.height.dp)
-        .clip(shape)
-        .background(fill)
-        .border(if (isSelected) 2.dp else 1.5.dp, border, shape)
-    val currentTable by rememberUpdatedState(table)
-    val currentOnDragMove by rememberUpdatedState(onDragMove)
-    val withGesture = if (editMode) {
-        baseModifier
-            .pointerInput(table.id, pxPerDp) {
-                // Custom gesture loop. Eagerly consume on the Initial pass so
-                // the parent canvas pan never sees this pointer.
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                    down.consume()
-                    val dragStartTable = currentTable
-                    onSelect()
-                    var totalDx = 0f
-                    var totalDy = 0f
-                    var moved = false
-                    // `positionChange` is already reported in the transformed
-                    // canvas' local coordinates, so only convert px -> dp here.
-                    // Dividing by zoom again makes the table outrun the finger
-                    // whenever the canvas is zoomed below 100%.
-                    // The React reference computes each move from the drag
-                    // start, so keep total gesture movement instead of snapping
-                    // tiny per-frame deltas back to the start cell.
-                    while (true) {
-                        val event = awaitPointerEvent(PointerEventPass.Initial)
-                        val pointer = event.changes.firstOrNull { it.id == down.id } ?: break
-                        val drag = pointer.positionChange()
-                        if (drag != Offset.Zero) {
-                            pointer.consume()
-                            moved = true
-                            totalDx += pointerDeltaPxToCanvasDp(drag.x, pxPerDp)
-                            totalDy += pointerDeltaPxToCanvasDp(drag.y, pxPerDp)
-                            currentOnDragMove(dragStartTable, totalDx, totalDy, false)
-                        }
-                        if (pointer.changedToUp()) {
-                            pointer.consume()
-                            if (moved) currentOnDragMove(dragStartTable, totalDx, totalDy, true)
-                            break
-                        }
-                    }
-                }
-            }
-    } else baseModifier.pointerInput(table.id) {
-        detectTapGestures { onSelect() }
-    }
-
-    Column(
-        modifier = withGesture.padding(6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            table.label,
-            color = fg,
-            fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
+        ZoomControls(
+            palette = palette,
+            zoom = zoom,
+            minZoom = minZoom,
+            onZoomChange = onZoomChange,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = zoomControlsEndPadding, top = zoomControlsTopPadding),
         )
-        if (editMode) {
-            if (showSeats) Text("(${table.seats})", color = fg.copy(alpha = 0.7f), fontSize = 11.sp)
-        } else if (occupied) {
-            Text(
-                "${if (table.occupiedSeats > 0) table.occupiedSeats else table.seats}/${table.seats}",
-                color = fg,
-                fontSize = 11.sp,
-            )
-            if (table.revenue > 0) Text("₩%,d".format(table.revenue), color = fg, fontSize = 12.sp)
-        } else if (reserved) {
-            Text("Reserved · ${table.reservationTime}", color = fg, fontSize = 10.sp)
-        } else {
-            Text("${table.seats}", color = fg, fontSize = 11.sp)
-        }
     }
 }

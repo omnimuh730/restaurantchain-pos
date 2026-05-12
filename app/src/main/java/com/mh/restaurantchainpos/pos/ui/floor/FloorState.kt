@@ -1,5 +1,9 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.TableRestaurant
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -8,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
 import com.mh.restaurantchainpos.pos.data.FloorTable
@@ -106,12 +111,12 @@ class FloorPlanState(
             height = FloorMetrics.BaseUnit,
             status = TableStatus.Available,
         )
-        updateTables { it + table }
+        updateTables(transform = { it + table })
         selectedTableId = table.id
     }
 
     fun deleteTable(id: String) {
-        updateTables { list -> list.filterNot { it.id == id } }
+        updateTables(transform = { list -> list.filterNot { it.id == id } })
         if (selectedTableId == id) selectedTableId = null
     }
 
@@ -123,13 +128,13 @@ class FloorPlanState(
             x = src.x + 30,
             y = src.y + 30,
         )
-        updateTables { it + dup }
+        updateTables(transform = { it + dup })
         selectedTableId = dup.id
     }
 
     fun updateSelected(transform: (FloorTable) -> FloorTable) {
         val id = selectedTableId ?: return
-        updateTables { list -> list.map { if (it.id == id) transform(it) else it } }
+        updateTables(transform = { list -> list.map { if (it.id == id) transform(it) else it } })
     }
 
     fun moveSelected(x: Int, y: Int, commit: Boolean) {
@@ -142,8 +147,8 @@ class FloorPlanState(
 fun rememberFloorPlanState(): FloorPlanState =
     remember { FloorPlanState(PosMockData.floors, PosMockData.reservations) }
 
-enum class FloorViewMode(val label: String, val icon: String) {
-    Floor("Floor", "▦"),
-    Table("Table", "▤"),
-    Calendar("Calendar", "▧"),
+enum class FloorViewMode(val label: String, val icon: ImageVector) {
+    Floor("Floor", Icons.Outlined.GridView),
+    Table("Table", Icons.Outlined.TableRestaurant),
+    Calendar("Calendar", Icons.Outlined.CalendarMonth),
 }

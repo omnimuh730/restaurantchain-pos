@@ -36,7 +36,7 @@ fun PosShellScaffold(
                     navigationRail()
                 }
                 Column(Modifier.weight(1f).fillMaxHeight()) {
-                    Box(Modifier.statusBarsPadding()) {
+                    Box(Modifier.fillMaxWidth().background(colors.surface).statusBarsPadding()) {
                         header()
                     }
                     Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -46,7 +46,7 @@ fun PosShellScaffold(
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                Box(Modifier.statusBarsPadding()) {
+                Box(Modifier.fillMaxWidth().background(colors.surface).statusBarsPadding()) {
                     header()
                 }
                 Box(Modifier.weight(1f).fillMaxWidth()) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,14 +13,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.outlined.TrendingUp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +38,7 @@ import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import kotlin.math.roundToInt
 
 @Composable
-fun DashboardView(
+fun SalesDashboardView(
     period: Period,
     onPeriodChange: (Period) -> Unit,
     range: DateRange?,
@@ -46,15 +54,15 @@ fun DashboardView(
     val tickColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF94A3B8)
     val mutedTrack = if (isDark) Color(0xFF374151) else Color(0xFFCBD5E1)
 
-    val kpiKrw = DashboardData.domesticKpis.getValue(period)
-    val kpiUsd = DashboardData.foreignKpis.getValue(period)
-    val data = DashboardData.forPeriod(period)
+    val kpiKrw = SalesDashboardData.domesticKpis.getValue(period)
+    val kpiUsd = SalesDashboardData.foreignKpis.getValue(period)
+    val data = SalesDashboardData.forPeriod(period)
 
     Column(
         modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -66,49 +74,74 @@ fun DashboardView(
         }
 
         // Total Revenue + payment split
-        Card(card, border) {
-            Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Total Revenue", color = text2, fontSize = 12.sp)
-                        ChangeChip(kpiKrw.revChange)
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        AnalyticsFormat.won(kpiKrw.totalRev.toLong()),
-                        color = Blue600,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    if (kpiUsd.totalRev > 0) {
-                        Spacer(Modifier.height(2.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("+ ", color = Color(0xFFEF4444), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                            Text(
-                                AnalyticsFormat.usd(kpiUsd.totalRev),
-                                color = Color(0xFFEF4444),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
+        AnalyticsCard(card, border) {
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(16.dp)) {
+                val compact = maxWidth < 360.dp
+                val revenueSummary: @Composable () -> Unit = {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Box(
+                                Modifier
+                                    .size(28.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Blue600.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(Icons.Outlined.Payments, contentDescription = null, tint = Blue600, modifier = Modifier.size(16.dp))
+                            }
+                            Text("Total Revenue", color = text2, fontSize = 12.sp)
+                            ChangeChip(kpiKrw.revChange)
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            AnalyticsFormat.won(kpiKrw.totalRev.toLong()),
+                            color = Blue600,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        if (kpiUsd.totalRev > 0) {
+                            Spacer(Modifier.height(2.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("+ ", color = Color(0xFFEF4444), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    AnalyticsFormat.usd(kpiUsd.totalRev),
+                                    color = Color(0xFFEF4444),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                            }
                         }
                     }
                 }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    DashboardData.paymentDomestic.forEachIndexed { i, dom ->
-                        val foreign = DashboardData.paymentForeign[i]
-                        val krw = (kpiKrw.totalRev * dom.pct / 100.0).toLong()
-                        val usd = kpiUsd.totalRev * foreign.pct / 100.0
-                        PaymentRow(
-                            label = dom.method,
-                            accent = Color(dom.accent),
-                            krw = krw,
-                            usd = usd,
-                            text1 = text1,
-                            text2 = text2,
-                        )
-                        if (i < DashboardData.paymentDomestic.lastIndex) {
-                            Box(Modifier.fillMaxWidth().height(1.dp).background(border))
+                val paymentSummary: @Composable () -> Unit = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        SalesDashboardData.paymentDomestic.forEachIndexed { i, dom ->
+                            val foreign = SalesDashboardData.paymentForeign[i]
+                            val krw = (kpiKrw.totalRev * dom.pct / 100.0).toLong()
+                            val usd = kpiUsd.totalRev * foreign.pct / 100.0
+                            PaymentRow(
+                                label = dom.method,
+                                icon = if (dom.method == "Credit") Icons.Outlined.CreditCard else Icons.Outlined.Payments,
+                                accent = Color(dom.accent),
+                                krw = krw,
+                                usd = usd,
+                                text2 = text2,
+                            )
+                            if (i < SalesDashboardData.paymentDomestic.lastIndex) {
+                                Box(Modifier.fillMaxWidth().height(1.dp).background(border))
+                            }
                         }
+                    }
+                }
+                if (compact) {
+                    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        revenueSummary()
+                        paymentSummary()
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Box(Modifier.weight(1f)) { revenueSummary() }
+                        Box(Modifier.weight(1f)) { paymentSummary() }
                     }
                 }
             }
@@ -120,6 +153,7 @@ fun DashboardView(
                 "Total Orders",
                 kpiKrw.totalOrders,
                 kpiKrw.ordChange,
+                Icons.Outlined.ShoppingCart,
                 card,
                 border,
                 text1,
@@ -130,6 +164,7 @@ fun DashboardView(
                 "Avg Ticket",
                 AnalyticsFormat.won(kpiKrw.avgTicket.toLong()),
                 kpiKrw.ticketChange,
+                Icons.AutoMirrored.Outlined.TrendingUp,
                 card,
                 border,
                 text1,
@@ -140,6 +175,7 @@ fun DashboardView(
                 "Cancellations",
                 kpiKrw.cancels,
                 kpiKrw.cancelChange,
+                Icons.Outlined.Cancel,
                 card,
                 border,
                 text1,
@@ -149,7 +185,7 @@ fun DashboardView(
         }
 
         // Sales Trend area
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Text("Sales Trend", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
@@ -175,7 +211,7 @@ fun DashboardView(
         }
 
         // Peak revenue bar chart
-        Card(card, border) {
+        AnalyticsCard(card, border) {
             val activeKey = data.map { it.revenueKrw.toFloat() }
             val peakIdx = activeKey.withIndex().maxByOrNull { it.value }?.index ?: 0
             Column(Modifier.padding(16.dp)) {
@@ -207,14 +243,14 @@ fun DashboardView(
 @Composable
 private fun PaymentRow(
     label: String,
+    icon: ImageVector,
     accent: Color,
     krw: Long,
     usd: Double,
-    text1: Color,
     text2: Color,
 ) {
     Row(verticalAlignment = Alignment.Top) {
-        Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
+        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(8.dp))
         Text(label, color = text2, fontSize = 13.sp, modifier = Modifier.weight(1f))
         Column(horizontalAlignment = Alignment.End) {
@@ -227,7 +263,6 @@ private fun PaymentRow(
                     Text(AnalyticsFormat.usd(usd), color = Color(0xFFEF4444), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
-            @Suppress("UNUSED_EXPRESSION") text1
         }
     }
 }
@@ -237,6 +272,7 @@ private fun KpiCard(
     label: String,
     value: String,
     change: String,
+    icon: ImageVector,
     card: Color,
     border: Color,
     text1: Color,
@@ -252,7 +288,7 @@ private fun KpiCard(
     ) {
         Column {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                Text(kpiGlyph(label), color = text2, fontSize = 13.sp)
+                Icon(icon, contentDescription = null, tint = text2, modifier = Modifier.size(16.dp))
                 ChangeChip(change)
             }
             Spacer(Modifier.height(4.dp))
@@ -274,20 +310,3 @@ private fun ChangeChip(change: String) {
     }
 }
 
-@Composable
-private fun Card(card: Color, border: Color, content: @Composable () -> Unit) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp)),
-    ) { content() }
-}
-
-private fun kpiGlyph(label: String): String = when {
-    label.startsWith("Total Orders") -> "🛒"
-    label.startsWith("Avg") -> "📈"
-    label.startsWith("Cancel") -> "✕"
-    else -> "•"
-}

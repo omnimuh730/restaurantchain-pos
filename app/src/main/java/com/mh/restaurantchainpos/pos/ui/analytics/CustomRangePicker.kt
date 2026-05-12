@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -30,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -59,31 +63,38 @@ fun CustomRangePicker(
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val muted = if (isDark) Color(0xFF374151) else Color(0xFFF1F5F9)
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0x99000000))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClose,
-            ),
-        contentAlignment = Alignment.Center,
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
     ) {
-        Column(
+        Box(
             Modifier
-                .padding(16.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(card)
-                .border(1.dp, border, RoundedCornerShape(16.dp))
+                .fillMaxSize()
+                .background(Color(0x99000000))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = {},
-                )
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                    onClick = onClose,
+                ),
+            contentAlignment = Alignment.Center,
         ) {
+            Column(
+                Modifier
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(card)
+                    .border(1.dp, border, RoundedCornerShape(16.dp))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {},
+                    )
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("Select date range", color = text1, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -102,7 +113,12 @@ fun CustomRangePicker(
                 ) { Text("✕", color = text2, fontSize = 14.sp) }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 listOf(
                     "Last 1 week" to 7,
                     "Last 2 weeks" to 14,
@@ -210,6 +226,7 @@ fun CustomRangePicker(
                     Text("Apply", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
+        }
         }
     }
 }
