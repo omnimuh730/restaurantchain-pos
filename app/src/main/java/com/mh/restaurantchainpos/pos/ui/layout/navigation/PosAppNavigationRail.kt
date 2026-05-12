@@ -63,7 +63,7 @@ fun PosAppNavigationRail(
                         Icon(
                             imageVector = posPageNavIcon(item),
                             contentDescription = item.label,
-                            tint = if (active) colors.text else colors.navInactive,
+                            tint = if (active) colors.navActive else colors.navInactive,
                             modifier = Modifier.size(22.dp),
                         )
                         if (badge > 0) {
@@ -72,7 +72,7 @@ fun PosAppNavigationRail(
                     }
                     Text(
                         item.label,
-                        color = if (active) colors.text else colors.navInactive,
+                        color = if (active) colors.navActive else colors.navInactive,
                         fontSize = 10.sp,
                         maxLines = 2,
                         textAlign = TextAlign.Center,

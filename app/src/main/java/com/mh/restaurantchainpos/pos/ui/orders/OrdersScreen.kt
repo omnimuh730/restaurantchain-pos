@@ -17,22 +17,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
-import com.mh.restaurantchainpos.pos.data.CurrencyKind
-import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import kotlin.math.min
 import java.util.UUID
+import kotlinx.coroutines.delay
 
 @Composable
 fun OrdersScreen(colors: PosColors, role: ActiveRole) {
-    val isMobile = rememberIsMobile()
     val density = LocalDensity.current
     var selectedFloorId by remember { mutableStateOf("1F") }
     var selectedTableId by remember { mutableStateOf("T12") }
@@ -43,7 +44,10 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
     var query by remember { mutableStateOf("") }
     var showPayment by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
+    var showOrderConfirm by remember { mutableStateOf(false) }
     var splitFraction by remember { mutableFloatStateOf(0.35f) }
+    var orderScrollNonce by remember { mutableIntStateOf(0) }
+    var orderHighlightLineId by remember { mutableStateOf<String?>(null) }
     val orders = remember {
         mutableStateMapOf<String, List<OrderLine>>().apply { putAll(initialOrderLines()) }
     }
@@ -54,66 +58,91 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
 
     val currentOrder = orders[selectedTableId].orEmpty()
     val visibleOrder = currentOrder.filterNot { it.deleted }
+    val (totalKrw, totalUsd) = orderCurrencyTotals(currentOrder)
     val selectedCategory = OrderMenuCategories.first { it.id == selectedCategoryId }
     val currentItems = selectedCategory.subCategories
         .filter { selectedSubId == null || it.id == selectedSubId }
         .flatMap { sub -> sub.items.map { item -> sub to item } }
         .filter { (_, item) -> query.isBlank() || item.name.contains(query.trim(), ignoreCase = true) }
-    val totalUsd = visibleOrder
-        .filter { it.currency == CurrencyKind.Foreign }
-        .sumOf { it.price * it.qty }
-    val totalKrw = visibleOrder
-        .filter { it.currency == CurrencyKind.Domestic }
-        .sumOf { it.price * it.qty }
-    val pendingCount = currentOrder.count { !it.ordered || it.deleted || (it.origQty != null && it.origQty != it.qty) }
+    val pendingCount = currentOrder.count { line ->
+        when {
+            line.deleted && line.ordered -> true
+            !line.deleted && !line.ordered -> true
+            !line.deleted && line.ordered && line.origQty != null && line.qty != line.origQty -> true
+            else -> false
+        }
+    }
+    val pendingNewItems = currentOrder.filter { !it.ordered && !it.deleted }
     val selectedTable = OrderTables.firstOrNull { it.id == selectedTableId }
     val canPay = role == ActiveRole.Admin || role == ActiveRole.Cashier
 
-    fun updateQty(lineId: String, qty: Int) {
-        setCurrentOrder(
-            currentOrder.mapNotNull { line ->
-                if (line.id != lineId) return@mapNotNull line
-                val nextQty = qty.coerceAtLeast(0)
-                if (!line.ordered && nextQty == 0) return@mapNotNull null
-                if (line.ordered) {
-                    line.copy(
-                        qty = nextQty,
-                        origQty = line.origQty ?: line.qty,
-                        deleted = nextQty == 0,
-                    )
-                } else {
-                    line.copy(qty = nextQty)
-                }
-            },
-        )
+    LaunchedEffect(orderHighlightLineId) {
+        val id = orderHighlightLineId ?: return@LaunchedEffect
+        delay(1_100)
+        if (orderHighlightLineId == id) {
+            orderHighlightLineId = null
+        }
+    }
+
+    LaunchedEffect(selectedTableId) {
+        orderHighlightLineId = null
+    }
+
+    fun adjustQty(lineId: String, delta: Int) {
+        val current = orders[selectedTableId].orEmpty()
+        orders[selectedTableId] = current.mapNotNull { existing ->
+            if (existing.id != lineId) return@mapNotNull existing
+            val nextQty = (existing.qty + delta).coerceAtLeast(0)
+            if (!existing.ordered && nextQty == 0) return@mapNotNull null
+            if (existing.ordered) {
+                existing.copy(
+                    qty = nextQty,
+                    origQty = existing.origQty ?: existing.qty,
+                    deleted = nextQty == 0,
+                )
+            } else {
+                existing.copy(qty = nextQty)
+            }
+        }
     }
 
     fun removeLine(lineId: String) {
-        setCurrentOrder(
-            currentOrder.mapNotNull { line ->
-                if (line.id != lineId) return@mapNotNull line
-                if (line.ordered) line.copy(deleted = true, origQty = line.origQty ?: line.qty) else null
-            },
-        )
+        val current = orders[selectedTableId].orEmpty()
+        orders[selectedTableId] = current.mapNotNull { existing ->
+            if (existing.id != lineId) return@mapNotNull existing
+            if (existing.ordered) existing.copy(deleted = true, origQty = existing.origQty ?: existing.qty) else null
+        }
     }
 
     fun addItem(sub: OrderSubCategory, item: OrderMenuItem) {
-        val existing = currentOrder.firstOrNull { it.baseId == item.id && !it.ordered && !it.deleted }
-        setCurrentOrder(
-            if (existing != null) {
-                currentOrder.map { if (it.id == existing.id) it.copy(qty = it.qty + 1) else it }
-            } else {
-                currentOrder + OrderLine(
-                    id = "${item.id}-${UUID.randomUUID()}",
-                    baseId = item.id,
-                    name = item.name,
-                    price = item.price,
-                    qty = 1,
-                    category = sub.label,
-                    currency = item.currency,
-                )
-            },
-        )
+        // Read fresh state from the snapshot map so rapid clicks across recompositions
+        // don't accidentally overwrite each other with a stale `currentOrder` capture.
+        val current = orders[selectedTableId].orEmpty()
+        val existingIndex = current.indexOfFirst { it.baseId == item.id && !it.ordered && !it.deleted }
+        val next = if (existingIndex >= 0) {
+            current.toMutableList().also { list ->
+                val existing = list[existingIndex]
+                list[existingIndex] = existing.copy(qty = existing.qty + 1)
+            }
+        } else {
+            current + OrderLine(
+                id = "${item.id}-${UUID.randomUUID()}",
+                baseId = item.id,
+                name = item.name,
+                price = item.price,
+                qty = 1,
+                category = sub.label,
+                currency = item.currency,
+            )
+        }
+        orders[selectedTableId] = next
+        val touchedId = if (existingIndex >= 0) {
+            current[existingIndex].id
+        } else {
+            next.last().id
+        }
+        orderHighlightLineId = touchedId
+        orderScrollNonce++
     }
 
     fun handleOrder() {
@@ -138,7 +167,9 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
 
     Box(Modifier.fillMaxSize().background(colors.surfaceRaised)) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            if (isMobile) {
+            /** Use layout width so the order + menu split matches the real content area (not just screen config). */
+            val useVerticalSplit = maxWidth < 768.dp
+            if (useVerticalSplit) {
                 val availableHeight = maxHeight
                 val totalHeightPx = with(density) { availableHeight.toPx() }.coerceAtLeast(1f)
                 Column(Modifier.fillMaxSize()) {
@@ -156,17 +187,24 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
                         onSelectTable = { selectedTableId = it; tableMenuOpen = false },
                         currentOrder = visibleOrder,
                         allOrders = orders,
-                        checkNumber = checkNumber(selectedTableId),
                         totalUsd = totalUsd,
                         totalKrw = totalKrw,
                         pendingCount = pendingCount,
                         canPay = canPay,
-                        onMinus = { updateQty(it.id, it.qty - 1) },
-                        onPlus = { updateQty(it.id, it.qty + 1) },
+                        onMinus = { adjustQty(it.id, -1) },
+                        onPlus = { adjustQty(it.id, +1) },
                         onRemove = { removeLine(it.id) },
-                        onOrder = ::handleOrder,
+                        onOrder = {
+                            if (pendingNewItems.isNotEmpty()) {
+                                showOrderConfirm = true
+                            } else {
+                                handleOrder()
+                            }
+                        },
                         onPay = { showPayment = true },
                         onHistory = { showHistory = true },
+                        orderScrollNonce = orderScrollNonce,
+                        highlightLineId = orderHighlightLineId,
                         modifier = Modifier.height(availableHeight * splitFraction),
                     )
                     SplitHandle(
@@ -196,6 +234,7 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
                     )
                 }
             } else {
+                val orderPanelWidth = min(430f, maxWidth.value * 0.42f).dp
                 Row(Modifier.fillMaxSize()) {
                     OrderPanel(
                         colors = colors,
@@ -211,18 +250,25 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
                         onSelectTable = { selectedTableId = it; tableMenuOpen = false },
                         currentOrder = visibleOrder,
                         allOrders = orders,
-                        checkNumber = checkNumber(selectedTableId),
                         totalUsd = totalUsd,
                         totalKrw = totalKrw,
                         pendingCount = pendingCount,
                         canPay = canPay,
-                        onMinus = { updateQty(it.id, it.qty - 1) },
-                        onPlus = { updateQty(it.id, it.qty + 1) },
+                        onMinus = { adjustQty(it.id, -1) },
+                        onPlus = { adjustQty(it.id, +1) },
                         onRemove = { removeLine(it.id) },
-                        onOrder = ::handleOrder,
+                        onOrder = {
+                            if (pendingNewItems.isNotEmpty()) {
+                                showOrderConfirm = true
+                            } else {
+                                handleOrder()
+                            }
+                        },
                         onPay = { showPayment = true },
                         onHistory = { showHistory = true },
-                        modifier = Modifier.width(430.dp).fillMaxHeight(),
+                        orderScrollNonce = orderScrollNonce,
+                        highlightLineId = orderHighlightLineId,
+                        modifier = Modifier.width(orderPanelWidth).fillMaxHeight(),
                     )
                     MenuPanel(
                         colors = colors,
@@ -256,6 +302,19 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
                 checkNumber = checkNumber(selectedTableId),
                 tableLabel = selectedTable?.label ?: selectedTableId,
                 onClose = { showPayment = false },
+            )
+        }
+
+        AnimatedVisibility(showOrderConfirm, modifier = Modifier.fillMaxSize()) {
+            ConfirmOrderDialog(
+                colors = colors,
+                tableLabel = selectedTable?.label ?: selectedTableId,
+                newItems = pendingNewItems,
+                onCancel = { showOrderConfirm = false },
+                onConfirm = {
+                    handleOrder()
+                    showOrderConfirm = false
+                },
             )
         }
     }

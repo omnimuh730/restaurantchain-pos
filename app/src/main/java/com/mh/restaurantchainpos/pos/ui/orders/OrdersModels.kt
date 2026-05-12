@@ -27,6 +27,14 @@ internal data class OrderLine(
     val origQty: Int? = null,
 )
 
+internal data class HistoryLineItem(
+    val name: String,
+    val qty: Int,
+    val each: Double,
+    val line: Double,
+    val currency: CurrencyKind,
+)
+
 internal data class HistoryBill(
     val id: String,
     val tableId: String,
@@ -34,4 +42,6 @@ internal data class HistoryBill(
     val krw: Double,
     val usd: Double,
     val method: String,
+    /** Line items shown when the bill row is expanded (reference UI). */
+    val lines: List<HistoryLineItem> = emptyList(),
 )

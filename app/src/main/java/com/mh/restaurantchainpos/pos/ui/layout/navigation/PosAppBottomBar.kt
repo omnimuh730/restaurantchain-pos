@@ -53,14 +53,14 @@ fun PosAppBottomBar(
                     Icon(
                         imageVector = posPageNavIcon(item),
                         contentDescription = item.label,
-                        tint = if (active) colors.text else colors.navInactive,
+                        tint = if (active) colors.navActive else colors.navInactive,
                         modifier = Modifier.size(22.dp),
                     )
                     if (badge > 0) {
                         CountBadge(count = badge, modifier = Modifier.align(Alignment.TopEnd))
                     }
                 }
-                Text(item.label, color = if (active) colors.text else colors.navInactive, fontSize = 11.sp, maxLines = 1)
+                Text(item.label, color = if (active) colors.navActive else colors.navInactive, fontSize = 11.sp, maxLines = 1)
             }
         }
     }

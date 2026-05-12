@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.pos.ui.theme.Blue300
+import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -57,6 +59,7 @@ internal fun MenuPanel(
             colors = colors,
             columns = 4,
             activeStrong = true,
+            selectedBorder = Blue400,
             onClick = onCategory,
         )
         GridButtons(
@@ -65,6 +68,7 @@ internal fun MenuPanel(
             colors = colors,
             columns = 4,
             activeStrong = false,
+            selectedBorder = Blue300,
             onClick = onSub,
         )
         LazyVerticalGrid(
@@ -90,6 +94,7 @@ private fun GridButtons(
     colors: PosColors,
     columns: Int,
     activeStrong: Boolean,
+    selectedBorder: Color,
     onClick: (String) -> Unit,
 ) {
     LazyVerticalGrid(
@@ -113,12 +118,12 @@ private fun GridButtons(
                         when {
                             active && activeStrong -> Blue600
                             active -> Blue500
-                            else -> colors.surfaceRaised.copy(alpha = if (activeStrong) 1f else 0.7f)
+                            else -> colors.chip
                         },
                     )
                     .border(
                         1.dp,
-                        if (active) Blue500.copy(alpha = 0.7f) else Color.Transparent,
+                        if (active) selectedBorder else Color.Transparent,
                         RoundedCornerShape(4.dp),
                     )
                     .clickable { onClick(id) }
@@ -146,7 +151,7 @@ private fun MenuTile(colors: PosColors, item: OrderMenuItem, onClick: () -> Unit
             .fillMaxWidth()
             .height(40.dp)
             .clip(RoundedCornerShape(4.dp))
-            .background(colors.surfaceRaised)
+            .background(colors.chip)
             .clickable(onClick = onClick)
             .padding(horizontal = 7.dp, vertical = 5.dp),
         contentAlignment = Alignment.BottomStart,

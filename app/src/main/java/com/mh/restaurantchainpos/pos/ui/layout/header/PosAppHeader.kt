@@ -3,9 +3,11 @@ package com.mh.restaurantchainpos.pos.ui.layout.header
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,8 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.GppGood
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -57,7 +67,12 @@ fun PosAppHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(Blue600), contentAlignment = Alignment.Center) {
-            Text("POS", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Icon(
+                imageVector = Icons.Outlined.GridView,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(20.dp),
+            )
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f, fill = false)) {
@@ -65,24 +80,52 @@ fun PosAppHeader(
                 "Restaurant Chain",
                 color = colors.text,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Bold,
                 letterSpacing = (-0.2).sp,
                 maxLines = 1,
             )
             Text(
-                "POINT OF SALE",
-                color = colors.textMuted.copy(alpha = 0.8f),
+                "POS SYSTEM",
+                color = colors.textMuted.copy(alpha = 0.85f),
                 fontSize = 10.sp,
-                letterSpacing = 1.sp,
+                letterSpacing = 0.8.sp,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1,
             )
         }
-        PosHeaderButton(if (isDark) "Light" else "Dark", colors, onToggleDark)
+        PosHeaderIconChip(colors, onClick = onToggleDark) {
+            Icon(
+                imageVector = if (isDark) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
+                contentDescription = if (isDark) "Light mode" else "Dark mode",
+                tint = colors.text,
+                modifier = Modifier.size(22.dp),
+            )
+        }
         Spacer(Modifier.width(8.dp))
-        PosHeaderButton("Lock", colors, onLock)
+        PosHeaderIconChip(colors, onClick = onLock) {
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = "Lock",
+                tint = colors.text,
+                modifier = Modifier.size(22.dp),
+            )
+        }
         Spacer(Modifier.width(8.dp))
         Box {
-            PosHeaderButton(role.label, colors) { expanded = true }
+            PosHeaderIconChip(colors, onClick = { expanded = true }) {
+                Icon(
+                    imageVector = Icons.Outlined.GppGood,
+                    contentDescription = role.label,
+                    tint = colors.text,
+                    modifier = Modifier.size(22.dp),
+                )
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = colors.textMuted,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 ActiveRole.entries.forEach { option ->
                     DropdownMenuItem(
@@ -111,15 +154,15 @@ fun PosAppHeader(
 }
 
 @Composable
-fun PosHeaderButton(text: String, colors: PosColors, onClick: () -> Unit) {
-    Box(
+private fun PosHeaderIconChip(colors: PosColors, onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+    Row(
         Modifier
             .clip(RoundedCornerShape(12.dp))
             .background(colors.surfaceRaised)
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 1)
-    }
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        content = content,
+    )
 }

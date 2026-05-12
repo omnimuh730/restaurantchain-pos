@@ -17,7 +17,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,14 +32,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+
+private val OrdersDropdownMenuRadius = 12.dp
+private val OrdersDropdownMenuElevation = 8.dp
+
+private fun ordersMenuRowShape(index: Int, count: Int): RoundedCornerShape {
+    val r = OrdersDropdownMenuRadius
+    if (count <= 1) return RoundedCornerShape(r)
+    val top = if (index == 0) r else 0.dp
+    val bottom = if (index == count - 1) r else 0.dp
+    return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
+}
 
 @Composable
 internal fun DropdownChip(
@@ -42,19 +62,117 @@ internal fun DropdownChip(
     onExpandedChange: (Boolean) -> Unit,
     content: @Composable () -> Unit,
 ) {
+    val menuShape = RoundedCornerShape(OrdersDropdownMenuRadius)
     Box {
-        Box(
+        Row(
             Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(colors.surfaceRaised)
+                .clip(RoundedCornerShape(10.dp))
+                .background(colors.newItemsBg)
                 .clickable { onExpandedChange(!expanded) }
-                .padding(horizontal = 9.dp, vertical = 7.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text("$text ${if (expanded) "^" else "v"}", color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Text(text, color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Icon(
+                imageVector = if (expanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = colors.text,
+            )
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { onExpandedChange(false) }) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+            offset = DpOffset(0.dp, (-2).dp),
+            shape = menuShape,
+            containerColor = colors.surface,
+            tonalElevation = 0.dp,
+            shadowElevation = OrdersDropdownMenuElevation,
+        ) {
             content()
         }
+    }
+}
+
+@Composable
+internal fun OrdersDropdownTextRow(
+    index: Int,
+    totalCount: Int,
+    text: String,
+    selected: Boolean,
+    colors: PosColors,
+    onClick: () -> Unit,
+) {
+    val shape = ordersMenuRowShape(index, totalCount)
+    val bg = if (selected) Blue500 else colors.surface
+    val fg = if (selected) Color.White else colors.text
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(bg)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = text,
+            color = fg,
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+        )
+    }
+}
+
+@Composable
+internal fun OrdersDropdownTableRow(
+    index: Int,
+    totalCount: Int,
+    label: String,
+    seats: Int,
+    hasOrder: Boolean,
+    selected: Boolean,
+    colors: PosColors,
+    onClick: () -> Unit,
+) {
+    val shape = ordersMenuRowShape(index, totalCount)
+    val bg = if (selected) Blue500 else colors.surface
+    val labelColor = if (selected) Color.White else colors.text
+    val metaColor = if (selected) Color.White.copy(alpha = 0.88f) else colors.textMuted
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(bg)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = label,
+            color = labelColor,
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        if (hasOrder) {
+            Box(
+                Modifier
+                    .size(6.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) Color.White else Blue500),
+            )
+        }
+        Text(
+            text = "$seats seats",
+            color = metaColor,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+        )
     }
 }
 
@@ -73,6 +191,27 @@ internal fun CompactButton(text: String, colors: PosColors, onClick: () -> Unit)
 }
 
 @Composable
+internal fun HistoryButton(colors: PosColors, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(colors.surfaceRaised)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.History,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = colors.textMuted,
+        )
+        Text("History", color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
 internal fun ActionButton(
     text: String,
     active: Boolean,
@@ -83,21 +222,21 @@ internal fun ActionButton(
     onClick: () -> Unit,
 ) {
     val bg = when {
-        !enabled -> colors.surfaceRaised
-        active -> Blue600
-        else -> Color.Transparent
+        !enabled -> colors.surfaceRaised.copy(alpha = 0.65f)
+        active -> Blue500
+        else -> colors.surfaceRaised
     }
     val fg = when {
         !enabled -> colors.textMuted.copy(alpha = 0.65f)
         active -> Color.White
-        else -> Blue600
+        else -> colors.text
     }
     Row(
         modifier
             .fillMaxHeight()
             .clip(RoundedCornerShape(8.dp))
             .background(bg)
-            .border(1.dp, if (!active && enabled) Blue600 else Color.Transparent, RoundedCornerShape(8.dp))
+            .border(1.dp, if (!active && enabled) colors.border else Color.Transparent, RoundedCornerShape(8.dp))
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
@@ -106,8 +245,25 @@ internal fun ActionButton(
         Text(text, color = fg, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (badge != null) {
             Spacer(Modifier.width(6.dp))
-            Box(Modifier.size(18.dp).clip(CircleShape).background(Blue600), contentAlignment = Alignment.Center) {
-                Text(badge.toString(), color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Box(
+                Modifier
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(Blue500),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = badge.toString(),
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 10.sp,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    ),
+                )
             }
         }
     }
@@ -117,14 +273,28 @@ internal fun ActionButton(
 internal fun QtyButton(text: String, colors: PosColors, onClick: () -> Unit) {
     Box(
         Modifier
-            .size(width = 18.dp, height = 18.dp)
+            .size(22.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(colors.surfaceRaised)
             .border(1.dp, colors.border, RoundedCornerShape(4.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, color = colors.textMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        when (text) {
+            "-" -> Icon(
+                imageVector = Icons.Outlined.Remove,
+                contentDescription = "Decrease quantity",
+                modifier = Modifier.size(16.dp),
+                tint = colors.textMuted,
+            )
+            "+" -> Icon(
+                imageVector = Icons.Outlined.Add,
+                contentDescription = "Increase quantity",
+                modifier = Modifier.size(16.dp),
+                tint = colors.textMuted,
+            )
+            else -> Text(text, color = colors.textMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -153,29 +323,48 @@ internal fun SplitHandle(colors: PosColors, modifier: Modifier = Modifier) {
 
 @Composable
 internal fun SearchBox(value: String, onValueChange: (String) -> Unit, colors: PosColors) {
-    BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        textStyle = TextStyle(color = colors.text, fontSize = 12.sp),
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(34.dp)
+            .height(36.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(10.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        decorationBox = { inner ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                SearchGlyph(colors.textMuted)
-                Spacer(Modifier.width(10.dp))
-                Box(Modifier.weight(1f)) {
-                    if (value.isBlank()) Text("Search", color = colors.textMuted.copy(alpha = 0.72f), fontSize = 11.sp)
-                    inner()
-                }
-            }
-        },
-    )
+            .background(colors.surfaceRaised)
+            .border(1.dp, colors.inputOutline, RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SearchGlyph(colors.textMuted)
+            Spacer(Modifier.width(10.dp))
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = colors.text,
+                    fontSize = 12.sp,
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                ),
+                modifier = Modifier.weight(1f),
+                decorationBox = { inner ->
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (value.isBlank()) {
+                            Text(
+                                "Search",
+                                color = colors.textMuted.copy(alpha = 0.72f),
+                                fontSize = 11.sp,
+                                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                            )
+                        }
+                        inner()
+                    }
+                },
+            )
+        }
+    }
 }
 
 @Composable

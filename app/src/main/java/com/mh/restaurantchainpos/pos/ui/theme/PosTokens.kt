@@ -10,13 +10,22 @@ data class PosColors(
     val headerBorder: Color,
     val navBackground: Color,
     val navInactive: Color,
+    /** Bottom / rail icon + label when the tab is selected (original: near-black on light). */
+    val navActive: Color,
     val text: Color,
     val textMuted: Color,
     val surface: Color,
     val surfaceRaised: Color,
     val border: Color,
+    /** Search fields and inputs: stroke that stays visible on `surfaceRaised` (esp. dark theme). */
+    val inputOutline: Color,
     val chip: Color,
     val overlay: Color,
+    /**
+     * Tinted background used to highlight the "NEW ITEMS" section so it stands out
+     * from the surrounding order list. Light: subtle Blue-50; dark: dark blue tint.
+     */
+    val newItemsBg: Color,
 )
 
 val LightPosColors = PosColors(
@@ -25,13 +34,17 @@ val LightPosColors = PosColors(
     headerBorder = Color(0xFFCBD5E1),
     navBackground = Color.White,
     navInactive = Color(0xFF94A3B8),
+    navActive = Color(0xFF111827),
     text = Color(0xFF1E293B),
     textMuted = Color(0xFF64748B),
     surface = Color.White,
     surfaceRaised = Color(0xFFF1F5F9),
     border = Color(0xFFE2E8F0),
-    chip = Color(0xFFF3F4F6),
+    inputOutline = Color(0xFFCBD5E1),
+    /** Foreground "tile" surface for category buttons / food tiles - lighter than the panel bg. */
+    chip = Color.White,
     overlay = Color(0x66000000),
+    newItemsBg = Color(0xFFEFF6FF),
 )
 
 val DarkPosColors = PosColors(
@@ -40,13 +53,17 @@ val DarkPosColors = PosColors(
     headerBorder = Color(0xFF222C38),
     navBackground = Color(0xFF0B0F14),
     navInactive = Color(0xFF4A5463),
+    navActive = Color(0xFFF3F4F6),
     text = Color(0xFFE5E7EB),
     textMuted = Color(0xFF9CA3AF),
     surface = Color(0xFF2A2D35),
     surfaceRaised = Color(0xFF3A3F4D),
     border = Color(0xFF374151),
-    chip = Color(0xFF3A3F4D),
+    inputOutline = Color(0xFF6B7280),
+    /** Foreground "tile" surface for category buttons / food tiles - lighter than surfaceRaised. */
+    chip = Color(0xFF454A58),
     overlay = Color(0x99000000),
+    newItemsBg = Color(0xFF2C3550),
 )
 
 object PosDimens {
@@ -70,7 +87,10 @@ fun posBackground(colors: PosColors): Brush =
 
 val Blue600 = Color(0xFF2563EB)
 val Blue500 = Color(0xFF3B82F6)
+val Blue700 = Color(0xFF1D4ED8)
 val Blue400 = Color(0xFF60A5FA)
+val Blue300 = Color(0xFF93C5FD)
+val Blue50 = Color(0xFFEFF6FF)
 val Green500 = Color(0xFF22C55E)
 val Green400 = Color(0xFF4ADE80)
 val Amber500 = Color(0xFFF59E0B)
