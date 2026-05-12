@@ -61,17 +61,6 @@ fun PosAppBottomBar(
                     .background(if (active) Blue600.copy(alpha = 0.08f) else Color.Transparent)
                     .clickable { onSelect(item) },
             ) {
-<<<<<<< HEAD
-                Box(Modifier.size(width = 34.dp, height = 26.dp), contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = posPageNavIcon(item),
-                        contentDescription = item.label,
-                        tint = if (active) colors.navActive else colors.navInactive,
-                        modifier = Modifier.size(22.dp),
-                    )
-                    if (badge > 0) {
-                        CountBadge(count = badge, modifier = Modifier.align(Alignment.TopEnd))
-=======
                 Box(
                     Modifier
                         .align(Alignment.TopCenter)
@@ -117,7 +106,6 @@ fun PosAppBottomBar(
                                 CountBadge(count = badge)
                             }
                         }
->>>>>>> 1cf3ad398a1be8959d53b6e63646849759eedb57
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
@@ -128,10 +116,6 @@ fun PosAppBottomBar(
                         maxLines = 1,
                     )
                 }
-<<<<<<< HEAD
-                Text(item.label, color = if (active) colors.navActive else colors.navInactive, fontSize = 11.sp, maxLines = 1)
-=======
->>>>>>> 1cf3ad398a1be8959d53b6e63646849759eedb57
             }
         }
     }

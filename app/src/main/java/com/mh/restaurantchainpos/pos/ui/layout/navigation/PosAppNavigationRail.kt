@@ -69,13 +69,8 @@ fun PosAppNavigationRail(
                         Icon(
                             painter = posPageNavPainter(item),
                             contentDescription = item.label,
-<<<<<<< HEAD
-                            tint = if (active) colors.navActive else colors.navInactive,
-                            modifier = Modifier.size(22.dp),
-=======
                             tint = if (active) Blue600 else colors.navInactive,
                             modifier = Modifier.size(if (active) 26.dp else 24.dp),
->>>>>>> 1cf3ad398a1be8959d53b6e63646849759eedb57
                         )
                         if (badge > 0) {
                             Box(
@@ -92,11 +87,7 @@ fun PosAppNavigationRail(
                     }
                     Text(
                         item.label,
-<<<<<<< HEAD
-                        color = if (active) colors.navActive else colors.navInactive,
-=======
                         color = if (active) Blue600 else colors.navInactive,
->>>>>>> 1cf3ad398a1be8959d53b6e63646849759eedb57
                         fontSize = 10.sp,
                         fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
                         maxLines = 2,
