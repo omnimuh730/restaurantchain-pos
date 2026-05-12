@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlinx.coroutines.delay
@@ -80,14 +82,14 @@ internal fun OrderPanel(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            DropdownChip(
+            PosDropdownChip(
                 text = floorLabel(selectedFloorId),
                 expanded = floorMenuOpen,
                 colors = colors,
                 onExpandedChange = onFloorMenu,
             ) {
                 OrderFloors.forEachIndexed { index, floor ->
-                    OrdersDropdownTextRow(
+                    PosDropdownMenuRow(
                         index = index,
                         totalCount = OrderFloors.size,
                         text = floor.label,
@@ -97,7 +99,7 @@ internal fun OrderPanel(
                     )
                 }
             }
-            DropdownChip(
+            PosDropdownChip(
                 text = selectedTable?.label ?: "Select Table",
                 expanded = tableMenuOpen,
                 colors = colors,

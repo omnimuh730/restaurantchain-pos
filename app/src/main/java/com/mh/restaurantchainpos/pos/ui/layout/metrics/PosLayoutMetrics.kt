@@ -25,7 +25,10 @@ data class PosLayoutMetrics(
 @Composable
 @ReadOnlyComposable
 fun rememberPosLayoutMetrics(
-    railBreakpointDp: Int = 900,
+    // Bumped from 900 → 1280 so the bottom navigation persists across phones
+    // and medium tablets (Pixel Tablet, iPad-class portrait/landscape, etc.)
+    // and only flips to a start rail on true desktop-class widths.
+    railBreakpointDp: Int = 1280,
     compactHeaderWidthDp: Int = 400,
 ): PosLayoutMetrics {
     val configuration = LocalConfiguration.current

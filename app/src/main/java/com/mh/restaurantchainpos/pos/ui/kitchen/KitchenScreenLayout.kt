@@ -21,10 +21,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.SwapVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.KitchenOrder
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChipVariant
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
@@ -133,68 +133,34 @@ internal fun KitchenHeader(
                 }
             }
             Spacer(Modifier.weight(1f))
-            Box {
-                val pillShape = RoundedCornerShape(999.dp)
-                Row(
-                    Modifier
-                        .clip(pillShape)
-                        .border(1.dp, colors.border, pillShape)
-                        .background(colors.surface)
-                        .clickable { state.sortOpen = !state.sortOpen }
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.SwapVert,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = colors.textMuted,
+            // Sort selector — Outlined variant of the unified dropdown chip
+            // so it reads as a passive control on the kitchen header surface.
+            PosDropdownChip(
+                text = state.sortMode.triggerLabel,
+                expanded = state.sortOpen,
+                colors = colors,
+                onExpandedChange = { state.sortOpen = it },
+                leadingIcon = Icons.Outlined.SwapVert,
+                leadingIconTint = colors.textMuted,
+                labelColor = colors.textMuted,
+                chevronTint = colors.textMuted,
+                variant = PosDropdownChipVariant.Outlined,
+                menuOffset = DpOffset(x = (-58).dp, y = 4.dp),
+                menuWidth = 168.dp,
+            ) {
+                val modes = KitchenSortMode.entries
+                modes.forEachIndexed { index, mode ->
+                    PosDropdownMenuRow(
+                        index = index,
+                        totalCount = modes.size,
+                        text = mode.label,
+                        selected = state.sortMode == mode,
+                        colors = colors,
+                        onClick = {
+                            state.sortMode = mode
+                            state.sortOpen = false
+                        },
                     )
-                    Text(
-                        state.sortMode.triggerLabel,
-                        color = colors.textMuted,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = colors.textMuted,
-                    )
-                }
-                DropdownMenu(
-                    expanded = state.sortOpen,
-                    onDismissRequest = { state.sortOpen = false },
-                    modifier = Modifier.width(168.dp),
-                    offset = DpOffset(x = (-58).dp, y = 2.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    containerColor = colors.surface,
-                    tonalElevation = 0.dp,
-                    shadowElevation = 6.dp,
-                ) {
-                    KitchenSortMode.entries.forEach { mode ->
-                        val selected = state.sortMode == mode
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(if (selected) Blue500.copy(alpha = 0.12f) else Color.Transparent)
-                                .clickable {
-                                    state.sortMode = mode
-                                    state.sortOpen = false
-                                }
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                        ) {
-                            Text(
-                                text = mode.label,
-                                color = if (selected) Blue500 else colors.text,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 13.sp,
-                            )
-                        }
-                    }
                 }
             }
         }

@@ -17,12 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Shield
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.roleNavAccess
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -59,6 +59,7 @@ fun PosAppHeader(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val rolesPlusSignOutCount = ActiveRole.entries.size + 1
     Row(
         modifier
             .fillMaxWidth()
@@ -118,63 +119,77 @@ fun PosAppHeader(
         )
         Spacer(Modifier.width(6.dp))
 
-        // Role button — blue-tinted with shield + chevron
-        Box {
-            Row(
-                Modifier
-                    .height(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Blue500.copy(alpha = 0.12f))
-                    .clickable { expanded = true }
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Icon(
-                    Icons.Outlined.Shield,
-                    contentDescription = null,
-                    tint = Blue600,
-                    modifier = Modifier.size(16.dp),
-                )
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = Blue600,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                ActiveRole.entries.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            Column {
-                                Text(
-                                    option.label,
-                                    fontWeight = if (option == role) FontWeight.SemiBold else FontWeight.Normal,
-                                    color = if (option == role) Blue600 else colors.text,
-                                )
-                                Text(
-                                    "${roleNavAccess.getValue(option).size} pages",
-                                    fontSize = 10.sp,
-                                    color = colors.textMuted,
-                                )
-                            }
-                        },
-                        onClick = {
-                            onRole(option)
-                            expanded = false
-                        },
-                    )
-                }
-                DropdownMenuItem(
-                    text = { Text("Sign out", color = Color(0xFFEF4444)) },
+        // Role selector — uses the unified PosDropdownChip styling. The chip
+        // shows just the shield + chevron (no label) so it stays compact in
+        // the header, but the menu underneath uses the same row visuals as
+        // the Orders floor/table dropdowns.
+        PosDropdownChip(
+            text = "",
+            expanded = expanded,
+            colors = colors,
+            onExpandedChange = { expanded = it },
+            leadingIcon = Icons.Outlined.Shield,
+            leadingIconTint = Blue600,
+            chevronTint = Blue600,
+            labelColor = Blue600,
+        ) {
+            val total = rolesPlusSignOutCount
+            ActiveRole.entries.forEachIndexed { index, option ->
+                PosDropdownMenuRow(
+                    index = index,
+                    totalCount = total,
+                    text = option.label,
+                    secondaryText = "${roleNavAccess.getValue(option).size} pages",
+                    selected = option == role,
+                    colors = colors,
                     onClick = {
+                        onRole(option)
                         expanded = false
-                        onSignOut()
                     },
                 )
             }
+            // Sign-out lives in the same menu but with a destructive tint.
+            // Render it manually so we can use the danger red without faking
+            // a "selected" state.
+            SignOutMenuRow(
+                index = total - 1,
+                totalCount = total,
+                colors = colors,
+                onClick = {
+                    expanded = false
+                    onSignOut()
+                },
+            )
         }
+    }
+}
+
+@Composable
+private fun SignOutMenuRow(
+    index: Int,
+    totalCount: Int,
+    colors: PosColors,
+    onClick: () -> Unit,
+) {
+    val danger = Color(0xFFEF4444)
+    val shape = com.mh.restaurantchainpos.pos.ui.components.posMenuRowShape(index, totalCount)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(colors.surface)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Outlined.Logout,
+            contentDescription = null,
+            tint = danger,
+            modifier = Modifier.size(16.dp),
+        )
+        Text("Sign out", color = danger, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
