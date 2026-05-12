@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
 @Composable
@@ -103,6 +104,8 @@ fun FloorTabsRow(
                 } else {
                     Column(
                         Modifier
+                            .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                            .background(if (isActive) Blue500.copy(alpha = 0.10f) else Color.Transparent)
                             .clickable { onSelectFloor(f.id) }
                             .padding(horizontal = 14.dp)
                             .padding(top = 10.dp),
@@ -115,28 +118,32 @@ fun FloorTabsRow(
                         ) {
                             Text(
                                 f.name,
-                                color = if (isActive) palette.text1 else palette.text2,
-                                fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-                                fontSize = 14.sp,
+                                color = if (isActive) Blue600 else palette.text2,
+                                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = 15.sp,
                             )
                             Box(
                                 Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(palette.raised)
-                                    .padding(horizontal = 6.dp, vertical = 1.dp),
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(
+                                        if (isActive) Blue600.copy(alpha = 0.16f) else palette.raised,
+                                    )
+                                    .padding(horizontal = 7.dp, vertical = 2.dp),
                             ) {
                                 Text(
                                     f.tables.size.toString(),
-                                    color = if (isActive) palette.text2 else palette.text3,
+                                    color = if (isActive) Blue600 else palette.text3,
                                     fontSize = 11.sp,
+                                    fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
                                 )
                             }
                         }
                         Box(
                             Modifier
-                                .height(2.dp)
+                                .height(3.dp)
                                 .fillMaxWidth()
-                                .background(if (isActive) Blue500 else Color.Transparent),
+                                .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                                .background(if (isActive) Blue600 else Color.Transparent),
                         )
                     }
                 }

@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -53,7 +55,7 @@ fun AnalyticsSidebar(
             SidebarContent(active = active, onSelect = onSelect, isDark = isDark)
         }
     } else {
-        Box(Modifier.fillMaxSize()) {
+        Box(modifier.fillMaxSize()) {
             AnimatedVisibility(visible = drawerOpen, enter = fadeIn(), exit = fadeOut()) {
                 Box(
                     Modifier
@@ -111,19 +113,26 @@ private fun SidebarContent(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(10.dp))
                     .background(if (isActive) Blue600 else Color.Transparent)
                     .clickable { onSelect(section) }
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = 12.dp, vertical = 13.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(section.icon, color = if (isActive) Color.White else text2, fontSize = 14.sp)
+                Box(Modifier.size(30.dp), contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = section.icon,
+                        contentDescription = section.label,
+                        tint = if (isActive) Color.White else text2,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
                 Spacer(Modifier.width(10.dp))
                 Text(
                     sectionMenuLabel(section),
                     color = if (isActive) Color.White else text2,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 15.sp,
+                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
                 )
             }
         }

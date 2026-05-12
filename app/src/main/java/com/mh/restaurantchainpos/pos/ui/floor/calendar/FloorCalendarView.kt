@@ -1,10 +1,5 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,38 +22,46 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.data.ReservationType
+import com.mh.restaurantchainpos.pos.ui.components.PosNotificationHost
+import com.mh.restaurantchainpos.pos.ui.components.rememberPosNotificationHostState
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
+import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlinx.coroutines.delay
 
 @Composable
 fun FloorCalendarView(
+    colors: PosColors,
     palette: FloorPalette,
     floors: List<Floor>,
     activeFloorId: String,
     reservations: List<Reservation>,
+    dayOffset: Int,
+    onDayOffsetChange: (Int) -> Unit,
     onAccept: (Reservation) -> Unit,
     onDecline: (Reservation) -> Unit,
     onAssignTable: (reservationId: String, tableId: String) -> Unit = { _, _ -> },
+    onPanelOpenChange: (Boolean) -> Unit = {},
+    pendingApproval: Reservation? = null,
+    onPendingApprovalConsumed: () -> Unit = {},
+    pendingAssign: Reservation? = null,
+    onPendingAssignConsumed: () -> Unit = {},
 ) {
     val isMobile = rememberIsMobile()
-    var dayOffset by remember { mutableIntStateOf(0) }
     var startHour by remember { mutableFloatStateOf(16f) }
     var windowHours by remember { mutableFloatStateOf(8f) }
-    var panelOpen by remember { mutableStateOf(false) }
     var datePickerOpen by remember { mutableStateOf(false) }
     var pickerMonthOffset by remember { mutableIntStateOf(0) }
     var assigningId by remember { mutableStateOf<String?>(null) }
     var previewTableId by remember { mutableStateOf<String?>(null) }
     var flashTableId by remember { mutableStateOf<String?>(null) }
     var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    val notifications = rememberPosNotificationHostState()
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -79,7 +82,10 @@ fun FloorCalendarView(
     val dayReservations = reservations.filter { it.dayOffset == dayOffset }
     val pending = dayReservations.filter { it.type == ReservationType.Request }
     val confirmed = dayReservations.filter { it.type == ReservationType.Confirmed }
-    val requestCount = reservations.count { it.type == ReservationType.Request }
+    // Badge reflects pending requests for the *visible* day so navigating to a
+    // day with zero pending shows no badge (the side panel is also day-scoped
+    // — a global count would mislead users).
+    val requestCount = pending.size
     val assigningRez = assigningId?.let { id -> reservations.firstOrNull { it.id == id } }
     val previewTable = previewTableId?.let { id -> tables.firstOrNull { it.id == id } }
     val isToday = dayOffset == 0
@@ -92,7 +98,7 @@ fun FloorCalendarView(
 
     fun focusReservation(reservation: Reservation) {
         val start = timeToHour(reservation.startTime)
-        dayOffset = reservation.dayOffset
+        onDayOffsetChange(reservation.dayOffset)
         startHour = clampStart(start - windowHours / 3f)
     }
 
@@ -105,20 +111,33 @@ fun FloorCalendarView(
         focusReservation(reservation)
         assigningId = reservation.id
         previewTableId = null
-        panelOpen = false
+        onPanelOpenChange(false)
     }
 
     fun approveRequest(reservation: Reservation) {
         onAccept(reservation)
         focusReservation(reservation)
-        if (reservation.tableId.isBlank()) {
-            assigningId = reservation.id
-            previewTableId = null
-            panelOpen = false
-        } else {
-            assigningId = null
-            previewTableId = null
-            flashTableId = reservation.tableId
+        // Always enter assign mode after approval so the operator can pick (or
+        // confirm) a table. If the request already had a tentative table we
+        // pre-select it as the preview, otherwise the picker starts empty.
+        assigningId = reservation.id
+        previewTableId = reservation.tableId.takeIf { it.isNotBlank() }
+        onPanelOpenChange(false)
+    }
+
+    // The drawer's Approve/Assign actions are wired up from FloorPlanScreen
+    // (which renders the drawer at full-page-body height). They send the
+    // reservation through `pendingApproval` / `pendingAssign` for us to act on.
+    LaunchedEffect(pendingApproval) {
+        pendingApproval?.let { rez ->
+            approveRequest(rez)
+            onPendingApprovalConsumed()
+        }
+    }
+    LaunchedEffect(pendingAssign) {
+        pendingAssign?.let { rez ->
+            startAssign(rez)
+            onPendingAssignConsumed()
         }
     }
 
@@ -145,8 +164,12 @@ fun FloorCalendarView(
     }
 
     fun goToNow() {
-        dayOffset = 0
+        onDayOffsetChange(0)
         startHour = clampStart(nowHour - windowHours / 3f)
+    }
+
+    fun panWindow(deltaHours: Float) {
+        startHour = clampStart(startHour + deltaHours)
     }
 
     Box(Modifier.fillMaxSize().background(palette.bg)) {
@@ -159,9 +182,9 @@ fun FloorCalendarView(
                 reservationCount = dayReservations.size,
                 windowHours = windowHours,
                 isMobile = isMobile,
-                onMenuClick = { panelOpen = true },
-                onPreviousDay = { dayOffset -= 1 },
-                onNextDay = { dayOffset += 1 },
+                onMenuClick = { onPanelOpenChange(true) },
+                onPreviousDay = { onDayOffsetChange(dayOffset - 1) },
+                onNextDay = { onDayOffsetChange(dayOffset + 1) },
                 onOpenPicker = {
                     pickerMonthOffset = dayOffset
                     datePickerOpen = !datePickerOpen
@@ -182,8 +205,13 @@ fun FloorCalendarView(
                     onConfirm = {
                         val tableId = previewTableId
                         if (tableId != null) {
+                            val tableLabel = previewTable?.label ?: tableId
                             onAssignTable(reservation.id, tableId)
                             flashTableId = tableId
+                            notifications.success(
+                                title = "Table assigned",
+                                message = "${reservation.guestName} is confirmed at $tableLabel for ${reservation.startTime}.",
+                            )
                             cancelAssign()
                         }
                     },
@@ -207,6 +235,7 @@ fun FloorCalendarView(
                     isToday = isToday,
                     isTableAvailable = ::isTableAvailable,
                     onPickTable = { previewTableId = it },
+                    onWindowPan = ::panWindow,
                     modifier = Modifier.weight(1f).fillMaxSize(),
                 )
 
@@ -241,7 +270,7 @@ fun FloorCalendarView(
                 reservations = reservations,
                 onMonthOffsetChange = { pickerMonthOffset = it },
                 onSelectOffset = {
-                    dayOffset = it
+                    onDayOffsetChange(it)
                     datePickerOpen = false
                 },
                 modifier = Modifier
@@ -251,33 +280,15 @@ fun FloorCalendarView(
             )
         }
 
-        AnimatedVisibility(
-            visible = panelOpen,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color(0x80000000))
-                    .clickable { panelOpen = false },
-            )
-        }
-        AnimatedVisibility(
-            visible = panelOpen,
-            enter = slideInHorizontally(initialOffsetX = { -it }),
-            exit = slideOutHorizontally(targetOffsetX = { -it }),
-        ) {
-            CalendarPanel(
-                palette = palette,
-                pending = pending,
-                confirmed = confirmed,
-                onApprove = { approveRequest(it) },
-                onAssign = { startAssign(it) },
-                onDecline = onDecline,
-                onClose = { panelOpen = false },
-                modifier = Modifier.fillMaxHeight().width(if (isMobile) 320.dp else 360.dp),
-            )
-        }
+        // Drawer is rendered by FloorPlanScreen so it spans the full page body
+        // (top tabs + Hall/Lounge tabs + calendar body), not just this view.
+
+        PosNotificationHost(
+            state = notifications,
+            colors = colors,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(40f),
+        )
     }
 }

@@ -20,11 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.PosPage
 import com.mh.restaurantchainpos.pos.ui.components.CountBadge
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
 
@@ -58,6 +61,7 @@ fun PosAppNavigationRail(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clip(RoundedCornerShape(PosDimens.RadiusMd))
+                        .background(if (active) Blue600.copy(alpha = 0.10f) else Color.Transparent)
                         .clickable { onSelect(item) }
                         .padding(horizontal = 6.dp, vertical = 10.dp),
                 ) {
@@ -65,8 +69,8 @@ fun PosAppNavigationRail(
                         Icon(
                             painter = posPageNavPainter(item),
                             contentDescription = item.label,
-                            tint = if (active) colors.text else colors.navInactive,
-                            modifier = Modifier.size(24.dp),
+                            tint = if (active) Blue600 else colors.navInactive,
+                            modifier = Modifier.size(if (active) 26.dp else 24.dp),
                         )
                         if (badge > 0) {
                             Box(
@@ -83,8 +87,9 @@ fun PosAppNavigationRail(
                     }
                     Text(
                         item.label,
-                        color = if (active) colors.text else colors.navInactive,
+                        color = if (active) Blue600 else colors.navInactive,
                         fontSize = 10.sp,
+                        fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
                         maxLines = 2,
                         textAlign = TextAlign.Center,
                         lineHeight = 11.sp,

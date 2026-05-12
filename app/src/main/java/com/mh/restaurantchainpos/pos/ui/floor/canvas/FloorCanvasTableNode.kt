@@ -32,6 +32,7 @@ import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableShape
 import com.mh.restaurantchainpos.pos.data.TableStatus
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
+import kotlin.math.abs
 
 @Composable
 internal fun TableNode(
@@ -68,13 +69,17 @@ internal fun TableNode(
     val withGesture = if (editMode) {
         baseModifier
             .pointerInput(table.id, pxPerDp) {
+                // Touch-slop threshold (in canvas dp) before treating a gesture
+                // as a drag. Anything below this stays a tap and opens the
+                // property panel; anything above counts as a drag and must NOT
+                // open the panel — even at drag-start or drag-end.
+                val touchSlopDp = viewConfiguration.touchSlop / pxPerDp
                 // Custom gesture loop. Eagerly consume on the Initial pass so
                 // the parent canvas pan never sees this pointer.
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                     down.consume()
                     val dragStartTable = currentTable
-                    onSelect()
                     var totalDx = 0f
                     var totalDy = 0f
                     var moved = false
@@ -91,14 +96,27 @@ internal fun TableNode(
                         val drag = pointer.positionChange()
                         if (drag != Offset.Zero) {
                             pointer.consume()
-                            moved = true
                             totalDx += pointerDeltaPxToCanvasDp(drag.x, pxPerDp)
                             totalDy += pointerDeltaPxToCanvasDp(drag.y, pxPerDp)
-                            currentOnDragMove(dragStartTable, totalDx, totalDy, false)
+                            // Only switch into drag mode after exceeding touch
+                            // slop — small finger jitter on a tap shouldn't
+                            // commit a position change (and definitely
+                            // shouldn't suppress the upcoming tap).
+                            if (!moved && (abs(totalDx) > touchSlopDp || abs(totalDy) > touchSlopDp)) {
+                                moved = true
+                            }
+                            if (moved) {
+                                currentOnDragMove(dragStartTable, totalDx, totalDy, false)
+                            }
                         }
                         if (pointer.changedToUp()) {
                             pointer.consume()
-                            if (moved) currentOnDragMove(dragStartTable, totalDx, totalDy, true)
+                            if (moved) {
+                                currentOnDragMove(dragStartTable, totalDx, totalDy, true)
+                            } else {
+                                // Pure tap — open the property panel.
+                                onSelect()
+                            }
                             break
                         }
                     }

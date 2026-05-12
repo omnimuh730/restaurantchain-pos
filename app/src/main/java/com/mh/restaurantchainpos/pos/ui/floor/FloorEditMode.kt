@@ -40,16 +40,11 @@ fun FloorEditMode(
     LaunchedEffect(state.selectedTableId, isMobile) {
         if (isMobile && state.selectedTableId != null) mobileDrawerOpen = true
     }
-    val zoomControlsBottomPadding by animateDpAsState(
-        targetValue = if (isMobile) {
-            if (mobileDrawerOpen) 372.dp else 40.dp
-        } else {
-            12.dp
-        },
-        animationSpec = tween(durationMillis = 240),
-        label = "zoom-controls-bottom",
-    )
-    val zoomControlsEndPadding = if (isMobile) 76.dp else 12.dp
+    // Zoom controls live in the top-right corner of the canvas in both edit
+    // and preview modes, so they don't need to dance around the bottom drawer
+    // any more — a simple top/end inset is enough.
+    val zoomControlsTopPadding = 12.dp
+    val zoomControlsEndPadding = 12.dp
 
     Column(Modifier.fillMaxSize().background(palette.editBg)) {
         EditTopBar(palette, state, isMobile)
@@ -79,7 +74,7 @@ fun FloorEditMode(
                             }
                         }
                     },
-                    zoomControlsBottomPadding = zoomControlsBottomPadding,
+                    zoomControlsTopPadding = zoomControlsTopPadding,
                     zoomControlsEndPadding = zoomControlsEndPadding,
                     modifier = Modifier.weight(1f),
                 )
