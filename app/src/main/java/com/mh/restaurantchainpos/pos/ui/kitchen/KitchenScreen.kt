@@ -1,16 +1,21 @@
 package com.mh.restaurantchainpos.pos.ui.kitchen
 
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.KitchenStatus
 import com.mh.restaurantchainpos.pos.data.PosMockData
@@ -68,6 +73,7 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
                 },
             )
         }
+        val swipeThresholdPx = with(LocalDensity.current) { 56.dp.toPx() }
         Box(Modifier.weight(1f).fillMaxHeight()) {
             Column(Modifier.fillMaxSize()) {
                 KitchenHeader(
@@ -82,12 +88,36 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
                     inProgressOrders = inProgressOrders,
                     completedOrders = completedOrders,
                 )
-                KitchenContent(
-                    colors = colors,
-                    state = state,
-                    isMobile = isMobile,
-                    visible = visible,
-                )
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .pointerInput(swipeThresholdPx, state.activeTab) {
+                            var accumulated = 0f
+                            detectHorizontalDragGestures(
+                                onHorizontalDrag = { _, dragAmount ->
+                                    accumulated += dragAmount
+                                },
+                                onDragEnd = {
+                                    when {
+                                        accumulated < -swipeThresholdPx ->
+                                            state.activeTab = state.activeTab.nextFromSwipe()
+                                        accumulated > swipeThresholdPx ->
+                                            state.activeTab = state.activeTab.prevFromSwipe()
+                                    }
+                                    accumulated = 0f
+                                },
+                                onDragCancel = { accumulated = 0f },
+                            )
+                        },
+                ) {
+                    KitchenContent(
+                        colors = colors,
+                        state = state,
+                        isMobile = isMobile,
+                        visible = visible,
+                    )
+                }
             }
 
             if (isMobile) {
@@ -131,4 +161,17 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
             }
         }
     }
+}
+
+/** Swipe content left → later lane; swipe right → earlier lane. */
+private fun KitchenViewTab.nextFromSwipe(): KitchenViewTab = when (this) {
+    KitchenViewTab.Received -> KitchenViewTab.InProgress
+    KitchenViewTab.InProgress -> KitchenViewTab.Completed
+    KitchenViewTab.Completed -> KitchenViewTab.Completed
+}
+
+private fun KitchenViewTab.prevFromSwipe(): KitchenViewTab = when (this) {
+    KitchenViewTab.Received -> KitchenViewTab.Received
+    KitchenViewTab.InProgress -> KitchenViewTab.Received
+    KitchenViewTab.Completed -> KitchenViewTab.InProgress
 }

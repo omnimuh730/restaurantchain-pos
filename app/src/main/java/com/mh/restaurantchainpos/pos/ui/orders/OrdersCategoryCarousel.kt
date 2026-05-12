@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +12,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -41,7 +40,7 @@ private const val ItemsPerPage = 4
 
 /**
  * Horizontal pager: 4 category/subcategory chips per page, swipe for next set.
- * Thin line under the pager shows the active page (not dot pagination).
+ * Short lines under the pager (one per page), centered in a tight row; active page in blue.
  */
 @Composable
 internal fun OrdersCategoryCarousel(
@@ -131,31 +130,30 @@ internal fun OrdersCategoryCarousel(
             }
 
             if (pageCount > 1) {
-                BoxWithConstraints(
+                // Centered cluster of short lines (one per page), tight spacing; active page in blue.
+                val segmentW = 18.dp
+                val segmentGap = 3.dp
+                val inactive = colors.border.copy(alpha = 0.5f)
+                val activePage = pagerState.settledPage.coerceIn(0, pageCount - 1)
+                Row(
                     Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
                         .padding(top = 2.dp, bottom = 4.dp)
-                        .height(3.dp),
+                        .height(5.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val track = colors.border.copy(alpha = 0.35f)
-                    val thumbW = maxWidth / pageCount
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(3.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(track),
-                    )
-                    Box(
-                        Modifier
-                            .width(thumbW)
-                            .align(Alignment.CenterStart)
-                            .offset(x = thumbW * pagerState.settledPage)
-                            .height(3.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(Blue600),
-                    )
+                    repeat(pageCount) { i ->
+                        if (i > 0) Spacer(Modifier.width(segmentGap))
+                        Box(
+                            Modifier
+                                .width(segmentW)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(if (i == activePage) Blue600 else inactive),
+                        )
+                    }
                 }
             }
         }

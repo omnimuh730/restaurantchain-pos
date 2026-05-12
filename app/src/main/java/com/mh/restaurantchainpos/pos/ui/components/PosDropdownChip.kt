@@ -70,7 +70,11 @@ fun PosDropdownMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
-        modifier = if (menuWidth != null) modifier.width(menuWidth) else modifier,
+        modifier = if (menuWidth != null) {
+            modifier.width(menuWidth).padding(horizontal = 4.dp, vertical = 4.dp)
+        } else {
+            modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+        },
         offset = offset,
         shape = shape,
         containerColor = colors.surface,
@@ -202,7 +206,7 @@ fun PosDropdownMenuRow(
             .clip(shape)
             .background(bg)
             .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -75,16 +76,18 @@ fun FloorTabsRow(
         Row(
             Modifier
                 .fillMaxWidth()
+                .height(52.dp)
                 .background(palette.card)
                 .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Bottom,
         ) {
             Row(
                 Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .horizontalScroll(scroll),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Bottom,
             ) {
                 floors.forEach { f ->
                     val isActive = f.id == activeFloorId
@@ -108,14 +111,12 @@ fun FloorTabsRow(
                         Column(
                             Modifier
                                 .clickable { onSelectFloor(f.id) }
-                                .padding(horizontal = 12.dp)
-                                .padding(top = 6.dp),
+                                .padding(horizontal = 12.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier.padding(bottom = 4.dp),
                             ) {
                                 Text(
                                     f.name,
@@ -139,6 +140,7 @@ fun FloorTabsRow(
                                     )
                                 }
                             }
+                            Spacer(Modifier.height(4.dp))
                             Box(
                                 Modifier
                                     .height(4.dp)
@@ -151,7 +153,12 @@ fun FloorTabsRow(
             }
 
             if (isAdmin) {
-                Box {
+                Box(
+                    Modifier
+                        .height(52.dp)
+                        .width(40.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Box(
                         Modifier
                             .size(34.dp)

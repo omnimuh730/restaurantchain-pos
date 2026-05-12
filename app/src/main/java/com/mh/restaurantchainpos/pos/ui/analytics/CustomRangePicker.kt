@@ -304,32 +304,16 @@ private fun MonthGrid(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (day in 1..daysInMonth) {
-                            Box(
-                                Modifier
-                                    .height(6.dp)
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.BottomCenter,
-                            ) {
-                                if (isToday) {
-                                    Box(
-                                        Modifier
-                                            .size(5.dp)
-                                            .clip(CircleShape)
-                                            .background(todayDot),
-                                    )
-                                }
+                            val dayBg = when {
+                                edge -> Blue600
+                                inRange -> if (isDark) Color(0x333B82F6) else Color(0xFFDBEAFE)
+                                else -> Color.Transparent
                             }
                             Box(
                                 Modifier
                                     .size(34.dp)
                                     .clip(CircleShape)
-                                    .background(
-                                        when {
-                                            edge -> Blue600
-                                            inRange -> if (isDark) Color(0x333B82F6) else Color(0xFFDBEAFE)
-                                            else -> Color.Transparent
-                                        },
-                                    )
+                                    .background(dayBg)
                                     .clickable { onPick(cellMs) },
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -343,6 +327,18 @@ private fun MonthGrid(
                                     fontSize = 13.sp,
                                     fontWeight = if (edge) FontWeight.SemiBold else FontWeight.Normal,
                                 )
+                                if (isToday) {
+                                    // Inside the day circle: top marker reads clearly vs range fill; edge uses white on blue.
+                                    val dotFill = if (edge) Color.White else todayDot
+                                    Box(
+                                        Modifier
+                                            .align(Alignment.TopCenter)
+                                            .padding(top = 5.dp)
+                                            .size(5.dp)
+                                            .clip(CircleShape)
+                                            .background(dotFill),
+                                    )
+                                }
                             }
                         }
                     }
