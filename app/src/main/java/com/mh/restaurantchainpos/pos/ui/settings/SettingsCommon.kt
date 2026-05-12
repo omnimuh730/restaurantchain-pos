@@ -59,8 +59,7 @@ fun SettingCard(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(12.dp)),
+            .background(colors.surface),
     ) {
         Row(
             Modifier

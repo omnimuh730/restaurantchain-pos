@@ -2,7 +2,6 @@ package com.mh.restaurantchainpos.pos.ui.settings
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +19,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,70 +44,101 @@ internal data class HoursRow(@param:StringRes val dayLabelRes: Int, val open: St
 
 @Composable
 internal fun DaysOffCard(colors: PosColors, daysOff: SnapshotStateList<DayOff>, onAdd: () -> Unit) {
-    SettingCard(
-        colors = colors,
-        title = stringResource(R.string.settings_gen_days_off_title),
-        subtitle = stringResource(R.string.settings_gen_days_off_subtitle),
-        headerIcon = Icons.Outlined.CalendarToday,
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Column {
-                Text(stringResource(R.string.settings_gen_hours_add_day_off), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Spacer(Modifier.height(6.dp))
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 44.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(colors.surface)
-                        .border(1.dp, colors.border, RoundedCornerShape(10.dp))
-                        .clickable(onClick = onAdd)
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.size(10.dp))
-                        Text(stringResource(R.string.settings_gen_hours_select_date), color = colors.textMuted, fontSize = 14.sp)
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-                Text(stringResource(R.string.settings_gen_hours_select_hint), color = colors.textMuted, fontSize = 11.sp)
-            }
-
-            if (daysOff.isNotEmpty()) {
+    var pendingRemove by remember { mutableStateOf<DayOff?>(null) }
+    Box {
+        SettingCard(
+            colors = colors,
+            title = stringResource(R.string.settings_gen_days_off_title),
+            subtitle = stringResource(R.string.settings_gen_days_off_subtitle),
+            headerIcon = Icons.Outlined.CalendarToday,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Column {
-                    Text(
-                        stringResource(R.string.settings_gen_hours_scheduled, daysOff.size),
-                        color = colors.text,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        daysOff.toList().forEach { day ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(colors.surfaceRaised)
-                                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(formatLongDate(day), color = colors.text, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                                Box(
+                    Text(stringResource(R.string.settings_gen_hours_add_day_off), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(6.dp))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 44.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(colors.surfaceRaised)
+                            .clickable(onClick = onAdd)
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.size(10.dp))
+                            Text(stringResource(R.string.settings_gen_hours_select_date), color = colors.textMuted, fontSize = 14.sp)
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(R.string.settings_gen_hours_select_hint), color = colors.textMuted, fontSize = 11.sp)
+                }
+
+                if (daysOff.isNotEmpty()) {
+                    Column {
+                        Text(
+                            stringResource(R.string.settings_gen_hours_scheduled, daysOff.size),
+                            color = colors.text,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            daysOff.toList().forEach { day ->
+                                Row(
                                     Modifier
-                                        .size(24.dp)
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .clickable { daysOff.remove(day) },
-                                    contentAlignment = Alignment.Center,
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(colors.surfaceRaised)
+                                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Icon(Icons.Outlined.Close, contentDescription = null, tint = Red500, modifier = Modifier.size(16.dp))
+                                    Text(formatLongDate(day), color = colors.text, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                    Box(
+                                        Modifier
+                                            .size(24.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .clickable { pendingRemove = day },
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Icon(Icons.Outlined.Close, contentDescription = null, tint = Red500, modifier = Modifier.size(16.dp))
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+        pendingRemove?.let { day ->
+            AlertDialog(
+                onDismissRequest = { pendingRemove = null },
+                containerColor = colors.surface,
+                titleContentColor = colors.text,
+                textContentColor = colors.textMuted,
+                title = {
+                    Text(stringResource(R.string.settings_gen_hours_remove_day_off_title))
+                },
+                text = {
+                    Text(stringResource(R.string.settings_gen_hours_remove_day_off_message, formatLongDate(day)))
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            daysOff.remove(day)
+                            pendingRemove = null
+                        },
+                    ) {
+                        Text(stringResource(R.string.settings_gen_hours_remove_day_off_confirm), color = Red500)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingRemove = null }) {
+                        Text(stringResource(R.string.common_cancel), color = colors.textMuted)
+                    }
+                },
+            )
         }
     }
 }

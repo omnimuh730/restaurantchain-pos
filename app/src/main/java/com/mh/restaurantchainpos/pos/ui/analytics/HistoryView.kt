@@ -89,7 +89,7 @@ fun HistoryView(
     HistoryData.events.forEach { counts[it.kind] = (counts[it.kind] ?: 0) + 1 }
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -109,7 +109,7 @@ fun HistoryView(
         }
 
         // List card
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(12.dp)) {
                 // Search box
                 Row(

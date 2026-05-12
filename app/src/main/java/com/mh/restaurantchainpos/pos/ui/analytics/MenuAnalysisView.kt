@@ -91,7 +91,7 @@ fun MenuAnalysisView(
     val peak = bestSellerScaled.maxOrNull() ?: 0
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -102,7 +102,7 @@ fun MenuAnalysisView(
             )
         }
 
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Text(
                     stringResource(R.string.analytics_menu_top_category_loved, topCategoryName),
@@ -153,7 +153,7 @@ fun MenuAnalysisView(
             }
         }
 
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
@@ -231,7 +231,7 @@ fun MenuAnalysisView(
             val weekTrendLabels = buildList {
                 for (k in MenuAnalysisData.weekAxis) add(axisTickLabel(k))
             }
-            AnalyticsCard(card, border) {
+            AnalyticsCard(card) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(menuItemTitle(bestSeller.nameKey), color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)

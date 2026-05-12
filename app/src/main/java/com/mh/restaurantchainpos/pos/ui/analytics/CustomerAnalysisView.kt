@@ -59,7 +59,7 @@ fun CustomerAnalysisView(
     val returningPct = segment.first { it.nameKey == "returning" }.value
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -83,7 +83,7 @@ fun CustomerAnalysisView(
         }
 
         // Traffic by hour
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.analytics_customer_visitors_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -107,7 +107,7 @@ fun CustomerAnalysisView(
         }
 
         // Returning vs New
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("$returningPct%", color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -138,7 +138,7 @@ fun CustomerAnalysisView(
         }
 
         // Visit frequency
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Text(stringResource(R.string.analytics_customer_visit_frequency), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
@@ -153,7 +153,7 @@ fun CustomerAnalysisView(
         }
 
         // Party size
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.analytics_customer_groups_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)

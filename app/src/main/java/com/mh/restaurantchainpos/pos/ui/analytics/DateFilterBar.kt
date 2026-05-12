@@ -8,7 +8,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,7 +76,6 @@ fun DateFilterBar(
 
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-    val border = if (isDark) Color(0xFF374151) else Color(0xFFCBD5E1)
     val pillBg = if (isDark) Color(0xFF1F2937) else Color.White
 
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -124,15 +122,12 @@ fun DateFilterBar(
                             Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color.Transparent)
-                                .border(
-                                    2.dp,
+                                .background(
                                     when {
-                                        isFuture -> if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
-                                        isSelected -> text1
-                                        else -> border
+                                        isFuture -> Color.Transparent
+                                        isSelected -> Blue600
+                                        else -> pillBg
                                     },
-                                    CircleShape,
                                 )
                                 .then(
                                     if (isFuture) {
@@ -153,7 +148,7 @@ fun DateFilterBar(
                                 text = if (animatedWeekOffset == 0) weekdayShort(d) else dayOfMonth(d),
                                 color = when {
                                     isFuture -> if (isDark) Color(0xFF475569) else Color(0xFFCBD5E1)
-                                    isSelected -> text1
+                                    isSelected -> Color.White
                                     else -> text2
                                 },
                                 fontSize = 13.sp,
@@ -170,7 +165,6 @@ fun DateFilterBar(
                 .padding(top = 4.dp)
                 .clip(CircleShape)
                 .background(if (period == Period.Custom && rangeMatchesNonDay(range, days, today)) Blue600 else pillBg)
-                .border(1.dp, if (period == Period.Custom && rangeMatchesNonDay(range, days, today)) Blue600 else border, CircleShape)
                 .clickable { pickerOpen = true }
                 .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {

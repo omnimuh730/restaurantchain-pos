@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -67,7 +66,7 @@ fun SalesDashboardView(
         modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -79,7 +78,7 @@ fun SalesDashboardView(
         }
 
         // Total Revenue + payment split
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             BoxWithConstraints(Modifier.fillMaxWidth().padding(16.dp)) {
                 val compact = maxWidth < 360.dp
                 val revenueSummary: @Composable () -> Unit = {
@@ -160,7 +159,6 @@ fun SalesDashboardView(
                 kpiKrw.ordChange,
                 Icons.Outlined.ShoppingCart,
                 card,
-                border,
                 text1,
                 text2,
                 Modifier.weight(1f),
@@ -171,7 +169,6 @@ fun SalesDashboardView(
                 kpiKrw.ticketChange,
                 Icons.AutoMirrored.Outlined.TrendingUp,
                 card,
-                border,
                 text1,
                 text2,
                 Modifier.weight(1f),
@@ -182,7 +179,6 @@ fun SalesDashboardView(
                 kpiKrw.cancelChange,
                 Icons.Outlined.Cancel,
                 card,
-                border,
                 text1,
                 text2,
                 Modifier.weight(1f),
@@ -190,7 +186,7 @@ fun SalesDashboardView(
         }
 
         // Sales Trend area
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             Column(Modifier.padding(16.dp)) {
                 Text(stringResource(R.string.analytics_sales_trend), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
@@ -216,7 +212,7 @@ fun SalesDashboardView(
         }
 
         // Peak revenue bar chart
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card) {
             val activeKey = data.map { it.revenueKrw.toFloat() }
             val peakIdx = activeKey.withIndex().maxByOrNull { it.value }?.index ?: 0
             Column(Modifier.padding(16.dp)) {
@@ -279,7 +275,6 @@ private fun KpiCard(
     change: String,
     icon: ImageVector,
     card: Color,
-    border: Color,
     text1: Color,
     text2: Color,
     modifier: Modifier = Modifier,
@@ -288,7 +283,6 @@ private fun KpiCard(
         modifier
             .clip(RoundedCornerShape(14.dp))
             .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp))
             .padding(14.dp),
     ) {
         Column {

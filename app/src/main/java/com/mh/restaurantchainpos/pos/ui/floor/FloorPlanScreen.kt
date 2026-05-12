@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,7 +71,7 @@ fun FloorPlanScreen(
                 Modifier
                     .fillMaxWidth()
                     .background(palette.card)
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                    .padding(horizontal = 16.dp, vertical = 9.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
@@ -78,8 +79,8 @@ fun FloorPlanScreen(
                     Modifier
                         .clip(RoundedCornerShape(14.dp))
                         .background(palette.raised)
-                        .padding(5.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
                 ) {
                     FloorViewMode.entries.forEach { mode ->
                         val active = mode == state.view
@@ -88,7 +89,7 @@ fun FloorPlanScreen(
                                 .clip(RoundedCornerShape(11.dp))
                                 .background(if (active) Blue500 else Color.Transparent)
                                 .clickable { state.view = mode }
-                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
@@ -96,7 +97,7 @@ fun FloorPlanScreen(
                                 imageVector = mode.icon,
                                 contentDescription = mode.label,
                                 tint = if (active) Color.White else palette.text2,
-                                modifier = Modifier.size(if (isMobile) 22.dp else 20.dp),
+                                modifier = Modifier.size(if (isMobile) 20.dp else 20.dp),
                             )
                             if (!isMobile) {
                                 Text(
@@ -110,6 +111,8 @@ fun FloorPlanScreen(
                     }
                 }
             }
+
+            Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
 
             FloorTabsRow(
                 palette = palette,

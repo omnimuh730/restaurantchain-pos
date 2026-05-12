@@ -154,6 +154,9 @@
     <string name="settings_gen_hours_select_date">Select a date</string>
     <string name="settings_gen_hours_select_hint">Click to select a date to add as a day off</string>
     <string name="settings_gen_hours_scheduled">Scheduled Days Off (%1$d)</string>
+    <string name="settings_gen_hours_remove_day_off_title">Remove this day off?</string>
+    <string name="settings_gen_hours_remove_day_off_message">%1$s will no longer be listed as closed.</string>
+    <string name="settings_gen_hours_remove_day_off_confirm">Remove</string>
     <string name="settings_gen_hours_to">to</string>
     <string name="settings_gen_hours_closed">Closed</string>
     <string name="settings_cal_day_off_title">Select day off</string>

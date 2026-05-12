@@ -3,7 +3,6 @@ package com.mh.restaurantchainpos.pos.ui.settings
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -12,18 +11,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -32,6 +38,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -229,6 +237,99 @@ internal fun RestaurantImageGallery(colors: PosColors) {
     var index by remember { mutableIntStateOf(0) }
     var showAll by remember { mutableStateOf(false) }
     var dragOffsetPx by remember { mutableStateOf(0f) }
+    val isMobile = rememberIsMobile()
+    val scope = rememberCoroutineScope()
+
+    if (showAll) {
+        Dialog(
+            onDismissRequest = { showAll = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false,
+            ),
+        ) {
+            val safeIndex = index.coerceIn(0, images.lastIndex)
+            val pagerState = rememberPagerState(
+                initialPage = safeIndex,
+                pageCount = { images.size },
+            )
+            LaunchedEffect(pagerState.settledPage) {
+                if (index != pagerState.settledPage) {
+                    index = pagerState.settledPage
+                }
+            }
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.settings_gen_images_nav, pagerState.currentPage + 1, images.size),
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = { showAll = false }) {
+                        Text(stringResource(R.string.settings_gen_hide), color = Color.White, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                ) { page ->
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                horizontal = if (isMobile) 0.dp else 40.dp,
+                                vertical = if (isMobile) 0.dp else 12.dp,
+                            )
+                            .clip(RoundedCornerShape(if (isMobile) 0.dp else 12.dp))
+                            .background(images[page]),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Outlined.Image,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.35f),
+                            modifier = Modifier.size(80.dp),
+                        )
+                    }
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp, top = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    images.forEachIndexed { i, _ ->
+                        Box(
+                            Modifier
+                                .padding(horizontal = 3.dp)
+                                .height(8.dp)
+                                .width(if (i == pagerState.currentPage) 18.dp else 8.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(if (i == pagerState.currentPage) Blue600 else Color.White.copy(alpha = 0.28f))
+                                .clickable {
+                                    scope.launch {
+                                        pagerState.animateScrollToPage(i)
+                                    }
+                                },
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -255,78 +356,79 @@ internal fun RestaurantImageGallery(colors: PosColors) {
             }
         }
         Spacer(Modifier.height(8.dp))
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, colors.border, RoundedCornerShape(10.dp))
-                .pointerInput(images.size) {
-                    detectHorizontalDragGestures(
-                        onDragEnd = {
-                            val threshold = 80f
-                            if (dragOffsetPx < -threshold) index = (index + 1) % images.size
-                            else if (dragOffsetPx > threshold) index = (index - 1 + images.size) % images.size
-                            dragOffsetPx = 0f
-                        },
-                        onDragCancel = { dragOffsetPx = 0f },
-                        onHorizontalDrag = { _, dx -> dragOffsetPx += dx },
-                    )
-                },
-        ) {
+        if (!showAll) {
             Box(
                 Modifier
-                    .fillMaxSize()
-                    .background(images[index]),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .pointerInput(images.size) {
+                        detectHorizontalDragGestures(
+                            onDragEnd = {
+                                val threshold = 80f
+                                if (dragOffsetPx < -threshold) index = (index + 1) % images.size
+                                else if (dragOffsetPx > threshold) index = (index - 1 + images.size) % images.size
+                                dragOffsetPx = 0f
+                            },
+                            onDragCancel = { dragOffsetPx = 0f },
+                            onHorizontalDrag = { _, dx -> dragOffsetPx += dx },
+                        )
+                    },
             ) {
-                Icon(
-                    Icons.Outlined.Image,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.4f),
-                    modifier = Modifier.size(56.dp),
-                )
-            }
-            Box(
-                Modifier
-                    .padding(8.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.45f))
-                    .clickable { index = (index - 1 + images.size) % images.size }
-                    .size(34.dp)
-                    .align(Alignment.CenterStart),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Outlined.KeyboardArrowLeft, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-            }
-            Box(
-                Modifier
-                    .padding(8.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.45f))
-                    .clickable { index = (index + 1) % images.size }
-                    .size(34.dp)
-                    .align(Alignment.CenterEnd),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            images.forEachIndexed { i, _ ->
                 Box(
                     Modifier
-                        .padding(horizontal = 3.dp)
-                        .height(8.dp)
-                        .width(if (i == index) 18.dp else 8.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(if (i == index) Blue600 else colors.border)
-                        .clickable { index = i },
-                )
+                        .fillMaxSize()
+                        .background(images[index]),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.Outlined.Image,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.4f),
+                        modifier = Modifier.size(56.dp),
+                    )
+                }
+                Box(
+                    Modifier
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .clickable { index = (index - 1 + images.size) % images.size }
+                        .size(34.dp)
+                        .align(Alignment.CenterStart),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                }
+                Box(
+                    Modifier
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .clickable { index = (index + 1) % images.size }
+                        .size(34.dp)
+                        .align(Alignment.CenterEnd),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                images.forEachIndexed { i, _ ->
+                    Box(
+                        Modifier
+                            .padding(horizontal = 3.dp)
+                            .height(8.dp)
+                            .width(if (i == index) 18.dp else 8.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(if (i == index) Blue600 else colors.border)
+                            .clickable { index = i },
+                    )
+                }
             }
         }
     }
