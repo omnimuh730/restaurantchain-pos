@@ -39,11 +39,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.CurrencyKind
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -63,28 +65,28 @@ internal fun RestaurantInfoCard(
 ) {
     SettingCard(
         colors = colors,
-        title = "Restaurant Info",
-        subtitle = "Basic information about your restaurant",
-        badge = "Free Tier",
+        title = stringResource(R.string.settings_gen_info_title),
+        subtitle = stringResource(R.string.settings_gen_info_subtitle),
+        badge = stringResource(R.string.settings_tier_free),
         badgeIcon = Icons.Outlined.Image,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Column {
-                Text("Restaurant Name", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_gen_restaurant_name), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(4.dp))
-                Text("Glass Onion", color = colors.text, fontSize = 14.sp)
+                Text(stringResource(R.string.settings_gen_demo_restaurant_name), color = colors.text, fontSize = 14.sp)
             }
             Column {
-                Text("Description", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_gen_description), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Modern Asian fusion restaurant with a curated cocktail bar, serving contemporary dishes inspired by flavors across East and Southeast Asia.",
+                    stringResource(R.string.settings_gen_demo_description),
                     color = colors.textMuted,
                     fontSize = 13.sp,
                 )
             }
             Column {
-                Text("Deposit Money", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_gen_deposit_money), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     SettingTextField(
@@ -99,21 +101,21 @@ internal fun RestaurantInfoCard(
                     CurrencySwitch(currency = depositCurrency, onChange = onCurrencyChange)
                 }
                 Spacer(Modifier.height(4.dp))
-                Text("Starting cash in drawer at the beginning of each shift", color = colors.textMuted, fontSize = 11.sp)
+                Text(stringResource(R.string.settings_gen_deposit_hint), color = colors.textMuted, fontSize = 11.sp)
             }
             Column {
-                Text("Grace Period", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_gen_grace_period), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
                 SettingTextField(
                     colors = colors,
                     value = grace,
                     onChange = onGraceChange,
                     leadingIcon = Icons.Outlined.Timer,
-                    trailingText = "min",
+                    trailingText = stringResource(R.string.settings_gen_min_suffix),
                     keyboard = KeyboardType.Number,
                 )
                 Spacer(Modifier.height(4.dp))
-                Text("Wait time before a reservation is marked as no-show", color = colors.textMuted, fontSize = 11.sp)
+                Text(stringResource(R.string.settings_gen_grace_hint), color = colors.textMuted, fontSize = 11.sp)
             }
             RestaurantImageGallery(colors)
         }
@@ -187,7 +189,11 @@ internal fun CurrencySwitch(currency: CurrencyKind, onChange: (CurrencyKind) -> 
     ) {
         val labelOnLeft = currency == CurrencyKind.Foreign
         Text(
-            text = if (currency == CurrencyKind.Foreign) "Foreign" else "Domestic",
+            text = if (currency == CurrencyKind.Foreign) {
+                stringResource(R.string.settings_gen_currency_foreign)
+            } else {
+                stringResource(R.string.settings_gen_currency_domestic)
+            },
             color = Color.White,
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
@@ -227,7 +233,7 @@ internal fun RestaurantImageGallery(colors: PosColors) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Restaurant Images (${index + 1}/${images.size})",
+                stringResource(R.string.settings_gen_images_nav, index + 1, images.size),
                 color = colors.text,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
@@ -241,7 +247,7 @@ internal fun RestaurantImageGallery(colors: PosColors) {
                     .padding(horizontal = 10.dp, vertical = 6.dp),
             ) {
                 Text(
-                    if (showAll) "Hide" else "Show All",
+                    if (showAll) stringResource(R.string.settings_gen_hide) else stringResource(R.string.settings_gen_show_all),
                     color = colors.text,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,

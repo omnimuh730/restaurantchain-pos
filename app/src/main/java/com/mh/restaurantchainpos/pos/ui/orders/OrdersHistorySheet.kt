@@ -42,12 +42,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.CurrencyKind
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersMenuLineTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersPaymentMethodLabel
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
@@ -174,6 +179,7 @@ private fun HistorySheetHeader(
     totalUsd: Double,
     onClose: () -> Unit,
 ) {
+    val ctx = LocalContext.current
     Row(
         Modifier
             .fillMaxWidth()
@@ -190,13 +196,13 @@ private fun HistorySheetHeader(
         )
         Column(Modifier.weight(1f)) {
             Text(
-                "Today's Bill History",
+                stringResource(R.string.orders_hist_title_today),
                 color = colors.text,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                historySummaryLine(billCount, totalKrw, totalUsd),
+                ctx.historySummaryLine(billCount, totalKrw, totalUsd),
                 color = colors.textMuted,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 4.dp),
@@ -211,7 +217,7 @@ private fun HistorySheetHeader(
         ) {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = "Close",
+                contentDescription = stringResource(R.string.common_close),
                 tint = colors.textMuted,
                 modifier = Modifier.size(22.dp),
             )
@@ -229,21 +235,21 @@ private fun HistoryTableHeader(colors: PosColors) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "No.",
+            stringResource(R.string.orders_hist_col_no),
             color = colors.textMuted,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.width(28.dp),
         )
         Text(
-            "Table",
+            stringResource(R.string.orders_hist_col_table),
             color = colors.textMuted,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(1.1f),
         )
         Text(
-            "Time",
+            stringResource(R.string.orders_hist_col_time),
             color = colors.textMuted,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
@@ -251,7 +257,7 @@ private fun HistoryTableHeader(colors: PosColors) {
             textAlign = TextAlign.Center,
         )
         Text(
-            "Method",
+            stringResource(R.string.orders_hist_col_method),
             color = colors.textMuted,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
@@ -263,7 +269,7 @@ private fun HistoryTableHeader(colors: PosColors) {
             horizontalAlignment = Alignment.End,
         ) {
             Text(
-                "Amount",
+                stringResource(R.string.orders_hist_col_amount),
                 color = colors.textMuted,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -282,6 +288,7 @@ private fun HistoryBillRow(
     expanded: Boolean,
     onToggle: () -> Unit,
 ) {
+    val ctx = LocalContext.current
     Column(
         Modifier
             .fillMaxWidth()
@@ -301,7 +308,7 @@ private fun HistoryBillRow(
                 modifier = Modifier.width(28.dp),
             )
             Text(
-                text = historyTableCell(bill.tableId),
+                text = ctx.historyTableCell(bill.tableId),
                 color = colors.text,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -318,7 +325,7 @@ private fun HistoryBillRow(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = bill.method,
+                text = ordersPaymentMethodLabel(bill.methodKey),
                 color = colors.text,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
@@ -339,6 +346,42 @@ private fun HistoryBillRow(
         ) {
             HistoryLineItemsTable(colors = colors, lines = bill.lines)
         }
+    }
+}
+
+@Composable
+private fun HistoryBillLineRow(colors: PosColors, line: HistoryLineItem) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            ordersMenuLineTitle(line.nameKey),
+            color = colors.text,
+            fontSize = 11.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            "x${line.qty}",
+            color = colors.text,
+            fontSize = 10.sp,
+            modifier = Modifier.width(36.dp),
+            textAlign = TextAlign.Center,
+        )
+        MoneyText(
+            value = formatLineMoney(line.each, line.currency),
+            currency = line.currency,
+            modifier = Modifier.width(56.dp),
+        )
+        MoneyText(
+            value = formatLineMoney(line.line, line.currency),
+            currency = line.currency,
+            modifier = Modifier.width(56.dp),
+        )
     }
 }
 
@@ -386,14 +429,14 @@ private fun HistoryLineItemsTable(colors: PosColors, lines: List<HistoryLineItem
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "Item",
+                stringResource(R.string.orders_col_item),
                 color = colors.textMuted,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
             )
             Text(
-                "Qty",
+                stringResource(R.string.orders_col_qty),
                 color = colors.textMuted,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -401,7 +444,7 @@ private fun HistoryLineItemsTable(colors: PosColors, lines: List<HistoryLineItem
                 textAlign = TextAlign.Center,
             )
             Text(
-                "Each",
+                stringResource(R.string.orders_col_each),
                 color = colors.textMuted,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -409,7 +452,7 @@ private fun HistoryLineItemsTable(colors: PosColors, lines: List<HistoryLineItem
                 textAlign = TextAlign.End,
             )
             Text(
-                "Line",
+                stringResource(R.string.orders_col_line),
                 color = colors.textMuted,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -418,38 +461,7 @@ private fun HistoryLineItemsTable(colors: PosColors, lines: List<HistoryLineItem
             )
         }
         lines.forEach { line ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    line.name,
-                    color = colors.text,
-                    fontSize = 11.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    "x${line.qty}",
-                    color = colors.text,
-                    fontSize = 10.sp,
-                    modifier = Modifier.width(36.dp),
-                    textAlign = TextAlign.Center,
-                )
-                MoneyText(
-                    value = formatLineMoney(line.each, line.currency),
-                    currency = line.currency,
-                    modifier = Modifier.width(56.dp),
-                )
-                MoneyText(
-                    value = formatLineMoney(line.line, line.currency),
-                    currency = line.currency,
-                    modifier = Modifier.width(56.dp),
-                )
-            }
+            HistoryBillLineRow(colors = colors, line = line)
         }
     }
 }

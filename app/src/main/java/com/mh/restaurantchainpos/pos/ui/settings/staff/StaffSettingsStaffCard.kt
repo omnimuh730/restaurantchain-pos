@@ -27,11 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.StaffMember
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
@@ -76,12 +78,12 @@ internal fun StaffCard(
                     Text(member.name, color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     Text("@${member.username}", color = colors.textMuted, fontSize = 11.sp)
                     Spacer(Modifier.height(4.dp))
-                    RoleBadge(member.role)
+                    RoleBadge(role = member.role)
                 }
             }
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Joined ${member.joinDate}", color = colors.textMuted, fontSize = 11.sp)
+                Text(stringResource(R.string.staff_card_joined, member.joinDate), color = colors.textMuted, fontSize = 11.sp)
                 Spacer(Modifier.size(8.dp))
                 StatusChip(member.status)
             }
@@ -96,7 +98,7 @@ internal fun StaffCard(
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("Temporary PIN:", color = Blue500, fontSize = 11.sp)
+                    Text(stringResource(R.string.staff_card_temp_pin), color = Blue500, fontSize = 11.sp)
                     Spacer(Modifier.size(8.dp))
                     Text(tempPin, color = Blue500, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
@@ -104,7 +106,7 @@ internal fun StaffCard(
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${member.permissionCount}/$TotalPermCount permissions",
+                    stringResource(R.string.staff_card_perm_line, member.permissionCount, TotalPermCount),
                     color = colors.textMuted,
                     fontSize = 11.sp,
                 )
@@ -148,7 +150,7 @@ internal fun StaffCard(
             ) {
                 Icon(Icons.Outlined.Shield, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(15.dp))
                 Spacer(Modifier.size(6.dp))
-                Text("Permissions", color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.staff_card_permissions), color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.Medium)
             }
             Box(Modifier.width(1.dp).height(44.dp).background(colors.border))
             ActionIconButton(
@@ -187,11 +189,12 @@ internal fun ActionIconButton(icon: ImageVector, tint: Color, onClick: () -> Uni
 
 @Composable
 internal fun StatusChip(status: String) {
-    val (bg, fg, label) = when (status) {
-        "active" -> Triple(Blue600, Color.White, "Active")
-        "inactive" -> Triple(Slate400, Color.White, "Inactive")
-        else -> Triple(Amber500, Color.White, "Pending")
+    val (bg, fg, labelRes) = when (status) {
+        "active" -> Triple(Blue600, Color.White, R.string.staff_status_active)
+        "inactive" -> Triple(Slate400, Color.White, R.string.staff_status_inactive)
+        else -> Triple(Amber500, Color.White, R.string.staff_status_pending)
     }
+    val label = stringResource(labelRes)
     Box(
         Modifier
             .clip(RoundedCornerShape(5.dp))
@@ -205,6 +208,8 @@ internal fun StatusChip(status: String) {
 @Composable
 internal fun RoleBadge(role: String) {
     val icon = RoleConfigs[role]?.icon
+    val roleRes = roleTitleRes(role)
+    val roleLabel = if (roleRes != 0) stringResource(roleRes) else role
     Row(
         Modifier
             .clip(RoundedCornerShape(6.dp))
@@ -216,7 +221,7 @@ internal fun RoleBadge(role: String) {
             Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(11.dp))
             Spacer(Modifier.size(4.dp))
         }
-        Text(role, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(roleLabel, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 

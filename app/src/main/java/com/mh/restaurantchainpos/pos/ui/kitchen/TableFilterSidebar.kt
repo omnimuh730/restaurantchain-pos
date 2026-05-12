@@ -36,6 +36,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -43,8 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.KitchenFloor
 import com.mh.restaurantchainpos.pos.data.PosMockData
+import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -120,6 +124,7 @@ private fun FilterPanel(
     width: Dp,
     showClose: Boolean,
 ) {
+    val ctx = LocalContext.current
     val floors = PosMockData.kitchenFloors
     val allTables = remember { floors.flatMap { it.tables } }
     val expanded = remember { mutableStateListOf<String>().apply { addAll(floors.map { it.id }) } }
@@ -144,7 +149,7 @@ private fun FilterPanel(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("My Tables", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.kitchen_my_tables), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.weight(1f))
             if (showClose) {
                 Box(
@@ -156,7 +161,7 @@ private fun FilterPanel(
                 ) {
                     Icon(
                         Icons.Outlined.Close,
-                        contentDescription = "Close filter",
+                        contentDescription = stringResource(R.string.common_close),
                         tint = colors.textMuted,
                         modifier = Modifier.size(16.dp),
                     )
@@ -185,7 +190,7 @@ private fun FilterPanel(
                 palette = colors,
             )
             Text(
-                "All floors",
+                stringResource(R.string.kitchen_all_floors),
                 color = if (allSelected) Color.White else colors.text,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -207,7 +212,7 @@ private fun FilterPanel(
                 item("floor-${floor.id}") {
                     FloorRow(
                         colors = colors,
-                        label = floor.label,
+                        label = ctx.orderCatalogString("orders_floor", floor.id, floor.id),
                         state = state,
                         checkedCount = checkedTables,
                         totalCount = floor.tables.size,
@@ -222,7 +227,7 @@ private fun FilterPanel(
                     items(floor.tables, key = { "table-$it" }) { tableId ->
                         TableRow(
                             colors = colors,
-                            label = tableLabelFor(tableId),
+                            label = kitchenTableRowLabel(tableId),
                             checked = selectedTables.contains(tableId),
                             onClick = { onToggleTable(tableId) },
                         )
@@ -278,7 +283,7 @@ private fun FloorRow(
         ) {
             Icon(
                 Icons.Outlined.KeyboardArrowDown,
-                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                contentDescription = if (isExpanded) stringResource(R.string.kitchen_floor_collapse) else stringResource(R.string.kitchen_floor_expand),
                 tint = colors.textMuted,
                 modifier = Modifier.size(16.dp).rotate(rotation),
             )
@@ -418,10 +423,8 @@ private fun floorSelectState(floor: KitchenFloor, selected: List<String>): Floor
     }
 }
 
-private fun tableLabelFor(id: String): String {
-    val tableMatch = Regex("^T(\\d+)").find(id)
-    if (tableMatch != null) return "Table ${tableMatch.groupValues[1]}"
-    val barMatch = Regex("^BAR(\\d+)").find(id)
-    if (barMatch != null) return "Bar ${barMatch.groupValues[1]}"
-    return id
+@Composable
+private fun kitchenTableRowLabel(tableId: String): String {
+    val ctx = LocalContext.current
+    return ctx.orderCatalogString("orders_table", tableId.lowercase(), tableId)
 }

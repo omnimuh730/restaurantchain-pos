@@ -24,9 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.PaymentCard
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -99,9 +101,9 @@ internal fun PaymentCardRow(
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("•••• ${card.last4}", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                if (card.isDefault) SmallChip("DEFAULT", Blue600)
+                if (card.isDefault) SmallChip(stringResource(R.string.staff_payment_default_chip), Blue600)
             }
-            Text("${card.holderName} · exp ${card.expiry}", color = colors.textMuted, fontSize = 11.sp)
+            Text(stringResource(R.string.staff_payment_card_exp, card.holderName, card.expiry), color = colors.textMuted, fontSize = 11.sp)
         }
         if (selected) {
             Icon(Icons.Outlined.Check, contentDescription = null, tint = Blue600, modifier = Modifier.size(18.dp))
@@ -134,6 +136,6 @@ internal fun AddNewCardButton(colors: PosColors, onClick: () -> Unit) {
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text("+ Add New Card", color = colors.textMuted, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(stringResource(R.string.settings_pay_add_new_row), color = colors.textMuted, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
 }

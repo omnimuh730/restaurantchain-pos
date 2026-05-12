@@ -71,7 +71,12 @@ fun LockScreen(
                 .background(Blue600),
             contentAlignment = Alignment.Center,
         ) {
-            Text(initials.ifBlank { "AD" }, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Text(
+                initials.ifBlank { stringResource(R.string.auth_lock_initials_fallback) },
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+            )
         }
         Spacer(Modifier.height(12.dp))
         Text(session.name, color = Color(0xFFE5E7EB), fontSize = 18.sp, fontWeight = FontWeight.Medium)

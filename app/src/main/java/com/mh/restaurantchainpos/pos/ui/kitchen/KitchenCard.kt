@@ -26,13 +26,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.KitchenItem
 import com.mh.restaurantchainpos.pos.data.KitchenOrder
 import com.mh.restaurantchainpos.pos.data.KitchenStatus
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersMenuLineTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Green500
@@ -83,7 +86,7 @@ fun KitchenCard(
             .padding(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Ordered ${order.minutesAgo}m ago", color = colors.textMuted, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.kitchen_ordered_minutes_ago, order.minutesAgo), color = colors.textMuted, fontSize = 11.sp, modifier = Modifier.weight(1f))
             if (!isCompleted) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Box(
@@ -156,7 +159,7 @@ fun KitchenCard(
                 .padding(vertical = 10.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Text("Order details", color = colors.textMuted, fontSize = 12.sp)
+            Text(stringResource(R.string.kitchen_order_details), color = colors.textMuted, fontSize = 12.sp)
         }
     }
 
@@ -224,7 +227,7 @@ private fun ItemRow(
     ) {
         Column(Modifier.weight(1f)) {
             Text(
-                item.name,
+                ordersMenuLineTitle(item.titleKey),
                 color = if (item.done) colors.textMuted else colors.text,
                 fontSize = 13.sp,
                 textDecoration = if (item.done) TextDecoration.LineThrough else null,

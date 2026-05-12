@@ -25,8 +25,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.rememberOrderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -41,10 +44,10 @@ internal fun OrderTableHeader(colors: PosColors) {
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("Item", color = Blue400, fontSize = 10.sp, modifier = Modifier.weight(1f))
-        Text("Qty", color = Blue400, fontSize = 10.sp, textAlign = TextAlign.Center, modifier = Modifier.width(74.dp))
-        Text("Each", color = Blue400, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.width(58.dp))
-        Text("Line", color = Blue400, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
+        Text(stringResource(R.string.orders_col_item), color = Blue400, fontSize = 10.sp, modifier = Modifier.weight(1f))
+        Text(stringResource(R.string.orders_col_qty), color = Blue400, fontSize = 10.sp, textAlign = TextAlign.Center, modifier = Modifier.width(74.dp))
+        Text(stringResource(R.string.orders_col_each), color = Blue400, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.width(58.dp))
+        Text(stringResource(R.string.orders_col_line), color = Blue400, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
         Spacer(Modifier.width(22.dp))
     }
 }
@@ -75,7 +78,7 @@ internal fun OrderLineRow(
     ) {
         Column(Modifier.weight(1f)) {
             Text(
-                line.name,
+                rememberOrderCatalogString("orders_item", line.baseId, line.baseId),
                 color = colors.text,
                 fontSize = 11.sp,
                 maxLines = 1,

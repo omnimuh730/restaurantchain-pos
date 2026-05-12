@@ -51,7 +51,7 @@ enum class TableStatus { Available, Occupied, Reserved }
 
 enum class TableShape { Rect, Circle }
 
-data class TableOrderItem(val name: String, val qty: Int, val price: Int)
+data class TableOrderItem(val nameKey: String, val qty: Int, val price: Int)
 
 data class FloorTable(
     val id: String,
@@ -97,7 +97,7 @@ enum class KitchenStatus { Received, InProgress, Completed }
 
 data class KitchenItem(
     val id: String,
-    val name: String,
+    val titleKey: String,
     val qty: Int,
     val done: Boolean = false,
     val previouslyCompleted: Boolean = false,

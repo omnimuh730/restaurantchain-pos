@@ -26,6 +26,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.FloorMetrics
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableShape
@@ -53,7 +55,7 @@ internal fun TableInspector(palette: FloorPalette, sel: FloorTable, state: Floor
             )
         }
 
-        InspectorBlock(palette, "Seats") {
+        InspectorBlock(palette, stringResource(R.string.floor_inspector_seats)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 CircleStepper(palette, "−") { state.updateSelected { it.copy(seats = (it.seats - 1).coerceAtLeast(1)) } }
                 Text(sel.seats.toString(), color = palette.editText1, fontSize = 22.sp, fontWeight = FontWeight.Bold)
@@ -61,7 +63,7 @@ internal fun TableInspector(palette: FloorPalette, sel: FloorTable, state: Floor
             }
         }
 
-        InspectorBlock(palette, "Shape") {
+        InspectorBlock(palette, stringResource(R.string.floor_inspector_shape)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 listOf(TableShape.Rect, TableShape.Circle).forEach { shape ->
                     val active = sel.shape == shape
@@ -85,7 +87,7 @@ internal fun TableInspector(palette: FloorPalette, sel: FloorTable, state: Floor
             }
         }
 
-        InspectorBlock(palette, "Size") {
+        InspectorBlock(palette, stringResource(R.string.floor_inspector_size)) {
             val cols = (sel.width / FloorMetrics.BaseUnit).coerceIn(1, 3)
             val rows = (sel.height / FloorMetrics.BaseUnit).coerceIn(1, 3)
             SizeMatrixPicker(cols = cols, rows = rows, palette = palette) { c, r ->
@@ -98,10 +100,10 @@ internal fun TableInspector(palette: FloorPalette, sel: FloorTable, state: Floor
         Spacer(Modifier.height(2.dp))
         Box(Modifier.fillMaxWidth().height(1.dp).background(palette.editBorder))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ActionButton("Copy", palette.editText1, palette.editCanvas, palette.editBorder, Modifier.weight(1f)) {
+            ActionButton(stringResource(R.string.floor_action_copy), palette.editText1, palette.editCanvas, palette.editBorder, Modifier.weight(1f)) {
                 state.duplicateTable(sel.id)
             }
-            ActionButton("Delete", Color(0xFFEF4444), Color(0x14EF4444), Color(0x33EF4444), Modifier.weight(1f)) {
+            ActionButton(stringResource(R.string.floor_action_delete), Color(0xFFEF4444), Color(0x14EF4444), Color(0x33EF4444), Modifier.weight(1f)) {
                 state.deleteTable(sel.id)
             }
         }

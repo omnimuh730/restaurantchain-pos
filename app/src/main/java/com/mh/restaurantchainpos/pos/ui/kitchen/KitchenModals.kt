@@ -42,7 +42,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.KitchenItem
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersMenuLineTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Green500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -68,7 +71,7 @@ fun ItemCountModal(
                 Column(Modifier.weight(1f)) {
                     Text(if (action == "complete") "Complete how many?" else "Recall how many?", color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     Spacer(Modifier.height(2.dp))
-                    Text(item.name, color = colors.textMuted, fontSize = 12.sp)
+                    Text(ordersMenuLineTitle(item.titleKey), color = colors.textMuted, fontSize = 12.sp)
                 }
                 Text("✕", color = colors.textMuted, fontSize = 14.sp, modifier = Modifier.clickable(onClick = onCancel))
             }
@@ -81,7 +84,7 @@ fun ItemCountModal(
                 CountStepper(colors, "−", enabled = count > 1) { if (count > 1) count -= 1 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(count.toString(), color = colors.text, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                    Text("of ${item.qty}", color = colors.textMuted, fontSize = 11.sp)
+                    Text(stringResource(R.string.kitchen_partial_of_qty, item.qty), color = colors.textMuted, fontSize = 11.sp)
                 }
                 CountStepper(colors, "+", enabled = count < item.qty) { if (count < item.qty) count += 1 }
             }
@@ -145,12 +148,12 @@ fun ConfirmActionModal(
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Box(Modifier.size(6.dp).clip(CircleShape).background(Blue500))
                             Spacer(Modifier.width(8.dp))
-                            Text(it.name, color = colors.text, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                            Text(ordersMenuLineTitle(it.titleKey), color = colors.text, fontSize = 13.sp, modifier = Modifier.weight(1f))
                             Text("${it.selectedQty ?: it.qty}", color = colors.textMuted, fontSize = 12.sp)
                         }
                     }
                 }
-                if (items.size > 6) Text("+${items.size - 6} more", color = colors.textMuted, fontSize = 11.sp)
+                if (items.size > 6) Text(stringResource(R.string.kitchen_more_items, items.size - 6), color = colors.textMuted, fontSize = 11.sp)
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
             Row(Modifier.fillMaxWidth().padding(20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -192,7 +195,7 @@ private fun CompleteConfirmItemRow(colors: PosColors, item: KitchenItem) {
                 modifier = Modifier.size(16.dp),
             )
         }
-        Text(item.name, color = colors.text, fontSize = 14.sp, modifier = Modifier.weight(1f))
+        Text(ordersMenuLineTitle(item.titleKey), color = colors.text, fontSize = 14.sp, modifier = Modifier.weight(1f))
         Text(qty.toString(), color = colors.text, fontSize = 14.sp)
     }
 }

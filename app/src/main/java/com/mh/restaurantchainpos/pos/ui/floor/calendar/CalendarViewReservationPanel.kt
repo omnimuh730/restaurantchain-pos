@@ -38,7 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.Reservation
+import com.mh.restaurantchainpos.pos.ui.orders.tableOrderLabel
 import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -65,7 +69,7 @@ internal fun CalendarPanel(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "Reservations",
+                stringResource(R.string.floor_reservations_title),
                 color = palette.text1,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 15.sp,
@@ -79,7 +83,7 @@ internal fun CalendarPanel(
             item("requests-header") {
                 CollapsibleSectionHeader(
                     palette = palette,
-                    title = "Requests",
+                    title = stringResource(R.string.floor_res_section_requests),
                     count = pending.size,
                     dotColor = Blue400,
                     fill = Blue500.copy(alpha = 0.12f),
@@ -99,7 +103,7 @@ internal fun CalendarPanel(
                 }
                 if (pending.isEmpty()) {
                     item("no-requests") {
-                        EmptyHint(palette, "No pending requests on this day.")
+                        EmptyHint(palette, stringResource(R.string.floor_res_no_pending_requests))
                     }
                 }
             }
@@ -107,7 +111,7 @@ internal fun CalendarPanel(
             item("confirmed-header") {
                 CollapsibleSectionHeader(
                     palette = palette,
-                    title = "Confirmed",
+                    title = stringResource(R.string.floor_res_section_confirmed),
                     count = confirmed.size,
                     dotColor = palette.occupiedBorder,
                     fill = palette.occupiedFill,
@@ -122,7 +126,7 @@ internal fun CalendarPanel(
                 }
                 if (confirmed.isEmpty()) {
                     item("no-confirmed") {
-                        EmptyHint(palette, "No confirmed reservations on this day.")
+                        EmptyHint(palette, stringResource(R.string.floor_res_no_confirmed))
                     }
                 }
             }
@@ -155,7 +159,7 @@ internal fun CollapsibleSectionHeader(
     ) {
         Icon(
             Icons.Outlined.ExpandMore,
-            contentDescription = if (expanded) "Collapse" else "Expand",
+            contentDescription = if (expanded) stringResource(R.string.floor_res_cd_collapse) else stringResource(R.string.floor_res_cd_expand),
             tint = palette.text2,
             modifier = Modifier.size(16.dp).rotate(rotation),
         )
@@ -197,6 +201,7 @@ internal fun RequestCard(
     onApprove: () -> Unit,
     onDecline: () -> Unit,
 ) {
+    val ctx = LocalContext.current
     Column(
         Modifier
             .fillMaxWidth()
@@ -219,12 +224,12 @@ internal fun RequestCard(
         }
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            ChipText(palette, dayLabel(reservation.dayOffset))
+            ChipText(palette, ctx.dayLabelForCalendarOffset(reservation.dayOffset))
             ChipText(palette, reservation.startTime)
-            ChipText(palette, "${reservation.partySize}P")
-            ChipText(palette, formatHours(reservation.durationHours))
+            ChipText(palette, ctx.getString(R.string.floor_cal_party_size, reservation.partySize))
+            ChipText(palette, ctx.formatReservationDurationHours(reservation.durationHours))
             if (reservation.tableId.isNotBlank()) {
-                ChipText(palette, "Table ${reservation.tableId.removePrefix("T")}", emphasize = true)
+                ChipText(palette, ctx.tableOrderLabel(reservation.tableId), emphasize = true)
             }
         }
         Spacer(Modifier.height(10.dp))
@@ -247,7 +252,7 @@ internal fun RequestCard(
             ) {
                 Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                 Spacer(Modifier.width(5.dp))
-                Text("Approve", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.floor_res_approve), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
             Row(
                 Modifier
@@ -261,7 +266,7 @@ internal fun RequestCard(
             ) {
                 Icon(Icons.Outlined.Close, contentDescription = null, tint = Red500, modifier = Modifier.size(14.dp))
                 Spacer(Modifier.width(5.dp))
-                Text("Decline", color = Red500, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.floor_res_decline), color = Red500, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -269,6 +274,10 @@ internal fun RequestCard(
 
 @Composable
 internal fun ConfirmedRow(palette: FloorPalette, reservation: Reservation, onAssign: () -> Unit) {
+    val ctx = LocalContext.current
+    val partyLabel = ctx.getString(R.string.floor_cal_party_size, reservation.partySize)
+    val duration = ctx.formatReservationDurationHours(reservation.durationHours)
+    val subline = ctx.getString(R.string.floor_res_confirmed_subline, reservation.startTime, partyLabel, duration)
     Row(
         Modifier
             .fillMaxWidth()
@@ -280,15 +289,11 @@ internal fun ConfirmedRow(palette: FloorPalette, reservation: Reservation, onAss
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
             Text(reservation.guestName, color = palette.text1, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            Text(
-                "${reservation.startTime} - ${reservation.partySize}P - ${formatHours(reservation.durationHours)}",
-                color = palette.text2,
-                fontSize = 11.sp,
-            )
+            Text(subline, color = palette.text2, fontSize = 11.sp)
         }
         if (reservation.tableId.isNotBlank()) {
             Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Blue500.copy(alpha = 0.12f)).padding(horizontal = 8.dp, vertical = 3.dp)) {
-                Text("Table ${reservation.tableId.removePrefix("T")}", color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Text(ctx.tableOrderLabel(reservation.tableId), color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }

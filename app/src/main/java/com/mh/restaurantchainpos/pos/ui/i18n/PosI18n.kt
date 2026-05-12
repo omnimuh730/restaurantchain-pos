@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.PosPage
+import com.mh.restaurantchainpos.pos.data.TableStatus
 import com.mh.restaurantchainpos.pos.ui.analytics.AnalyticsSection
 import com.mh.restaurantchainpos.pos.ui.analytics.HistoryKind
 import com.mh.restaurantchainpos.pos.ui.analytics.HistoryStatus
@@ -40,6 +41,13 @@ fun FloorViewMode.stringTitle(): String = when (this) {
     FloorViewMode.Floor -> stringResource(R.string.floor_mode_floor)
     FloorViewMode.Table -> stringResource(R.string.floor_mode_table)
     FloorViewMode.Calendar -> stringResource(R.string.floor_mode_calendar)
+}
+
+@Composable
+fun TableStatus.floorDisplayTitle(): String = when (this) {
+    TableStatus.Available -> stringResource(R.string.floor_table_status_available)
+    TableStatus.Occupied -> stringResource(R.string.floor_table_status_occupied)
+    TableStatus.Reserved -> stringResource(R.string.floor_table_status_reserved)
 }
 
 @Composable

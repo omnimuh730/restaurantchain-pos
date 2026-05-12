@@ -22,16 +22,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.data.ReservationType
 import com.mh.restaurantchainpos.pos.ui.components.PosNotificationHost
+import com.mh.restaurantchainpos.pos.ui.orders.tableOrderLabel
 import com.mh.restaurantchainpos.pos.ui.components.rememberPosNotificationHostState
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -53,6 +56,7 @@ fun FloorCalendarView(
     onPendingAssignConsumed: () -> Unit = {},
 ) {
     val isMobile = rememberIsMobile()
+    val ctx = LocalContext.current
     var startHour by remember { mutableFloatStateOf(16f) }
     var windowHours by remember { mutableFloatStateOf(8f) }
     var datePickerOpen by remember { mutableStateOf(false) }
@@ -200,17 +204,22 @@ fun FloorCalendarView(
                 AssignBanner(
                     palette = palette,
                     reservation = reservation,
-                    previewTableLabel = previewTable?.label,
+                    previewTableLabel = previewTable?.let { ctx.tableOrderLabel(it.id) },
                     onCancel = { cancelAssign() },
                     onConfirm = {
                         val tableId = previewTableId
                         if (tableId != null) {
-                            val tableLabel = previewTable?.label ?: tableId
+                            val tableLabel = previewTable?.let { ctx.tableOrderLabel(it.id) } ?: ctx.tableOrderLabel(tableId)
                             onAssignTable(reservation.id, tableId)
                             flashTableId = tableId
                             notifications.success(
-                                title = "Table assigned",
-                                message = "${reservation.guestName} is confirmed at $tableLabel for ${reservation.startTime}.",
+                                title = ctx.getString(R.string.floor_assign_success_title),
+                                message = ctx.getString(
+                                    R.string.floor_assign_success_message,
+                                    reservation.guestName,
+                                    tableLabel,
+                                    reservation.startTime,
+                                ),
                             )
                             cancelAssign()
                         }

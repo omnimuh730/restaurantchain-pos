@@ -33,25 +33,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
 import java.util.Calendar
 
 internal data class DayOff(val year: Int, val month: Int, val day: Int) {
     fun key(): String = "%04d-%02d-%02d".format(year, month + 1, day)
 }
-
-private val MonthLong = listOf(
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-)
-private val MonthShort = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-private val WeekdayShort = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-private val WeekdayLetter = listOf("S", "M", "T", "W", "T", "F", "S")
 
 private fun firstDayOfWeek(year: Int, month: Int): Int {
     val cal = Calendar.getInstance()
@@ -67,12 +64,15 @@ private fun daysInMonth(year: Int, month: Int): Int {
     return cal.getActualMaximum(Calendar.DAY_OF_MONTH)
 }
 
+@Composable
 internal fun formatLongDate(d: DayOff): String {
-    val cal = Calendar.getInstance()
-    cal.clear()
-    cal.set(d.year, d.month, d.day)
-    val wd = WeekdayShort[cal.get(Calendar.DAY_OF_WEEK) - 1]
-    return "$wd, ${MonthShort[d.month]} ${d.day}, ${d.year}"
+    val locale = LocalConfiguration.current.locales[0]
+    return remember(d.key(), locale) {
+        val cal = Calendar.getInstance()
+        cal.clear()
+        cal.set(d.year, d.month, d.day)
+        SimpleDateFormat("EEE, MMM d, yyyy", locale).format(cal.time)
+    }
 }
 
 @Composable
@@ -90,6 +90,17 @@ internal fun DayOffCalendarDialog(
     var viewMonth by remember { mutableIntStateOf(initiallySelected.firstOrNull()?.month ?: today.month) }
     val selected = remember { mutableStateListOf<DayOff>().apply { addAll(initiallySelected) } }
     val hasChanges = selected.map { it.key() }.toSet() != initiallySelected.map { it.key() }.toSet()
+    val locale = LocalConfiguration.current.locales[0]
+    val monthTitle = remember(viewYear, viewMonth, locale) {
+        val c = Calendar.getInstance()
+        c.clear()
+        c.set(viewYear, viewMonth, 1)
+        SimpleDateFormat("MMMM yyyy", locale).format(c.time)
+    }
+    val weekdayLabels = remember(locale) {
+        val sw = DateFormatSymbols(locale).shortWeekdays
+        (1..7).map { i -> sw[i].orEmpty() }
+    }
 
     ModalScrim(onDismiss = onDismiss) {
         Column(
@@ -108,9 +119,9 @@ internal fun DayOffCalendarDialog(
                 verticalAlignment = Alignment.Top,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text("Select day off", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.settings_cal_day_off_title), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(2.dp))
-                    Text("Choose a date when the restaurant will be closed", color = colors.textMuted, fontSize = 12.sp)
+                    Text(stringResource(R.string.settings_cal_day_off_subtitle), color = colors.textMuted, fontSize = 12.sp)
                 }
                 Box(
                     Modifier
@@ -141,7 +152,7 @@ internal fun DayOffCalendarDialog(
                         Icon(Icons.Outlined.KeyboardArrowLeft, contentDescription = null, tint = colors.text, modifier = Modifier.size(20.dp))
                     }
                     Text(
-                        "${MonthLong[viewMonth]} $viewYear",
+                        monthTitle,
                         color = colors.text,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -166,9 +177,9 @@ internal fun DayOffCalendarDialog(
 
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth()) {
-                    WeekdayLetter.forEach { l ->
+                    weekdayLabels.forEach { label ->
                         Box(Modifier.weight(1f).padding(vertical = 4.dp), contentAlignment = Alignment.Center) {
-                            Text(l, color = colors.textMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                            Text(label, color = colors.textMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -242,7 +253,7 @@ internal fun DayOffCalendarDialog(
                         .clickable(onClick = onDismiss)
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                 ) {
-                    Text("Cancel", color = colors.textMuted, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.common_cancel), color = colors.textMuted, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.size(6.dp))
                 Box(
@@ -253,7 +264,7 @@ internal fun DayOffCalendarDialog(
                         .padding(horizontal = 18.dp, vertical = 8.dp),
                 ) {
                     Text(
-                        "Save",
+                        stringResource(R.string.common_save),
                         color = if (hasChanges) Color.White else colors.textMuted,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,

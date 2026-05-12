@@ -28,15 +28,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.KitchenOrder
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChipVariant
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
+import com.mh.restaurantchainpos.pos.ui.i18n.stringLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTrigger
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
@@ -52,7 +57,7 @@ internal fun KitchenContent(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("⚠", color = colors.textMuted, fontSize = 36.sp)
                 Spacer(Modifier.height(8.dp))
-                Text("No tickets in this lane.", color = colors.textMuted, fontSize = 13.sp)
+                Text(stringResource(R.string.kitchen_empty_lane), color = colors.textMuted, fontSize = 13.sp)
             }
         }
         return
@@ -127,7 +132,7 @@ internal fun KitchenHeader(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("☰", color = Color.White, fontSize = 12.sp)
-                        Text("Tables", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.common_tables), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                         Text("${state.selectedTables.size}", color = Color(0xCCFFFFFF), fontSize = 11.sp)
                     }
                 }
@@ -136,7 +141,7 @@ internal fun KitchenHeader(
             // Sort selector — Outlined variant of the unified dropdown chip
             // so it reads as a passive control on the kitchen header surface.
             PosDropdownChip(
-                text = state.sortMode.triggerLabel,
+                text = state.sortMode.stringTrigger(),
                 expanded = state.sortOpen,
                 colors = colors,
                 onExpandedChange = { state.sortOpen = it },
@@ -153,7 +158,7 @@ internal fun KitchenHeader(
                     PosDropdownMenuRow(
                         index = index,
                         totalCount = modes.size,
-                        text = mode.label,
+                        text = mode.stringLabel(),
                         selected = state.sortMode == mode,
                         colors = colors,
                         onClick = {
@@ -171,7 +176,7 @@ internal fun KitchenHeader(
         ) {
             TabPill(
                 colors = colors,
-                label = "Received",
+                label = KitchenViewTab.Received.stringTitle(),
                 tabActive = state.activeTab == KitchenViewTab.Received,
                 items = receivedItems,
                 orders = receivedOrders,
@@ -180,7 +185,7 @@ internal fun KitchenHeader(
             )
             TabPill(
                 colors = colors,
-                label = "In Progress",
+                label = KitchenViewTab.InProgress.stringTitle(),
                 tabActive = state.activeTab == KitchenViewTab.InProgress,
                 items = inProgressItems,
                 orders = inProgressOrders,
@@ -189,7 +194,7 @@ internal fun KitchenHeader(
             )
             TabPill(
                 colors = colors,
-                label = "Completed",
+                label = KitchenViewTab.Completed.stringTitle(),
                 tabActive = state.activeTab == KitchenViewTab.Completed,
                 items = completedItems,
                 orders = completedOrders,
@@ -220,9 +225,9 @@ private fun TabPill(
         Spacer(Modifier.size(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (role != ActiveRole.Waiter) {
-                Text("⊞ $orders", color = colors.textMuted, fontSize = 10.sp)
+                Text(stringResource(R.string.kitchen_row_orders, orders), color = colors.textMuted, fontSize = 10.sp)
             }
-            Text("☷ $items", color = colors.textMuted, fontSize = 10.sp)
+            Text(stringResource(R.string.kitchen_row_items, items), color = colors.textMuted, fontSize = 10.sp)
         }
         Box(Modifier.height(2.dp).width(36.dp).background(if (tabActive) Blue500 else Color.Transparent))
     }

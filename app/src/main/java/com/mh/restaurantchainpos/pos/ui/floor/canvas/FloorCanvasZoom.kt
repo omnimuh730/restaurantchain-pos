@@ -18,12 +18,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import kotlin.math.roundToInt
 
@@ -41,6 +43,7 @@ internal fun ZoomControls(
     onZoomChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val ctx = LocalContext.current
     Row(
         modifier
             .clip(RoundedCornerShape(10.dp))
@@ -54,7 +57,7 @@ internal fun ZoomControls(
             enabled = zoom > minZoom + 0.001f,
             palette = palette,
             icon = Icons.Outlined.Remove,
-            contentDescription = "Zoom out",
+            contentDescription = ctx.getString(R.string.floor_cd_zoom_out),
             onClick = { onZoomChange(nextZoom(zoom, -ZoomStep, minZoom)) },
         )
         Text(
@@ -69,7 +72,7 @@ internal fun ZoomControls(
             enabled = zoom < MaxFloorZoom - 0.001f,
             palette = palette,
             icon = Icons.Outlined.Add,
-            contentDescription = "Zoom in",
+            contentDescription = ctx.getString(R.string.floor_cd_zoom_in),
             onClick = { onZoomChange(nextZoom(zoom, ZoomStep, minZoom)) },
         )
     }

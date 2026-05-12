@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -22,14 +21,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableStatus
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
+import com.mh.restaurantchainpos.pos.ui.orders.floorTableDisplayLine
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
@@ -54,6 +57,7 @@ fun TableCardView(
 
 @Composable
 private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (FloorTable) -> Unit) {
+    val ctx = LocalContext.current
     val occupied = table.status == TableStatus.Occupied
     val reserved = table.status == TableStatus.Reserved
     val (bg, borderC, textC) = when {
@@ -73,12 +77,19 @@ private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (Floor
             .padding(14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(table.label, color = textC, fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
+            Text(ctx.floorTableDisplayLine(table, editMode = false), color = textC, fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
         }
         Spacer(Modifier.height(4.dp))
         Text(
-            if (occupied) "${if (table.occupiedSeats > 0) table.occupiedSeats else table.seats}/${table.seats} seats"
-            else "${table.seats} seats",
+            if (occupied) {
+                stringResource(
+                    R.string.floor_seats_occupied_of,
+                    if (table.occupiedSeats > 0) table.occupiedSeats else table.seats,
+                    table.seats,
+                )
+            } else {
+                stringResource(R.string.floor_seats_count, table.seats)
+            },
             color = if (occupied) Color.White.copy(alpha = 0.9f) else palette.editText2,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
@@ -93,7 +104,7 @@ private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (Floor
                 modifier = Modifier.align(Alignment.End),
             )
             reserved && table.reservationTime.isNotBlank() -> Text(
-                "Reserved · ${table.reservationTime}",
+                stringResource(R.string.floor_reserved_at, table.reservationTime),
                 color = palette.reservedText,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
@@ -104,7 +115,7 @@ private fun TableCard(palette: FloorPalette, table: FloorTable, onSelect: (Floor
                     .background(palette.availableFill)
                     .padding(horizontal = 10.dp, vertical = 3.dp),
             ) {
-                Text("Available", color = palette.availableText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.floor_table_available_badge), color = palette.availableText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }

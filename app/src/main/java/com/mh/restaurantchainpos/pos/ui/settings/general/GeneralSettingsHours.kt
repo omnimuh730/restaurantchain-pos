@@ -1,5 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.settings
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,25 +27,27 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
 
-internal data class HoursRow(val day: String, val open: String, val close: String, val closed: Boolean)
+internal data class HoursRow(@param:StringRes val dayLabelRes: Int, val open: String, val close: String, val closed: Boolean)
 
 @Composable
 internal fun DaysOffCard(colors: PosColors, daysOff: SnapshotStateList<DayOff>, onAdd: () -> Unit) {
     SettingCard(
         colors = colors,
-        title = "Days Off",
-        subtitle = "Select dates when the restaurant will be closed",
+        title = stringResource(R.string.settings_gen_days_off_title),
+        subtitle = stringResource(R.string.settings_gen_days_off_subtitle),
         headerIcon = Icons.Outlined.CalendarToday,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Column {
-                Text("Add Day Off", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_gen_hours_add_day_off), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
                 Box(
                     Modifier
@@ -59,16 +62,21 @@ internal fun DaysOffCard(colors: PosColors, daysOff: SnapshotStateList<DayOff>, 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.size(10.dp))
-                        Text("Select a date", color = colors.textMuted, fontSize = 14.sp)
+                        Text(stringResource(R.string.settings_gen_hours_select_date), color = colors.textMuted, fontSize = 14.sp)
                     }
                 }
                 Spacer(Modifier.height(4.dp))
-                Text("Click to select a date to add as a day off", color = colors.textMuted, fontSize = 11.sp)
+                Text(stringResource(R.string.settings_gen_hours_select_hint), color = colors.textMuted, fontSize = 11.sp)
             }
 
             if (daysOff.isNotEmpty()) {
                 Column {
-                    Text("Scheduled Days Off (${daysOff.size})", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        stringResource(R.string.settings_gen_hours_scheduled, daysOff.size),
+                        color = colors.text,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
                     Spacer(Modifier.height(8.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         daysOff.toList().forEach { day ->
@@ -103,8 +111,8 @@ internal fun DaysOffCard(colors: PosColors, daysOff: SnapshotStateList<DayOff>, 
 internal fun OpeningHoursCard(colors: PosColors, hours: SnapshotStateList<HoursRow>) {
     SettingCard(
         colors = colors,
-        title = "Opening Hours",
-        subtitle = "Set your operating hours for each day",
+        title = stringResource(R.string.settings_gen_opening_hours_title),
+        subtitle = stringResource(R.string.settings_gen_opening_hours_subtitle),
         headerIcon = Icons.Outlined.Schedule,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -114,16 +122,22 @@ internal fun OpeningHoursCard(colors: PosColors, hours: SnapshotStateList<HoursR
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text(row.day, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium, modifier = Modifier.width(36.dp))
+                    Text(
+                        stringResource(row.dayLabelRes),
+                        color = colors.text,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.width(36.dp),
+                    )
                     ToggleSwitch(checked = !row.closed) {
                         hours[index] = row.copy(closed = !row.closed)
                     }
                     if (!row.closed) {
                         TimeField(colors, row.open, Modifier.weight(1f)) { hours[index] = row.copy(open = it) }
-                        Text("to", color = colors.textMuted, fontSize = 12.sp)
+                        Text(stringResource(R.string.settings_gen_hours_to), color = colors.textMuted, fontSize = 12.sp)
                         TimeField(colors, row.close, Modifier.weight(1f)) { hours[index] = row.copy(close = it) }
                     } else {
-                        Text("Closed", color = colors.textMuted, fontSize = 12.sp, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.settings_gen_hours_closed), color = colors.textMuted, fontSize = 12.sp, modifier = Modifier.weight(1f))
                     }
                 }
             }

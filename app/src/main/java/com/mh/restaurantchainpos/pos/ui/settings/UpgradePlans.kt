@@ -36,70 +36,72 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-private val ProFeatures = listOf(
-    "Up to 20 staff members",
-    "Advanced analytics & reports",
-    "Multi-floor plan support",
-    "Priority email support",
-    "Custom receipt branding",
-    "Table reservation system",
-)
-
-private val UltraFeatures = listOf(
-    "Everything in Pro",
-    "Unlimited staff members",
-    "Multi-location support",
-    "24/7 priority support",
-    "API access & integrations",
-    "Custom domain & branding",
-    "Advanced inventory tracking",
-    "Dedicated account manager",
-)
-
 @Composable
 fun UpgradePlans(colors: PosColors) {
     var slidePay by remember { mutableStateOf<String?>(null) }
+    val proFeatures = stringArrayResource(R.array.settings_up_pro_features).toList()
+    val ultraFeatures = stringArrayResource(R.array.settings_up_ultra_features).toList()
+    val proLabel = stringResource(R.string.settings_plan_pro)
+    val ultraLabel = stringResource(R.string.settings_plan_ultra)
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         SettingCard(
             colors = colors,
-            title = "Upgrade Your Plan",
-            subtitle = "Unlock premium features to grow your restaurant business",
-            badge = "Free Tier",
+            title = stringResource(R.string.settings_upgrade_page_title),
+            subtitle = stringResource(R.string.settings_upgrade_page_subtitle),
+            badge = stringResource(R.string.settings_tier_free),
             badgeIcon = Icons.Outlined.AutoAwesome,
             headerIcon = Icons.Outlined.AutoAwesome,
         ) {
-            PlanCard(colors, "Pro", "$29", ProFeatures, Icons.Outlined.AutoAwesome) { slidePay = "Pro" }
+            PlanCard(
+                colors = colors,
+                planKey = "Pro",
+                planLabel = proLabel,
+                price = "$29",
+                features = proFeatures,
+                icon = Icons.Outlined.AutoAwesome,
+            ) { slidePay = "Pro" }
             Spacer(Modifier.height(12.dp))
-            PlanCard(colors, "Ultra", "$79", UltraFeatures, Icons.Outlined.WorkspacePremium) { slidePay = "Ultra" }
+            PlanCard(
+                colors = colors,
+                planKey = "Ultra",
+                planLabel = ultraLabel,
+                price = "$79",
+                features = ultraFeatures,
+                icon = Icons.Outlined.WorkspacePremium,
+            ) { slidePay = "Ultra" }
         }
     }
 
     if (slidePay != null) {
-        SlideToPayDialog(colors = colors, plan = slidePay!!, onClose = { slidePay = null })
+        SlideToPayDialog(colors = colors, planKey = slidePay!!, onClose = { slidePay = null })
     }
 }
 
 @Composable
 private fun PlanCard(
     colors: PosColors,
-    plan: String,
+    planKey: String,
+    planLabel: String,
     price: String,
     features: List<String>,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onUpgrade: () -> Unit,
 ) {
-    val highlighted = plan == "Ultra"
+    val highlighted = planKey == "Ultra"
     Column(
         Modifier
             .fillMaxWidth()
@@ -120,16 +122,20 @@ private fun PlanCard(
             }
             Spacer(Modifier.size(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(plan, color = colors.text, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(planLabel, color = colors.text, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(
-                    if (plan == "Pro") "For growing restaurants" else "For enterprise restaurants",
+                    if (planKey == "Pro") {
+                        stringResource(R.string.settings_plan_pro_tagline)
+                    } else {
+                        stringResource(R.string.settings_plan_ultra_tagline)
+                    },
                     color = colors.textMuted,
                     fontSize = 11.sp,
                 )
             }
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(price, color = colors.text, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                Text(" /mo", color = colors.textMuted, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
+                Text(stringResource(R.string.settings_upgrade_per_month), color = colors.textMuted, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -147,7 +153,7 @@ private fun PlanCard(
         }
         Spacer(Modifier.height(14.dp))
         PrimaryButton(
-            "Choose $plan",
+            stringResource(R.string.settings_upgrade_choose_plan, planLabel),
             onUpgrade,
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = Icons.Outlined.Bolt,
@@ -156,10 +162,14 @@ private fun PlanCard(
 }
 
 @Composable
-private fun SlideToPayDialog(colors: PosColors, plan: String, onClose: () -> Unit) {
+private fun SlideToPayDialog(colors: PosColors, planKey: String, onClose: () -> Unit) {
     var dragX by remember { mutableStateOf(0f) }
     val maxDragPx = with(androidx.compose.ui.platform.LocalDensity.current) { 240.dp.toPx() }
     var done by remember { mutableStateOf(false) }
+    val planLabel = when (planKey) {
+        "Pro" -> stringResource(R.string.settings_plan_pro)
+        else -> stringResource(R.string.settings_plan_ultra)
+    }
     ModalScrim(onDismiss = onClose) {
         Column(
             Modifier
@@ -170,9 +180,9 @@ private fun SlideToPayDialog(colors: PosColors, plan: String, onClose: () -> Uni
                 .consumeModalTaps()
                 .padding(20.dp),
         ) {
-            Text("Confirm $plan upgrade", color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Text(stringResource(R.string.settings_upgrade_confirm_title, planLabel), color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
-            Text("Slide the button all the way to the right to authorize.", color = colors.textMuted, fontSize = 12.sp)
+            Text(stringResource(R.string.settings_upgrade_confirm_hint), color = colors.textMuted, fontSize = 12.sp)
             Spacer(Modifier.height(16.dp))
             Box(
                 Modifier
@@ -184,7 +194,7 @@ private fun SlideToPayDialog(colors: PosColors, plan: String, onClose: () -> Uni
             ) {
                 if (done) {
                     Text(
-                        "Subscribed!",
+                        stringResource(R.string.settings_upgrade_subscribed),
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp,
@@ -192,7 +202,7 @@ private fun SlideToPayDialog(colors: PosColors, plan: String, onClose: () -> Uni
                     )
                 } else {
                     Text(
-                        "Slide to pay",
+                        stringResource(R.string.settings_upgrade_slide_to_pay),
                         color = colors.textMuted,
                         fontSize = 12.sp,
                         modifier = Modifier.align(Alignment.Center),
@@ -222,7 +232,12 @@ private fun SlideToPayDialog(colors: PosColors, plan: String, onClose: () -> Uni
                 }
             }
             Spacer(Modifier.height(16.dp))
-            OutlineButton(if (done) "Close" else "Cancel", colors.text, onClick = onClose, modifier = Modifier.fillMaxWidth())
+            OutlineButton(
+                if (done) stringResource(R.string.common_close) else stringResource(R.string.common_cancel),
+                colors.text,
+                onClick = onClose,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

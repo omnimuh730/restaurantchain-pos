@@ -17,6 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
@@ -35,14 +37,14 @@ internal fun CalendarLegend(palette: FloorPalette) {
             fill = palette.occupiedFill,
             border = palette.occupiedBorder,
             dashed = false,
-            label = "Confirmed",
+            label = stringResource(R.string.floor_legend_confirmed),
             palette = palette,
         )
         LegendBlock(
             fill = Blue500.copy(alpha = 0.10f),
             border = Blue400,
             dashed = true,
-            label = "Request",
+            label = stringResource(R.string.floor_legend_request),
             palette = palette,
         )
     }

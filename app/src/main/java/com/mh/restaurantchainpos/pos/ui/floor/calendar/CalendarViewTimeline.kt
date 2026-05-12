@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -34,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
@@ -42,10 +42,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
@@ -308,6 +308,7 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
     isToday: Boolean,
     preview: Boolean = false,
 ) {
+    val ctx = LocalContext.current
     val visibleStart = timeToHour(reservation.startTime)
     val visualState = blockVisualState(reservation, nowHour, isToday)
     val visibleEnd = when (visualState) {
@@ -354,15 +355,17 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
-                val tag = blockTag(reservation, visualState)
+                val tag = ctx.reservationBlockTag(reservation, visualState)
                 if (tag.isNotBlank()) {
                     Spacer(Modifier.width(4.dp))
                     Text(tag, color = visuals.text.copy(alpha = 0.85f), fontSize = 8.sp, fontWeight = FontWeight.Bold)
                 }
             }
             if (!preview) {
+                val partyLabel = ctx.getString(R.string.floor_cal_party_size, reservation.partySize)
+                val dur = ctx.formatReservationDurationHours(reservation.durationHours)
                 Text(
-                    "${reservation.partySize}P - ${formatHours(reservation.durationHours)}",
+                    ctx.getString(R.string.floor_cal_party_duration_line, partyLabel, dur),
                     color = visuals.subText,
                     fontSize = 9.sp,
                     maxLines = 1,

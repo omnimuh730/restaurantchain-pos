@@ -23,12 +23,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.StaffMember
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -56,7 +58,7 @@ internal fun PendingRequestsCard(
         ) {
             Icon(Icons.Outlined.PersonAdd, contentDescription = null, tint = Blue500, modifier = Modifier.size(16.dp))
             Spacer(Modifier.size(8.dp))
-            Text("Pending Requests", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.staff_pending_title), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             Box(
                 Modifier
                     .clip(CircleShape)
@@ -95,7 +97,7 @@ internal fun PendingRequestsCard(
                         )
                     }
                     Spacer(Modifier.size(8.dp))
-                    RoleBadge(member.role)
+                    RoleBadge(role = member.role)
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -111,7 +113,7 @@ internal fun PendingRequestsCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                             Spacer(Modifier.size(5.dp))
-                            Text("Approve", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.staff_pending_approve), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     Box(
@@ -126,7 +128,7 @@ internal fun PendingRequestsCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Close, contentDescription = null, tint = Blue600, modifier = Modifier.size(14.dp))
                             Spacer(Modifier.size(5.dp))
-                            Text("Reject", color = Blue600, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.staff_pending_reject), color = Blue600, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

@@ -41,6 +41,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
@@ -161,7 +163,7 @@ fun FloorTabsRow(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.MoreVert,
-                        contentDescription = "Floor actions",
+                        contentDescription = stringResource(R.string.floor_menu_cd_actions),
                         tint = if (menuOpen) Blue500 else palette.text2,
                         modifier = Modifier.size(20.dp),
                     )
@@ -176,7 +178,7 @@ fun FloorTabsRow(
                                 modifier = Modifier.size(18.dp),
                             )
                         },
-                        text = { Text("Add Floor", color = palette.text1) },
+                        text = { Text(stringResource(R.string.floor_menu_add_floor), color = palette.text1) },
                         onClick = {
                             menuOpen = false
                             addOpen = true
@@ -191,7 +193,7 @@ fun FloorTabsRow(
                                 modifier = Modifier.size(18.dp),
                             )
                         },
-                        text = { Text("Edit Layout", color = palette.text1) },
+                        text = { Text(stringResource(R.string.floor_menu_edit_layout), color = palette.text1) },
                         onClick = {
                             menuOpen = false
                             onEditLayout()
@@ -206,7 +208,7 @@ fun FloorTabsRow(
                                 modifier = Modifier.size(18.dp),
                             )
                         },
-                        text = { Text("Remove Floor", color = Color(0xFFEF4444)) },
+                        text = { Text(stringResource(R.string.floor_menu_remove_floor), color = Color(0xFFEF4444)) },
                         onClick = {
                             menuOpen = false
                             if (floors.size > 1) removeOpen = true
@@ -221,10 +223,10 @@ fun FloorTabsRow(
         ModalShell(onClose = { addOpen = false }) {
             FloorRenameDialog(
                 palette = palette,
-                title = "Add Floor",
-                hint = "Give this floor a short name like 1F or Patio.",
+                title = stringResource(R.string.floor_dialog_add_floor_title),
+                hint = stringResource(R.string.floor_dialog_add_floor_hint),
                 initial = "${floors.size + 1}F",
-                primaryLabel = "Add",
+                primaryLabel = stringResource(R.string.floor_dialog_add_primary),
                 onConfirm = { name ->
                     onAddFloor(name)
                     addOpen = false
@@ -237,9 +239,12 @@ fun FloorTabsRow(
         ModalShell(onClose = { removeOpen = false }) {
             FloorConfirmDialog(
                 palette = palette,
-                title = "Remove Floor",
-                message = "Delete \"${floors.first { it.id == activeFloorId }.name}\"? Tables on this floor will be lost.",
-                primaryLabel = "Delete",
+                title = stringResource(R.string.floor_dialog_remove_floor_title),
+                message = stringResource(
+                    R.string.floor_dialog_remove_floor_message,
+                    floors.first { it.id == activeFloorId }.name,
+                ),
+                primaryLabel = stringResource(R.string.floor_dialog_delete),
                 primaryColor = Color(0xFFEF4444),
                 onConfirm = {
                     onRemoveFloor(activeFloorId)
@@ -318,7 +323,7 @@ private fun FloorRenameDialog(
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Spacer(Modifier.weight(1f))
-            DialogButton("Cancel", palette.text1, palette.card, palette.border, onCancel)
+            DialogButton(stringResource(R.string.common_cancel), palette.text1, palette.card, palette.border, onCancel)
             DialogButton(primaryLabel, Color.White, Blue500, Blue500, { onConfirm(value.ifBlank { initial }) })
         }
     }
@@ -347,7 +352,7 @@ private fun FloorConfirmDialog(
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Spacer(Modifier.weight(1f))
-            DialogButton("Cancel", palette.text1, palette.card, palette.border, onCancel)
+            DialogButton(stringResource(R.string.common_cancel), palette.text1, palette.card, palette.border, onCancel)
             DialogButton(primaryLabel, Color.White, primaryColor, primaryColor, onConfirm)
         }
     }

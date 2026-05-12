@@ -18,14 +18,9 @@ import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.min
 
 internal fun rowBackground(
     palette: FloorPalette,
@@ -139,13 +134,6 @@ internal fun reservationVisual(
     )
 }
 
-internal fun blockTag(reservation: Reservation, state: BlockVisualState): String = when {
-    state == BlockVisualState.Completed -> "PAID"
-    state == BlockVisualState.NoShow -> "NO-SHOW"
-    reservation.type == ReservationType.Request -> "REQ"
-    else -> ""
-}
-
 internal fun Modifier.dashedBorder(color: Color, strokeWidth: Dp, cornerRadius: Dp): Modifier =
     this.drawBehind {
         val w = strokeWidth.toPx()
@@ -227,25 +215,6 @@ internal fun sameYmd(calendar: Calendar, year: Int, month: Int, day: Int): Boole
     calendar.get(Calendar.YEAR) == year &&
         calendar.get(Calendar.MONTH) == month &&
         calendar.get(Calendar.DAY_OF_MONTH) == day
-
-internal fun fullDateLabel(offset: Int): String =
-    SimpleDateFormat("EEE, MMM d, yyyy", Locale.US).format(Date(calendarForOffset(offset).timeInMillis))
-
-internal fun shortDateLabel(offset: Int): String =
-    SimpleDateFormat("M/d", Locale.US).format(Date(calendarForOffset(offset).timeInMillis))
-
-internal fun dayLabel(offset: Int): String = when (offset) {
-    -1 -> "Yesterday"
-    0 -> "Today"
-    1 -> "Tomorrow"
-    else -> if (offset < 0) "${-offset}d ago" else "in ${offset}d"
-}
-
-internal fun formatHours(hours: Double): String {
-    val intPart = hours.toInt()
-    val frac = hours - intPart
-    return if (frac == 0.0) "${intPart}h" else "${intPart}.${(frac * 10).toInt()}h"
-}
 
 internal fun Int.floorMod(mod: Int): Int {
     val r = this % mod

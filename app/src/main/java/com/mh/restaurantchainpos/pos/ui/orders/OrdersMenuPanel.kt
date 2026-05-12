@@ -16,10 +16,13 @@ import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,6 +31,9 @@ import com.mh.restaurantchainpos.pos.ui.theme.Blue300
 import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
+import com.mh.restaurantchainpos.pos.ui.i18n.rememberOrderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable
@@ -44,7 +50,15 @@ internal fun MenuPanel(
     columns: Int,
     modifier: Modifier = Modifier,
 ) {
+    val ctx = LocalContext.current
+    val locale = LocalConfiguration.current.locales[0]
     val category = OrderMenuCategories.first { it.id == selectedCategory }
+    val catEntries = remember(locale) {
+        OrderMenuCategories.map { it.id to ctx.orderCatalogString("orders_cat", it.id) }
+    }
+    val subEntries = remember(locale, selectedCategory) {
+        category.subCategories.map { it.id to ctx.orderCatalogString("orders_sub", it.id) }
+    }
     Column(
         modifier
             .background(colors.surfaceRaised)
@@ -54,7 +68,7 @@ internal fun MenuPanel(
             SearchBox(value = query, onValueChange = onQuery, colors = colors)
         }
         GridButtons(
-            entries = OrderMenuCategories.map { it.id to it.label },
+            entries = catEntries,
             selected = selectedCategory,
             colors = colors,
             columns = 4,
@@ -63,7 +77,7 @@ internal fun MenuPanel(
             onClick = onCategory,
         )
         GridButtons(
-            entries = category.subCategories.map { it.id to it.label },
+            entries = subEntries,
             selected = selectedSub,
             colors = colors,
             columns = 4,
@@ -157,7 +171,7 @@ private fun MenuTile(colors: PosColors, item: OrderMenuItem, onClick: () -> Unit
         contentAlignment = Alignment.BottomStart,
     ) {
         Text(
-            item.name,
+            rememberOrderCatalogString("orders_item", item.id, item.id),
             color = colors.text,
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,

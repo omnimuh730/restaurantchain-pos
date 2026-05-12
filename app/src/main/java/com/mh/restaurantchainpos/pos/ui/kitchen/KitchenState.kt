@@ -198,19 +198,19 @@ class KitchenState(initial: List<KitchenOrder>) {
     }
 
     fun receivedDistinctItemCount(): Int =
-        orders.filter { it.status == KitchenStatus.Received }.flatMap { it.items }.distinctBy { it.name }.size
+        orders.filter { it.status == KitchenStatus.Received }.flatMap { it.items }.distinctBy { it.titleKey }.size
 
     fun inProgressDistinctItemCount(): Int =
         orders.filter { it.status == KitchenStatus.InProgress }
             .flatMap { it.items.filter { i -> !i.previouslyCompleted } }
-            .distinctBy { it.name }
+            .distinctBy { it.titleKey }
             .size
 
     fun completedDistinctItemCount(): Int {
         val a = orders.filter { it.status == KitchenStatus.Completed }.flatMap { it.items }
         val b = orders.filter { it.status == KitchenStatus.InProgress }
             .flatMap { it.items.filter { i -> i.previouslyCompleted } }
-        return (a + b).distinctBy { it.name }.size
+        return (a + b).distinctBy { it.titleKey }.size
     }
 
     private fun ts(): String = System.nanoTime().toString().takeLast(6)

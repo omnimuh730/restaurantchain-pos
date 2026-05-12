@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.CurrencyKind
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
@@ -27,13 +28,13 @@ fun GeneralSettings(colors: PosColors) {
     }
     val hours = remember {
         mutableStateListOf(
-            HoursRow("Mon", "10:00 AM", "10:00 PM", false),
-            HoursRow("Tue", "10:00 AM", "10:00 PM", false),
-            HoursRow("Wed", "10:00 AM", "10:00 PM", false),
-            HoursRow("Thu", "10:00 AM", "11:00 PM", false),
-            HoursRow("Fri", "10:00 AM", "11:00 PM", false),
-            HoursRow("Sat", "11:00 AM", "11:00 PM", false),
-            HoursRow("Sun", "11:00 AM", "9:00 PM", false),
+            HoursRow(R.string.settings_day_mon, "10:00 AM", "10:00 PM", false),
+            HoursRow(R.string.settings_day_tue, "10:00 AM", "10:00 PM", false),
+            HoursRow(R.string.settings_day_wed, "10:00 AM", "10:00 PM", false),
+            HoursRow(R.string.settings_day_thu, "10:00 AM", "11:00 PM", false),
+            HoursRow(R.string.settings_day_fri, "10:00 AM", "11:00 PM", false),
+            HoursRow(R.string.settings_day_sat, "11:00 AM", "11:00 PM", false),
+            HoursRow(R.string.settings_day_sun, "11:00 AM", "9:00 PM", false),
         )
     }
     var calendarOpen by remember { mutableStateOf(false) }

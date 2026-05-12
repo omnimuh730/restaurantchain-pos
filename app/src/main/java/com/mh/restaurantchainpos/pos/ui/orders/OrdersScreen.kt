@@ -24,9 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
+import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlin.math.min
 import java.util.UUID
@@ -35,6 +37,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun OrdersScreen(colors: PosColors, role: ActiveRole) {
     val density = LocalDensity.current
+    val ctx = LocalContext.current
     var selectedFloorId by remember { mutableStateOf("1F") }
     var selectedTableId by remember { mutableStateOf("T12") }
     var floorMenuOpen by remember { mutableStateOf(false) }
@@ -63,7 +66,11 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
     val currentItems = selectedCategory.subCategories
         .filter { selectedSubId == null || it.id == selectedSubId }
         .flatMap { sub -> sub.items.map { item -> sub to item } }
-        .filter { (_, item) -> query.isBlank() || item.name.contains(query.trim(), ignoreCase = true) }
+        .filter { (_, item) ->
+            query.isBlank() ||
+                ctx.orderCatalogString("orders_item", item.id, item.id).contains(query.trim(), ignoreCase = true) ||
+                item.id.contains(query.trim(), ignoreCase = true)
+        }
     val pendingCount = currentOrder.count { line ->
         when {
             line.deleted && line.ordered -> true
@@ -128,10 +135,9 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
             current + OrderLine(
                 id = "${item.id}-${UUID.randomUUID()}",
                 baseId = item.id,
-                name = item.name,
                 price = item.price,
                 qty = 1,
-                category = sub.label,
+                categoryId = sub.id,
                 currency = item.currency,
             )
         }
@@ -300,7 +306,7 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
                 totalUsd = totalUsd,
                 totalKrw = totalKrw,
                 checkNumber = checkNumber(selectedTableId),
-                tableLabel = selectedTable?.label ?: selectedTableId,
+                tableLabel = selectedTable?.let { ctx.tableOrderLabel(it.id) } ?: selectedTableId,
                 onClose = { showPayment = false },
             )
         }
@@ -308,7 +314,7 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
         AnimatedVisibility(showOrderConfirm, modifier = Modifier.fillMaxSize()) {
             ConfirmOrderDialog(
                 colors = colors,
-                tableLabel = selectedTable?.label ?: selectedTableId,
+                tableLabel = selectedTable?.let { ctx.tableOrderLabel(it.id) } ?: selectedTableId,
                 newItems = pendingNewItems,
                 onCancel = { showOrderConfirm = false },
                 onConfirm = {
