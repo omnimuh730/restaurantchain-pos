@@ -28,7 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -191,7 +194,20 @@ private fun CalendarMenuButton(
                     .background(Blue500),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(requestCount.toString(), color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                // Disable default font padding and snap line height to font size so
+                // the glyph is geometrically centered inside the tight 16dp circle.
+                Text(
+                    text = requestCount.toString(),
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 9.sp,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    ),
+                )
             }
         }
     }

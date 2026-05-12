@@ -53,6 +53,7 @@ internal fun KitchenContent(
     state: KitchenState,
     isMobile: Boolean,
     visible: List<KitchenOrder>,
+    viewTab: KitchenViewTab,
 ) {
     if (visible.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -70,7 +71,7 @@ internal fun KitchenContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(visible, key = { it.id }) { order ->
-                OrderCard(colors, state, order)
+                OrderCard(colors, state, order, viewTab)
             }
         }
     } else {
@@ -81,7 +82,7 @@ internal fun KitchenContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(visible, key = { it.id }) { order ->
-                OrderCard(colors, state, order)
+                OrderCard(colors, state, order, viewTab)
             }
         }
     }
@@ -92,11 +93,12 @@ private fun OrderCard(
     colors: PosColors,
     state: KitchenState,
     order: KitchenOrder,
+    viewTab: KitchenViewTab,
 ) {
     KitchenCard(
         colors = colors,
         order = order,
-        viewTab = state.activeTab,
+        viewTab = viewTab,
         onAccept = { state.acceptOrder(order.id) },
         onComplete = { state.completeOrder(order.id) },
         onRecall = { state.recallOrder(order.id) },
@@ -118,6 +120,8 @@ internal fun KitchenHeader(
     receivedOrders: Int,
     inProgressOrders: Int,
     completedOrders: Int,
+    selectedTabPage: Int,
+    onSelectTabPage: (Int) -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().background(colors.surface)) {
         Row(
@@ -179,29 +183,29 @@ internal fun KitchenHeader(
             TabPill(
                 colors = colors,
                 label = KitchenViewTab.Received.stringTitle(),
-                tabActive = state.activeTab == KitchenViewTab.Received,
+                tabActive = selectedTabPage == 0,
                 items = receivedItems,
                 orders = receivedOrders,
                 role = role,
-                onClick = { state.activeTab = KitchenViewTab.Received },
+                onClick = { onSelectTabPage(0) },
             )
             TabPill(
                 colors = colors,
                 label = KitchenViewTab.InProgress.stringTitle(),
-                tabActive = state.activeTab == KitchenViewTab.InProgress,
+                tabActive = selectedTabPage == 1,
                 items = inProgressItems,
                 orders = inProgressOrders,
                 role = role,
-                onClick = { state.activeTab = KitchenViewTab.InProgress },
+                onClick = { onSelectTabPage(1) },
             )
             TabPill(
                 colors = colors,
                 label = KitchenViewTab.Completed.stringTitle(),
-                tabActive = state.activeTab == KitchenViewTab.Completed,
+                tabActive = selectedTabPage == 2,
                 items = completedItems,
                 orders = completedOrders,
                 role = role,
-                onClick = { state.activeTab = KitchenViewTab.Completed },
+                onClick = { onSelectTabPage(2) },
             )
         }
     }

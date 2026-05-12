@@ -152,20 +152,26 @@ fun AreaCurveChart(
             }
         }
 
-        if (selected in points.indices) {
+        if (selected in points.indices && canvasW > 0 && canvasH > 0) {
             val left = with(density) { 36.dp.toPx() }
             val xs = pointXs(canvasW.toFloat(), points.size, left)
             val px = xs[selected]
             val py = with(density) { 8.dp.toPx() } +
                 (canvasH.toFloat() - with(density) { (8.dp + 22.dp).toPx() }) * (1f - points[selected] / niceMax)
-            Box(
-                Modifier
-                    .offset { IntOffset((px + 8f).roundToInt(), (py - 28f).roundToInt()) }
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(tooltipBg)
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
+            ChartClampedTooltip(
+                anchorX = px,
+                anchorY = py,
+                style = ChartTooltipAnchorStyle.AreaPoint,
+                modifier = Modifier.fillMaxSize(),
             ) {
-                Text(formatTooltip(selected), color = tooltipFg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(tooltipBg)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(formatTooltip(selected), color = tooltipFg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                }
             }
         }
     }

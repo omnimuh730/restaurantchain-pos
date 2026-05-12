@@ -180,8 +180,9 @@ class KitchenState(initial: List<KitchenOrder>) {
         )
     }
 
-    fun visibleOrders(): List<KitchenOrder> {
-        val tab = activeTab
+    fun visibleOrders(): List<KitchenOrder> = visibleOrdersForTab(activeTab)
+
+    fun visibleOrdersForTab(tab: KitchenViewTab): List<KitchenOrder> {
         val byStatus = orders.filter { o ->
             if (!selectedTables.contains(o.table)) return@filter false
             when (tab) {

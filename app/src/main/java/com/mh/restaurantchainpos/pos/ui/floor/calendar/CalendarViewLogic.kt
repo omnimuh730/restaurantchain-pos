@@ -85,6 +85,15 @@ internal fun blockVisualState(reservation: Reservation, @Suppress("UNUSED_PARAME
         else -> BlockVisualState.OnTime
     }
 
+/** Slots that can be moved to another table via calendar drag (time window unchanged). */
+internal fun calendarReservationIsReassignable(reservation: Reservation): Boolean {
+    if (reservation.tableId.isBlank()) return false
+    return when (blockVisualState(reservation, 0f, false)) {
+        BlockVisualState.Completed, BlockVisualState.NoShow -> false
+        BlockVisualState.OnTime -> true
+    }
+}
+
 internal fun reservationVisual(
     palette: FloorPalette,
     reservation: Reservation,
