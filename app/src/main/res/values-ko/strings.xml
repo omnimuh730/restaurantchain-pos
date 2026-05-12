@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">레스토랑 체인 POS</string>
+
+    <string name="brand_title">레스토랑 체인</string>
+    <string name="brand_subtitle">포인트 오브 세일</string>
+
+    <string name="nav_analytics">분석</string>
+    <string name="nav_floor">홀</string>
+    <string name="nav_orders">주문</string>
+    <string name="nav_kitchen">주방</string>
+    <string name="nav_settings">설정</string>
+
+    <string name="role_admin">관리자</string>
+    <string name="role_cashier">캐셔</string>
+    <string name="role_chef">셰프</string>
+    <string name="role_waiter">웨이터</string>
+    <string name="role_pages_suffix">화면 %1$d개</string>
+
+    <string name="header_sign_out">로그아웃</string>
+    <string name="header_lock">화면 잠금</string>
+    <string name="header_toggle_light">밝은 테마로</string>
+    <string name="header_toggle_dark">어두운 테마로</string>
+    <string name="header_role_menu">계정 및 역할</string>
+
+    <string name="common_search">검색</string>
+    <string name="common_close">닫기</string>
+    <string name="common_save">저장</string>
+    <string name="common_cancel">취소</string>
+    <string name="common_tables">테이블</string>
+    <string name="common_history">내역</string>
+
+    <string name="floor_mode_floor">플로어</string>
+    <string name="floor_mode_table">테이블</string>
+    <string name="floor_mode_calendar">캘린더</string>
+
+    <string name="kitchen_my_tables">내 테이블</string>
+    <string name="kitchen_all_floors">전체 층</string>
+    <string name="kitchen_tab_received">접수</string>
+    <string name="kitchen_tab_in_progress">진행 중</string>
+    <string name="kitchen_tab_completed">완료</string>
+    <string name="kitchen_sort_oldest_first">오래된 순</string>
+    <string name="kitchen_sort_newest_first">최신 순</string>
+    <string name="kitchen_sort_oldest">오래된 순</string>
+    <string name="kitchen_sort_newest">최신 순</string>
+    <string name="kitchen_empty_lane">이 구역에 티켓이 없습니다.</string>
+
+    <string name="orders_select_table">테이블 선택</string>
+    <string name="orders_new_items">신규 항목</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_password_only">비밀번호만</string>
+    <string name="settings_section_general">일반</string>
+    <string name="settings_section_general_desc">매장 정보, 영업시간, 연락처</string>
+    <string name="settings_section_menu">메뉴 관리</string>
+    <string name="settings_section_menu_desc">카테고리, 하위 카테고리, 메뉴</string>
+    <string name="settings_section_amenities">편의 정보</string>
+    <string name="settings_section_amenities_desc">요리 유형, 행사, 좌석</string>
+    <string name="settings_section_security">보안 및 결제</string>
+    <string name="settings_section_security_desc">비밀번호, 저장된 카드</string>
+    <string name="settings_section_staff">직원</string>
+    <string name="settings_section_staff_desc">팀 및 권한</string>
+    <string name="settings_section_upgrade">업그레이드</string>
+    <string name="settings_section_upgrade_desc">요금제 및 결제</string>
+
+    <string name="analytics_menu_title">분석 메뉴</string>
+    <string name="analytics_sales_dashboard">매출 대시보드</string>
+    <string name="analytics_menu_analysis">메뉴 분석</string>
+    <string name="analytics_customer_analysis">고객 분석</string>
+    <string name="analytics_history">히스토리</string>
+    <string name="period_today">오늘</string>
+    <string name="period_week">주간</string>
+    <string name="period_month">월간</string>
+    <string name="period_quarter">3개월</string>
+    <string name="period_custom">사용자 지정</string>
+
+    <string name="auth_cd_apps_logo">레스토랑 앱</string>
+</resources>

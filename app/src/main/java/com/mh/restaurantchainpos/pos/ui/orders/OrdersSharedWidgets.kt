@@ -34,10 +34,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.components.posMenuRowShape
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable
@@ -52,9 +53,9 @@ internal fun OrdersDropdownTableRow(
     onClick: () -> Unit,
 ) {
     val shape = posMenuRowShape(index, totalCount)
-    val bg = if (selected) Blue500 else colors.surface
-    val labelColor = if (selected) Color.White else colors.text
-    val metaColor = if (selected) Color.White.copy(alpha = 0.88f) else colors.textMuted
+    val bg = if (selected) colors.accent else colors.surface
+    val labelColor = if (selected) colors.onAccent else colors.text
+    val metaColor = if (selected) colors.onAccent.copy(alpha = 0.88f) else colors.textMuted
     Row(
         Modifier
             .fillMaxWidth()
@@ -79,7 +80,7 @@ internal fun OrdersDropdownTableRow(
                 Modifier
                     .size(6.dp)
                     .clip(CircleShape)
-                    .background(if (selected) Color.White else Blue500),
+                    .background(if (selected) colors.onAccent else colors.accent),
             )
         }
         Text(
@@ -122,7 +123,7 @@ internal fun HistoryButton(colors: PosColors, onClick: () -> Unit) {
             modifier = Modifier.size(16.dp),
             tint = colors.textMuted,
         )
-        Text("History", color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.common_history), color = colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -138,12 +139,12 @@ internal fun ActionButton(
 ) {
     val bg = when {
         !enabled -> colors.surfaceRaised.copy(alpha = 0.65f)
-        active -> Blue500
+        active -> colors.accent
         else -> colors.surfaceRaised
     }
     val fg = when {
         !enabled -> colors.textMuted.copy(alpha = 0.65f)
-        active -> Color.White
+        active -> colors.onAccent
         else -> colors.text
     }
     Row(
@@ -164,12 +165,12 @@ internal fun ActionButton(
                 Modifier
                     .size(22.dp)
                     .clip(CircleShape)
-                    .background(Blue500),
+                    .background(colors.accent),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = badge.toString(),
-                    color = Color.White,
+                    color = colors.onAccent,
                     textAlign = TextAlign.Center,
                     style = TextStyle(
                         fontSize = 10.sp,
@@ -268,7 +269,7 @@ internal fun SearchBox(value: String, onValueChange: (String) -> Unit, colors: P
                     Box(contentAlignment = Alignment.CenterStart) {
                         if (value.isBlank()) {
                             Text(
-                                "Search",
+                                stringResource(R.string.common_search),
                                 color = colors.textMuted.copy(alpha = 0.72f),
                                 fontSize = 11.sp,
                                 style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),

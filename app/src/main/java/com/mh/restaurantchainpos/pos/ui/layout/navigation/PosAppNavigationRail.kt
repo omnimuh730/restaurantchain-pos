@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.PosPage
 import com.mh.restaurantchainpos.pos.ui.components.CountBadge
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
 
@@ -57,19 +57,20 @@ fun PosAppNavigationRail(
             pages.forEach { item ->
                 val active = item == selected
                 val badge = badges[item.badgeKey] ?: 0
+                val label = item.stringTitle()
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clip(RoundedCornerShape(PosDimens.RadiusMd))
-                        .background(if (active) Blue600.copy(alpha = 0.10f) else Color.Transparent)
+                        .background(if (active) colors.navSelectedBackground else Color.Transparent)
                         .clickable { onSelect(item) }
                         .padding(horizontal = 6.dp, vertical = 10.dp),
                 ) {
                     Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
                         Icon(
                             painter = posPageNavPainter(item),
-                            contentDescription = item.label,
-                            tint = if (active) Blue600 else colors.navInactive,
+                            contentDescription = label,
+                            tint = if (active) colors.navSelectedForeground else colors.navInactive,
                             modifier = Modifier.size(if (active) 26.dp else 24.dp),
                         )
                         if (badge > 0) {
@@ -81,13 +82,13 @@ fun PosAppNavigationRail(
                                     .background(colors.navBackground)
                                     .padding(2.dp),
                             ) {
-                                CountBadge(count = badge, size = 16.dp)
+                                CountBadge(count = badge, size = 16.dp, accentColor = colors.accent)
                             }
                         }
                     }
                     Text(
-                        item.label,
-                        color = if (active) Blue600 else colors.navInactive,
+                        label,
+                        color = if (active) colors.navSelectedForeground else colors.navInactive,
                         fontSize = 10.sp,
                         fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
                         maxLines = 2,

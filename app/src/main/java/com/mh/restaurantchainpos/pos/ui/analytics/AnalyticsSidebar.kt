@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -33,7 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
+import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 /**
  * Sliding sidebar for the Analytics screen. On tablet/desktop it stays
@@ -42,9 +43,9 @@ import com.mh.restaurantchainpos.pos.ui.theme.Blue600
  */
 @Composable
 fun AnalyticsSidebar(
+    colors: PosColors,
     active: AnalyticsSection,
     onSelect: (AnalyticsSection) -> Unit,
-    isDark: Boolean,
     docked: Boolean,
     drawerOpen: Boolean,
     onCloseDrawer: () -> Unit,
@@ -52,7 +53,7 @@ fun AnalyticsSidebar(
 ) {
     if (docked) {
         Box(modifier.width(220.dp).fillMaxHeight()) {
-            SidebarContent(active = active, onSelect = onSelect, isDark = isDark)
+            SidebarContent(colors = colors, active = active, onSelect = onSelect)
         }
     } else {
         Box(modifier.fillMaxSize()) {
@@ -77,12 +78,12 @@ fun AnalyticsSidebar(
                     Modifier
                         .fillMaxHeight()
                         .width(260.dp)
-                        .background(if (isDark) Color(0xFF141820) else Color.White),
+                        .background(colors.surface),
                 ) {
-                    SidebarContent(active = active, onSelect = {
+                    SidebarContent(colors = colors, active = active, onSelect = {
                         onSelect(it)
                         onCloseDrawer()
-                    }, isDark = isDark)
+                    })
                 }
             }
         }
@@ -91,30 +92,28 @@ fun AnalyticsSidebar(
 
 @Composable
 private fun SidebarContent(
+    colors: PosColors,
     active: AnalyticsSection,
     onSelect: (AnalyticsSection) -> Unit,
-    isDark: Boolean,
 ) {
-    val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
-    val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-    val border = if (isDark) Color(0xFF1F2937) else Color(0xFFE2E8F0)
     Column(
         Modifier
             .fillMaxHeight()
-            .background(if (isDark) Color(0xFF141820) else Color.White)
-            .border(1.dp, border)
+            .background(colors.surface)
+            .border(1.dp, colors.border)
             .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Spacer(Modifier.height(8.dp))
         AnalyticsSection.entries.forEach { section ->
             val isActive = section == active
+            val title = section.stringTitle()
             Row(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (isActive) Blue600 else Color.Transparent)
+                    .background(if (isActive) colors.accent else Color.Transparent)
                     .clickable { onSelect(section) }
                     .padding(horizontal = 12.dp, vertical = 13.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -122,26 +121,19 @@ private fun SidebarContent(
                 Box(Modifier.size(30.dp), contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = section.icon,
-                        contentDescription = section.label,
-                        tint = if (isActive) Color.White else text2,
+                        contentDescription = title,
+                        tint = if (isActive) colors.onAccent else colors.textMuted,
                         modifier = Modifier.size(24.dp),
                     )
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    sectionMenuLabel(section),
-                    color = if (isActive) Color.White else text2,
+                    title,
+                    color = if (isActive) colors.onAccent else colors.textMuted,
                     fontSize = 15.sp,
                     fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
                 )
             }
         }
     }
-}
-
-private fun sectionMenuLabel(s: AnalyticsSection): String = when (s) {
-    AnalyticsSection.SalesDashboard -> "Sales Dashboard"
-    AnalyticsSection.Menu -> "Menu Analysis"
-    AnalyticsSection.Customer -> "Customer Analysis"
-    AnalyticsSection.History -> "History"
 }

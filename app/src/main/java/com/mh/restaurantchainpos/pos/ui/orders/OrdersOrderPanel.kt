@@ -22,13 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlinx.coroutines.delay
 
@@ -100,7 +101,7 @@ internal fun OrderPanel(
                 }
             }
             PosDropdownChip(
-                text = selectedTable?.label ?: "Select Table",
+                text = selectedTable?.label ?: stringResource(R.string.orders_select_table),
                 expanded = tableMenuOpen,
                 colors = colors,
                 onExpandedChange = onTableMenu,
@@ -267,8 +268,8 @@ private fun NewItemsSectionLabel(colors: PosColors) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "NEW ITEMS",
-            color = Blue500,
+            text = stringResource(R.string.orders_new_items),
+            color = colors.accent,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.6.sp,

@@ -30,9 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
+import com.mh.restaurantchainpos.pos.ui.theme.DarkPosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 @Composable
@@ -42,7 +46,7 @@ fun AnalyticsScreen(colors: PosColors) {
     var range by remember { mutableStateOf<DateRange?>(null) }
     var drawerOpen by remember { mutableStateOf(false) }
 
-    val isDark = colors.text == Color(0xFFE5E7EB)
+    val isDark = colors === DarkPosColors
     val isMobile = rememberIsMobile()
     val text1 = colors.text
     val border = colors.border
@@ -57,9 +61,9 @@ fun AnalyticsScreen(colors: PosColors) {
         Row(Modifier.fillMaxSize()) {
             if (!isMobile) {
                 AnalyticsSidebar(
+                    colors = colors,
                     active = section,
                     onSelect = { section = it },
-                    isDark = isDark,
                     docked = true,
                     drawerOpen = false,
                     onCloseDrawer = {},
@@ -84,7 +88,7 @@ fun AnalyticsScreen(colors: PosColors) {
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Menu,
-                                contentDescription = "Analytics sections",
+                                contentDescription = stringResource(R.string.analytics_menu_title),
                                 tint = text1,
                                 modifier = Modifier.size(22.dp),
                             )
@@ -92,7 +96,7 @@ fun AnalyticsScreen(colors: PosColors) {
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        section.label,
+                        section.stringTitle(),
                         color = text1,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -143,9 +147,9 @@ fun AnalyticsScreen(colors: PosColors) {
         // Mobile drawer overlays the whole screen body, not just the inner content area.
         if (isMobile) {
             AnalyticsSidebar(
+                colors = colors,
                 active = section,
                 onSelect = { section = it },
-                isDark = isDark,
                 docked = false,
                 drawerOpen = drawerOpen,
                 onCloseDrawer = { drawerOpen = false },

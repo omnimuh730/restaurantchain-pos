@@ -39,7 +39,7 @@ import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
-internal enum class SettingsSection(
+enum class SettingsSection(
     val id: String,
     val label: String,
     val description: String,

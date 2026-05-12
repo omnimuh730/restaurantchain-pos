@@ -97,7 +97,7 @@ fun Badge(text: String, color: Color, modifier: Modifier = Modifier) {
 fun CountBadge(
     count: Int,
     modifier: Modifier = Modifier,
-    color: Color = Blue600,
+    accentColor: Color = com.mh.restaurantchainpos.pos.ui.theme.Blue600,
     maxCount: Int = 99,
     size: Dp = 18.dp,
 ) {
@@ -111,7 +111,7 @@ fun CountBadge(
             .width(width)
             .height(size)
             .clip(RoundedCornerShape(size / 2))
-            .background(color),
+            .background(accentColor),
         contentAlignment = Alignment.Center,
     ) {
         Text(

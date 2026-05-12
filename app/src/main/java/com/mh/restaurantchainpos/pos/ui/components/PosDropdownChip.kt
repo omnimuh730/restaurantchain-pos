@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +30,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 /** Default rounded-corner radius for dropdown menus shown by [PosDropdownChip]. */
@@ -137,11 +137,7 @@ fun PosDropdownChip(
 }
 
 /**
- * Standard dropdown row matching the Orders floor/table selector visuals:
- * full-width fill with [Blue500] when selected, plain text otherwise.
- *
- * Row corners get rounded only at the top of the first row and the bottom of
- * the last row so the highlight band hugs the menu's rounded corners cleanly.
+ * Standard dropdown row: full-width fill with [PosColors.accent] when selected.
  */
 @Composable
 fun PosDropdownMenuRow(
@@ -155,9 +151,9 @@ fun PosDropdownMenuRow(
     leadingIcon: ImageVector? = null,
 ) {
     val shape = posMenuRowShape(index, totalCount)
-    val bg = if (selected) Blue500 else colors.surface
-    val fg = if (selected) Color.White else colors.text
-    val secondaryFg = if (selected) Color.White.copy(alpha = 0.85f) else colors.textMuted
+    val bg = if (selected) colors.accent else colors.surface
+    val fg = if (selected) colors.onAccent else colors.text
+    val secondaryFg = if (selected) colors.onAccent.copy(alpha = 0.88f) else colors.textMuted
     Row(
         Modifier
             .fillMaxWidth()
@@ -176,7 +172,7 @@ fun PosDropdownMenuRow(
                 modifier = Modifier.size(16.dp),
             )
         }
-        Box(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f)) {
             Text(
                 text = text,
                 color = fg,
@@ -189,7 +185,6 @@ fun PosDropdownMenuRow(
                     color = secondaryFg,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(top = 18.dp),
                 )
             }
         }

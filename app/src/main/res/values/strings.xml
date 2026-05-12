@@ -1,3 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Restaurantchain POS</string>
+    <string name="app_name">Restaurant Chain POS</string>
+
+    <!-- Brand -->
+    <string name="brand_title">Restaurant Chain</string>
+    <string name="brand_subtitle">POINT OF SALE</string>
+
+    <!-- Main navigation -->
+    <string name="nav_analytics">Analytics</string>
+    <string name="nav_floor">Floor</string>
+    <string name="nav_orders">Orders</string>
+    <string name="nav_kitchen">Kitchen</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Roles -->
+    <string name="role_admin">Admin</string>
+    <string name="role_cashier">Cashier</string>
+    <string name="role_chef">Chef</string>
+    <string name="role_waiter">Waiter</string>
+    <string name="role_pages_suffix">%1$d pages</string>
+
+    <!-- Header / account -->
+    <string name="header_sign_out">Sign out</string>
+    <string name="header_lock">Lock session</string>
+    <string name="header_toggle_light">Switch to light theme</string>
+    <string name="header_toggle_dark">Switch to dark theme</string>
+    <string name="header_role_menu">Account and role</string>
+
+    <!-- Common -->
+    <string name="common_search">Search</string>
+    <string name="common_close">Close</string>
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_tables">Tables</string>
+    <string name="common_history">History</string>
+
+    <!-- Floor view modes -->
+    <string name="floor_mode_floor">Floor</string>
+    <string name="floor_mode_table">Table</string>
+    <string name="floor_mode_calendar">Calendar</string>
+
+    <!-- Kitchen -->
+    <string name="kitchen_my_tables">My Tables</string>
+    <string name="kitchen_all_floors">All floors</string>
+    <string name="kitchen_tab_received">Received</string>
+    <string name="kitchen_tab_in_progress">In Progress</string>
+    <string name="kitchen_tab_completed">Completed</string>
+    <string name="kitchen_sort_oldest_first">Oldest first</string>
+    <string name="kitchen_sort_newest_first">Newest first</string>
+    <string name="kitchen_sort_oldest">Oldest</string>
+    <string name="kitchen_sort_newest">Newest</string>
+    <string name="kitchen_empty_lane">No tickets in this lane.</string>
+
+    <!-- Orders -->
+    <string name="orders_select_table">Select Table</string>
+    <string name="orders_new_items">NEW ITEMS</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_password_only">Password only</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_general_desc">Restaurant info, hours, contact</string>
+    <string name="settings_section_menu">Menu Management</string>
+    <string name="settings_section_menu_desc">Categories, sub-categories, items</string>
+    <string name="settings_section_amenities">Amenities</string>
+    <string name="settings_section_amenities_desc">Cuisine, occasion, seating</string>
+    <string name="settings_section_security">Security &amp; Payments</string>
+    <string name="settings_section_security_desc">Password, saved cards</string>
+    <string name="settings_section_staff">Staff</string>
+    <string name="settings_section_staff_desc">Team &amp; permissions</string>
+    <string name="settings_section_upgrade">Upgrade</string>
+    <string name="settings_section_upgrade_desc">Plans &amp; billing</string>
+
+    <!-- Analytics -->
+    <string name="analytics_menu_title">Analytics sections</string>
+    <string name="analytics_sales_dashboard">Sales Dashboard</string>
+    <string name="analytics_menu_analysis">Menu Analysis</string>
+    <string name="analytics_customer_analysis">Customer Analysis</string>
+    <string name="analytics_history">History</string>
+    <string name="period_today">Today</string>
+    <string name="period_week">Week</string>
+    <string name="period_month">Month</string>
+    <string name="period_quarter">3 Months</string>
+    <string name="period_custom">Custom</string>
+
+    <!-- Auth (shell) -->
+    <string name="auth_cd_apps_logo">Restaurant apps</string>
 </resources>

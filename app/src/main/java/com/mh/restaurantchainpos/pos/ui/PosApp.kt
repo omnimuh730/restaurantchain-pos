@@ -27,6 +27,7 @@ import com.mh.restaurantchainpos.pos.ui.orders.OrdersScreen
 import com.mh.restaurantchainpos.pos.ui.settings.SettingsScreen
 import com.mh.restaurantchainpos.pos.ui.theme.DarkPosColors
 import com.mh.restaurantchainpos.pos.ui.theme.LightPosColors
+import com.mh.restaurantchainpos.ui.theme.RestaurantchainPOSTheme
 
 @Composable
 fun PosApp() {
@@ -67,46 +68,48 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
         if (page !in allowed) page = allowed.first()
     }
 
-    PosShellScaffold(
-        colors = colors,
-        metrics = layoutMetrics,
-        header = {
-            PosAppHeader(
-                colors = colors,
-                isDark = isDark,
-                role = role,
-                horizontalPadding = layoutMetrics.headerHorizontalPadding,
-                onToggleDark = { isDark = !isDark },
-                onRole = { role = it },
-                onLock = onLock,
-                onSignOut = onSignOut,
-            )
-        },
-        bottomBar = {
-            PosAppBottomBar(
-                colors = colors,
-                pages = allowed,
-                selected = page,
-                badges = badges,
-                onSelect = { page = it },
-            )
-        },
-        navigationRail = {
-            PosAppNavigationRail(
-                colors = colors,
-                pages = allowed,
-                selected = page,
-                badges = badges,
-                onSelect = { page = it },
-            )
-        },
-    ) {
-        when (page) {
-            PosPage.FloorPlan -> FloorPlanScreen(colors, role, isDark = isDark, onPendingReservations = { badges[""] = it })
-            PosPage.Orders -> OrdersScreen(colors, role)
-            PosPage.Kitchen -> KitchenScreen(colors, role, onReceivedCount = { badges["kitchen"] = it })
-            PosPage.Analytics -> AnalyticsScreen(colors)
-            PosPage.Settings -> SettingsScreen(colors, role)
+    RestaurantchainPOSTheme(darkTheme = isDark) {
+        PosShellScaffold(
+            colors = colors,
+            metrics = layoutMetrics,
+            header = {
+                PosAppHeader(
+                    colors = colors,
+                    isDark = isDark,
+                    role = role,
+                    horizontalPadding = layoutMetrics.headerHorizontalPadding,
+                    onToggleDark = { isDark = !isDark },
+                    onRole = { role = it },
+                    onLock = onLock,
+                    onSignOut = onSignOut,
+                )
+            },
+            bottomBar = {
+                PosAppBottomBar(
+                    colors = colors,
+                    pages = allowed,
+                    selected = page,
+                    badges = badges,
+                    onSelect = { page = it },
+                )
+            },
+            navigationRail = {
+                PosAppNavigationRail(
+                    colors = colors,
+                    pages = allowed,
+                    selected = page,
+                    badges = badges,
+                    onSelect = { page = it },
+                )
+            },
+        ) {
+            when (page) {
+                PosPage.FloorPlan -> FloorPlanScreen(colors, role, isDark = isDark, onPendingReservations = { badges[""] = it })
+                PosPage.Orders -> OrdersScreen(colors, role)
+                PosPage.Kitchen -> KitchenScreen(colors, role, onReceivedCount = { badges["kitchen"] = it })
+                PosPage.Analytics -> AnalyticsScreen(colors)
+                PosPage.Settings -> SettingsScreen(colors, role)
+            }
         }
     }
 }
