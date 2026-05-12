@@ -3,6 +3,9 @@ package com.mh.restaurantchainpos.pos.ui.floor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,11 +28,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -62,11 +69,24 @@ internal fun CalendarTimeline(
     isToday: Boolean,
     isTableAvailable: (String, Reservation) -> Boolean,
     onPickTable: (String) -> Unit,
+    onWindowPan: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val labelWidth = 96.dp
     val rowHeight = if (rememberIsMobile()) 54.dp else 62.dp
     val timeLabels = remember(startHour, windowHours) { buildTimeLabels(startHour, windowHours) }
+    var timelineWidthPx by remember { mutableFloatStateOf(1f) }
+    val horizontalPanState = rememberDraggableState { deltaPx ->
+        if (timelineWidthPx > 1f) {
+            onWindowPan(-(deltaPx / timelineWidthPx) * windowHours)
+        }
+    }
+    val horizontalPanModifier = Modifier
+        .onSizeChanged { timelineWidthPx = it.width.toFloat().coerceAtLeast(1f) }
+        .draggable(
+            state = horizontalPanState,
+            orientation = Orientation.Horizontal,
+        )
 
     Column(modifier.background(palette.bg)) {
         Row(
@@ -76,7 +96,16 @@ internal fun CalendarTimeline(
                 .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
         ) {
             Spacer(Modifier.width(labelWidth))
-            TimeHeader(palette, startHour, windowHours, timeLabels, Modifier.weight(1f).height(22.dp))
+            TimeHeader(
+                palette,
+                startHour,
+                windowHours,
+                timeLabels,
+                Modifier
+                    .weight(1f)
+                    .height(22.dp)
+                    .then(horizontalPanModifier),
+            )
         }
 
         LazyColumn(
@@ -101,6 +130,7 @@ internal fun CalendarTimeline(
                         Modifier
                             .weight(1f)
                             .height(rowHeight)
+                            .then(horizontalPanModifier)
                             .clip(RoundedCornerShape(6.dp))
                             .background(rowBackground(palette, assigningRez != null, isAvailableForAssign, isPending, isFlashing))
                             .then(rowBorder(palette, assigningRez != null, isAvailableForAssign, isPending, isFlashing))

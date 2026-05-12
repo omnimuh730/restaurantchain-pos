@@ -1,5 +1,7 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,23 +22,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.GpsFixed
-import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.pos.data.Reservation
+import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
+import com.mh.restaurantchainpos.pos.ui.theme.Red500
 
 @Composable
 internal fun CalendarPanel(
@@ -49,39 +56,74 @@ internal fun CalendarPanel(
     onClose: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
+    var requestsOpen by remember { mutableStateOf(true) }
+    var confirmedOpen by remember { mutableStateOf(true) }
+
     Column(modifier.background(palette.card).border(1.dp, palette.border)) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Reservations", color = palette.text1, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, modifier = Modifier.weight(1f))
-            onClose?.let {
-                IconCircleButton(Icons.Outlined.Close, palette, it)
-            }
+            Text(
+                "Reservations",
+                color = palette.text1,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+                modifier = Modifier.weight(1f),
+            )
+            onClose?.let { IconCircleButton(Icons.Outlined.Close, palette, it) }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
-        SectionHeader(palette, "Requests", pending.size, palette.reservedBorder, palette.reservedFill)
+
         LazyColumn(Modifier.weight(1f)) {
-            items(pending, key = { it.id }) { reservation ->
-                RequestCard(
+            item("requests-header") {
+                CollapsibleSectionHeader(
                     palette = palette,
-                    reservation = reservation,
-                    onApprove = { onApprove(reservation) },
-                    onDecline = { onDecline(reservation) },
+                    title = "Requests",
+                    count = pending.size,
+                    dotColor = Blue400,
+                    fill = Blue500.copy(alpha = 0.12f),
+                    textColor = Blue600,
+                    expanded = requestsOpen,
+                    onToggle = { requestsOpen = !requestsOpen },
                 )
             }
-            item { SectionHeader(palette, "Confirmed", confirmed.size, palette.occupiedBorder, palette.occupiedFill) }
-            items(confirmed, key = { it.id }) { reservation ->
-                ConfirmedRow(palette = palette, reservation = reservation, onAssign = { onAssign(reservation) })
-            }
-            if (pending.isEmpty() && confirmed.isEmpty()) {
-                item {
-                    Text(
-                        "No reservations on this day.",
-                        color = palette.text3,
-                        fontSize = 13.sp,
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+            if (requestsOpen) {
+                items(pending, key = { "p-${it.id}" }) { reservation ->
+                    RequestCard(
+                        palette = palette,
+                        reservation = reservation,
+                        onApprove = { onApprove(reservation) },
+                        onDecline = { onDecline(reservation) },
                     )
+                }
+                if (pending.isEmpty()) {
+                    item("no-requests") {
+                        EmptyHint(palette, "No pending requests on this day.")
+                    }
+                }
+            }
+
+            item("confirmed-header") {
+                CollapsibleSectionHeader(
+                    palette = palette,
+                    title = "Confirmed",
+                    count = confirmed.size,
+                    dotColor = palette.occupiedBorder,
+                    fill = palette.occupiedFill,
+                    textColor = palette.occupiedText,
+                    expanded = confirmedOpen,
+                    onToggle = { confirmedOpen = !confirmedOpen },
+                )
+            }
+            if (confirmedOpen) {
+                items(confirmed, key = { "c-${it.id}" }) { reservation ->
+                    ConfirmedRow(palette = palette, reservation = reservation, onAssign = { onAssign(reservation) })
+                }
+                if (confirmed.isEmpty()) {
+                    item("no-confirmed") {
+                        EmptyHint(palette, "No confirmed reservations on this day.")
+                    }
                 }
             }
         }
@@ -89,18 +131,63 @@ internal fun CalendarPanel(
 }
 
 @Composable
-internal fun SectionHeader(palette: FloorPalette, title: String, count: Int, dotColor: Color, fill: Color) {
+internal fun CollapsibleSectionHeader(
+    palette: FloorPalette,
+    title: String,
+    count: Int,
+    dotColor: Color,
+    fill: Color,
+    textColor: Color,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 0f else -90f,
+        animationSpec = tween(180),
+        label = "section-chevron",
+    )
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onToggle)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            Icons.Outlined.ExpandMore,
+            contentDescription = if (expanded) "Collapse" else "Expand",
+            tint = palette.text2,
+            modifier = Modifier.size(16.dp).rotate(rotation),
+        )
+        Spacer(Modifier.width(6.dp))
         Box(Modifier.size(8.dp).clip(CircleShape).background(dotColor))
         Spacer(Modifier.width(8.dp))
-        Text(title, color = palette.text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        Text(
+            title,
+            color = palette.text1,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.weight(1f),
+        )
         Box(Modifier.clip(CircleShape).background(fill).padding(horizontal = 8.dp, vertical = 2.dp)) {
-            Text(count.toString(), color = dotColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            Text(count.toString(), color = textColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
     }
+}
+
+@Composable
+internal fun SectionHeader(palette: FloorPalette, title: String, count: Int, dotColor: Color, fill: Color) {
+    // Kept for backwards compatibility with any external callers.
+    CollapsibleSectionHeader(
+        palette = palette,
+        title = title,
+        count = count,
+        dotColor = dotColor,
+        fill = fill,
+        textColor = dotColor,
+        expanded = true,
+        onToggle = {},
+    )
 }
 
 @Composable
@@ -120,23 +207,15 @@ internal fun RequestCard(
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(CircleShape).background(palette.reservedBorder))
+            Box(Modifier.size(8.dp).clip(CircleShape).background(Blue400))
             Spacer(Modifier.width(8.dp))
-            Text(reservation.guestName, color = palette.text1, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            Row(
-                Modifier
-                    .clip(RoundedCornerShape(7.dp))
-                    .background(Blue500.copy(alpha = 0.12f))
-                    .clickable(onClick = onApprove)
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Blue600, modifier = Modifier.size(13.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("Approve", color = Blue600, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-            }
-            Spacer(Modifier.width(6.dp))
-            IconCircleButton(Icons.Outlined.Close, palette, onDecline)
+            Text(
+                reservation.guestName,
+                color = palette.text1,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+            )
         }
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -146,6 +225,43 @@ internal fun RequestCard(
             ChipText(palette, formatHours(reservation.durationHours))
             if (reservation.tableId.isNotBlank()) {
                 ChipText(palette, "Table ${reservation.tableId.removePrefix("T")}", emphasize = true)
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        // Operators must be able to both approve AND decline a request, so we
+        // render two equal-weight, labelled buttons (the previous icon-only
+        // close was easy to miss).
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Blue600)
+                    .clickable(onClick = onApprove)
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(5.dp))
+                Text("Approve", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Row(
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(1.dp, Red500.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                    .clickable(onClick = onDecline)
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(Icons.Outlined.Close, contentDescription = null, tint = Red500, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(5.dp))
+                Text("Decline", color = Red500, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -193,4 +309,16 @@ internal fun ChipText(palette: FloorPalette, text: String, emphasize: Boolean = 
             fontWeight = if (emphasize) FontWeight.SemiBold else FontWeight.Medium,
         )
     }
+}
+
+@Composable
+private fun EmptyHint(palette: FloorPalette, message: String) {
+    Text(
+        message,
+        color = palette.text3,
+        fontSize = 12.sp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    )
 }

@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,100 +45,112 @@ fun AnalyticsScreen(colors: PosColors) {
     val isDark = colors.text == Color(0xFFE5E7EB)
     val isMobile = rememberIsMobile()
     val text1 = colors.text
-    val text2 = colors.textMuted
     val border = colors.border
     val cardBg = colors.surface
 
     val pageBg = if (isDark) Color(0xFF0F172A) else Color(0xFFF1F5F9)
 
-    Row(Modifier.fillMaxSize().background(pageBg)) {
-        if (!isMobile) {
+    // Outer Box gives the mobile drawer overlay the full screen body height —
+    // it spans the analytics section header AND the content below, rather than
+    // only the area underneath the header that triggered it.
+    Box(Modifier.fillMaxSize().background(pageBg)) {
+        Row(Modifier.fillMaxSize()) {
+            if (!isMobile) {
+                AnalyticsSidebar(
+                    active = section,
+                    onSelect = { section = it },
+                    isDark = isDark,
+                    docked = true,
+                    drawerOpen = false,
+                    onCloseDrawer = {},
+                )
+            }
+            Column(Modifier.fillMaxSize()) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(cardBg)
+                        .border(1.dp, border)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (isMobile) {
+                        Box(
+                            Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { drawerOpen = true },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Menu,
+                                contentDescription = "Analytics sections",
+                                tint = text1,
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(
+                        section.label,
+                        color = text1,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                Box(Modifier.weight(1f)) {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        when (section) {
+                            AnalyticsSection.SalesDashboard -> SalesDashboardView(
+                                period = period,
+                                onPeriodChange = { period = it },
+                                range = range,
+                                onRangeChange = { range = it },
+                                isDark = isDark,
+                            )
+                            AnalyticsSection.Menu -> MenuAnalysisView(
+                                period = period,
+                                onPeriodChange = { period = it },
+                                range = range,
+                                onRangeChange = { range = it },
+                                isDark = isDark,
+                            )
+                            AnalyticsSection.Customer -> CustomerAnalysisView(
+                                period = period,
+                                onPeriodChange = { period = it },
+                                range = range,
+                                onRangeChange = { range = it },
+                                isDark = isDark,
+                            )
+                            AnalyticsSection.History -> HistoryView(
+                                period = period,
+                                onPeriodChange = { period = it },
+                                range = range,
+                                onRangeChange = { range = it },
+                                isDark = isDark,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        // Mobile drawer overlays the whole screen body, not just the inner content area.
+        if (isMobile) {
             AnalyticsSidebar(
                 active = section,
                 onSelect = { section = it },
                 isDark = isDark,
-                docked = true,
-                drawerOpen = false,
-                onCloseDrawer = {},
+                docked = false,
+                drawerOpen = drawerOpen,
+                onCloseDrawer = { drawerOpen = false },
+                modifier = Modifier.matchParentSize(),
             )
         }
-        Column(Modifier.fillMaxSize()) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .background(cardBg)
-                    .border(1.dp, border)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (isMobile) {
-                    Box(
-                        Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { drawerOpen = true },
-                        contentAlignment = Alignment.Center,
-                    ) { Text("≡", color = text1, fontSize = 22.sp, fontWeight = FontWeight.SemiBold) }
-                    Spacer(Modifier.width(8.dp))
-                }
-                Text(
-                    section.label,
-                    color = text1,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-            Box(Modifier.weight(1f)) {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    when (section) {
-                        AnalyticsSection.SalesDashboard -> SalesDashboardView(
-                            period = period,
-                            onPeriodChange = { period = it },
-                            range = range,
-                            onRangeChange = { range = it },
-                            isDark = isDark,
-                        )
-                        AnalyticsSection.Menu -> MenuAnalysisView(
-                            period = period,
-                            onPeriodChange = { period = it },
-                            range = range,
-                            onRangeChange = { range = it },
-                            isDark = isDark,
-                        )
-                        AnalyticsSection.Customer -> CustomerAnalysisView(
-                            period = period,
-                            onPeriodChange = { period = it },
-                            range = range,
-                            onRangeChange = { range = it },
-                            isDark = isDark,
-                        )
-                        AnalyticsSection.History -> HistoryView(
-                            period = period,
-                            onPeriodChange = { period = it },
-                            range = range,
-                            onRangeChange = { range = it },
-                            isDark = isDark,
-                        )
-                    }
-                }
-                if (isMobile) {
-                    AnalyticsSidebar(
-                        active = section,
-                        onSelect = { section = it },
-                        isDark = isDark,
-                        docked = false,
-                        drawerOpen = drawerOpen,
-                        onCloseDrawer = { drawerOpen = false },
-                    )
-                }
-            }
-        }
     }
-    @Suppress("UNUSED_EXPRESSION") text2
 }

@@ -80,7 +80,7 @@ fun FloorCanvas(
     onZoomChange: (Float) -> Unit,
     onSelectTable: (String?) -> Unit,
     onDragTable: (id: String, x: Int, y: Int, commit: Boolean) -> Unit,
-    zoomControlsBottomPadding: Dp = 12.dp,
+    zoomControlsTopPadding: Dp = 12.dp,
     zoomControlsEndPadding: Dp = 12.dp,
     modifier: Modifier = Modifier,
 ) {
@@ -256,8 +256,8 @@ fun FloorCanvas(
             minZoom = minZoom,
             onZoomChange = onZoomChange,
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = zoomControlsEndPadding, bottom = zoomControlsBottomPadding),
+                .align(Alignment.TopEnd)
+                .padding(end = zoomControlsEndPadding, top = zoomControlsTopPadding),
         )
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.data.ReservationType
+import com.mh.restaurantchainpos.pos.ui.theme.Blue400
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
@@ -121,9 +122,9 @@ internal fun reservationVisual(
         strokeWidth = 1.5.dp,
     )
     reservation.type == ReservationType.Request -> ReservationVisual(
-        fill = palette.reservedFill,
-        border = palette.reservedBorder,
-        text = palette.text1,
+        fill = Blue500.copy(alpha = 0.10f),
+        border = Blue400,
+        text = Blue600,
         subText = palette.text2,
         dashed = true,
         strokeWidth = 1.5.dp,
