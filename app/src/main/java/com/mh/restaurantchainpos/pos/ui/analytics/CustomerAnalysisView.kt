@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
@@ -46,8 +46,7 @@ fun CustomerAnalysisView(
 ) {
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-    val card = if (isDark) Color(0xFF1F2937) else Color.White
-    val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
+    val card = if (isDark) Color(0xFF283548) else Color.White
     val grid = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val mutedTrack = if (isDark) Color(0xFF374151) else Color(0xFFCBD5E1)
     val freqAccent = if (isDark) Color(0xFF60A5FA) else Color(0xFF3B82F6)
@@ -59,7 +58,7 @@ fun CustomerAnalysisView(
     val returningPct = segment.first { it.nameKey == "returning" }.value
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -73,17 +72,17 @@ fun CustomerAnalysisView(
         // 2x2 KPI grid
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                KpiCard(stringResource(R.string.analytics_customer_total_customers), kpis.totalCust, kpis.custChange, "👥", card, border, text1, text2, Modifier.weight(1f))
-                KpiCard(stringResource(R.string.analytics_customer_new), kpis.newCust, kpis.newChange, "👤+", card, border, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_total_customers), kpis.totalCust, kpis.custChange, "👥", card, isDark, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_new), kpis.newCust, kpis.newChange, "👤+", card, isDark, text1, text2, Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                KpiCard(stringResource(R.string.analytics_customer_returning_rate), kpis.returning, kpis.retChange, "↻", card, border, text1, text2, Modifier.weight(1f))
-                KpiCard(stringResource(R.string.analytics_customer_satisfaction), kpis.satisfaction, kpis.satChange, "★", card, border, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_returning_rate), kpis.returning, kpis.retChange, "↻", card, isDark, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_satisfaction), kpis.satisfaction, kpis.satChange, "★", card, isDark, text1, text2, Modifier.weight(1f))
             }
         }
 
         // Traffic by hour
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.analytics_customer_visitors_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -107,7 +106,7 @@ fun CustomerAnalysisView(
         }
 
         // Returning vs New
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("$returningPct%", color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -138,7 +137,7 @@ fun CustomerAnalysisView(
         }
 
         // Visit frequency
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
                 Text(stringResource(R.string.analytics_customer_visit_frequency), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
@@ -153,7 +152,7 @@ fun CustomerAnalysisView(
         }
 
         // Party size
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.analytics_customer_groups_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -200,18 +199,23 @@ private fun KpiCard(
     change: String,
     glyph: String,
     card: Color,
-    border: Color,
+    isDark: Boolean,
     text1: Color,
     text2: Color,
     modifier: Modifier = Modifier,
 ) {
     val isUp = !change.startsWith("-")
     val color = if (isUp) Color(0xFF22C55E) else Color(0xFFEF4444)
+    val shape = RoundedCornerShape(14.dp)
+    val elevation = if (isDark) 14.dp else 5.dp
+    val ambient = if (isDark) Color.Black.copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.06f)
+    val spot = if (isDark) Color.Black.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.1f)
     Box(
         modifier
-            .clip(RoundedCornerShape(14.dp))
+            .then(modifier)
+            .shadow(elevation, shape, ambientColor = ambient, spotColor = spot)
+            .clip(shape)
             .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp))
             .padding(14.dp),
     ) {
         Column {

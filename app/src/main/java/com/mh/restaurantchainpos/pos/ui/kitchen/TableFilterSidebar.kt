@@ -140,8 +140,7 @@ private fun FilterPanel(
         Modifier
             .fillMaxHeight()
             .width(width)
-            .background(colors.surfaceRaised)
-            .border(1.dp, colors.border),
+            .background(colors.surfaceRaised),
     ) {
         Row(
             Modifier

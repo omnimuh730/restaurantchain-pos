@@ -1,15 +1,16 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -68,39 +69,42 @@ fun AnalyticsScreen(colors: PosColors) {
                     drawerOpen = false,
                     onCloseDrawer = {},
                 )
+                Box(Modifier.width(1.dp).fillMaxHeight().background(border))
             }
             Column(Modifier.fillMaxSize()) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(cardBg)
-                        .border(1.dp, border)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (isMobile) {
-                        Box(
-                            Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { drawerOpen = true },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Menu,
-                                contentDescription = stringResource(R.string.analytics_menu_title),
-                                tint = text1,
-                                modifier = Modifier.size(22.dp),
-                            )
+                Column(Modifier.fillMaxWidth()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(cardBg)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (isMobile) {
+                            Box(
+                                Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { drawerOpen = true },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Menu,
+                                    contentDescription = stringResource(R.string.analytics_menu_title),
+                                    tint = text1,
+                                    modifier = Modifier.size(22.dp),
+                                )
+                            }
+                            Spacer(Modifier.width(8.dp))
                         }
-                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            section.stringTitle(),
+                            color = text1,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                     }
-                    Text(
-                        section.stringTitle(),
-                        color = text1,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    Box(Modifier.fillMaxWidth().height(1.dp).background(border))
                 }
                 Box(Modifier.weight(1f)) {
                     Column(

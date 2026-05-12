@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.orders
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,8 +73,7 @@ internal fun OrderPanel(
 
     Column(
         modifier
-            .background(colors.surface)
-            .border(1.dp, colors.border),
+            .background(colors.surface),
     ) {
         Row(
             Modifier
@@ -127,12 +125,12 @@ internal fun OrderPanel(
                 HistoryButton(colors, onClick = onHistory)
             }
         }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
 
         Row(
             Modifier
                 .fillMaxWidth()
                 .height(46.dp)
-                .border(1.dp, colors.border)
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -154,6 +152,7 @@ internal fun OrderPanel(
                 onClick = onPay,
             )
         }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
 
         OrderTableHeader(colors)
         if (currentOrder.isEmpty()) {
@@ -233,7 +232,6 @@ private fun NewItemsSectionLabel(colors: PosColors) {
         modifier = Modifier
             .fillMaxWidth()
             .background(colors.surface)
-            .border(1.dp, colors.border)
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),

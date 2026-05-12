@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.kitchen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.RestaurantMenu
 import androidx.compose.material.icons.outlined.SwapVert
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -117,7 +119,7 @@ internal fun KitchenHeader(
     inProgressOrders: Int,
     completedOrders: Int,
 ) {
-    Column(Modifier.fillMaxWidth().background(colors.surface).border(1.dp, colors.border)) {
+    Column(Modifier.fillMaxWidth().background(colors.surface)) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -223,11 +225,23 @@ private fun TabPill(
     ) {
         Text(label, color = if (tabActive) Blue500 else colors.textMuted, fontWeight = FontWeight.Medium, fontSize = 13.sp)
         Spacer(Modifier.size(4.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             if (role != ActiveRole.Waiter) {
-                Text(stringResource(R.string.kitchen_row_orders, orders), color = colors.textMuted, fontSize = 10.sp)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
+                    contentDescription = null,
+                    tint = colors.textMuted,
+                    modifier = Modifier.size(12.dp),
+                )
+                Text(orders.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
             }
-            Text(stringResource(R.string.kitchen_row_items, items), color = colors.textMuted, fontSize = 10.sp)
+            Icon(
+                imageVector = Icons.Outlined.RestaurantMenu,
+                contentDescription = null,
+                tint = colors.textMuted,
+                modifier = Modifier.size(12.dp),
+            )
+            Text(items.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
         Box(Modifier.height(2.dp).width(36.dp).background(if (tabActive) Blue500 else Color.Transparent))
     }

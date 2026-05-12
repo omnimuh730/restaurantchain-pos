@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -244,13 +247,24 @@ private fun ItemRow(
         )
         Box(
             Modifier
-                .size(22.dp)
+                .size(26.dp)
                 .clip(CircleShape)
                 .background(if (item.done) checkedColor else Color.Transparent)
-                .border(2.dp, if (item.done) checkedColor else colors.border, CircleShape),
+                .border(
+                    width = if (item.done) 0.dp else 2.5.dp,
+                    color = if (item.done) checkedColor else Blue500.copy(alpha = 0.45f),
+                    shape = CircleShape,
+                ),
             contentAlignment = Alignment.Center,
         ) {
-            if (item.done) Text("✓", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            if (item.done) {
+                Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
         }
     }
 }

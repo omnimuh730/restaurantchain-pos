@@ -57,7 +57,7 @@ fun MenuAnalysisView(
 
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-    val card = if (isDark) Color(0xFF1F2937) else Color.White
+    val card = if (isDark) Color(0xFF283548) else Color.White
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val grid = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val mutedTrack = if (isDark) Color(0xFF374151) else Color(0xFFCBD5E1)
@@ -91,7 +91,7 @@ fun MenuAnalysisView(
     val peak = bestSellerScaled.maxOrNull() ?: 0
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -102,7 +102,7 @@ fun MenuAnalysisView(
             )
         }
 
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
                 Text(
                     stringResource(R.string.analytics_menu_top_category_loved, topCategoryName),
@@ -153,7 +153,7 @@ fun MenuAnalysisView(
             }
         }
 
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
@@ -231,7 +231,7 @@ fun MenuAnalysisView(
             val weekTrendLabels = buildList {
                 for (k in MenuAnalysisData.weekAxis) add(axisTickLabel(k))
             }
-            AnalyticsCard(card) {
+            AnalyticsCard(card, isDark) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(menuItemTitle(bestSeller.nameKey), color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)

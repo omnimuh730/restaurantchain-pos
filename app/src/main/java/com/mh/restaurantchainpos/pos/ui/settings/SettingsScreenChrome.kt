@@ -3,18 +3,19 @@ package com.mh.restaurantchainpos.pos.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Group
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Restaurant
@@ -64,14 +65,14 @@ internal fun SettingsHeader(
 ) {
     val context = LocalContext.current
     val selection = AppLocaleStore.effectiveUiCode(context)
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(colors.surface)
-            .border(width = 1.dp, color = colors.border)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(colors.surface)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
         if (showMenuButton) {
             Box(
                 Modifier
@@ -110,6 +111,8 @@ internal fun SettingsHeader(
             selection = selection,
             onChange = { AppLocaleStore.setLocale(context, it) },
         )
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
     }
 }
 
@@ -179,7 +182,7 @@ internal fun SettingsSidebarItem(colors: PosColors, section: SettingsSection, ac
             Text(section.stringDescription(), color = colors.textMuted, fontSize = 10.sp)
         }
         Icon(
-            Icons.Outlined.KeyboardArrowRight,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
             contentDescription = null,
             tint = colors.textMuted,
             modifier = Modifier.size(16.dp),

@@ -54,7 +54,7 @@ fun HistoryView(
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
     val muted = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
-    val card = if (isDark) Color(0xFF1F2937) else Color.White
+    val card = if (isDark) Color(0xFF283548) else Color.White
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val chip = if (isDark) Color(0xFF334155) else Color(0xFFF1F5F9)
     val activeTab = if (isDark) Color(0xFF1E293B) else Color(0xFF1E293B)
@@ -89,7 +89,7 @@ fun HistoryView(
     HistoryData.events.forEach { counts[it.kind] = (counts[it.kind] ?: 0) + 1 }
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -109,7 +109,7 @@ fun HistoryView(
         }
 
         // List card
-        AnalyticsCard(card) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(12.dp)) {
                 // Search box
                 Row(

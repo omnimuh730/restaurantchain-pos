@@ -154,7 +154,9 @@ internal fun OpeningHoursCard(colors: PosColors, hours: SnapshotStateList<HoursR
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             hours.forEachIndexed { index, row ->
                 Row(
-                    Modifier.fillMaxWidth(),
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
@@ -173,7 +175,14 @@ internal fun OpeningHoursCard(colors: PosColors, hours: SnapshotStateList<HoursR
                         Text(stringResource(R.string.settings_gen_hours_to), color = colors.textMuted, fontSize = 12.sp)
                         TimeField(colors, row.close, Modifier.weight(1f)) { hours[index] = row.copy(close = it) }
                     } else {
-                        Text(stringResource(R.string.settings_gen_hours_closed), color = colors.textMuted, fontSize = 12.sp, modifier = Modifier.weight(1f))
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            Text(stringResource(R.string.settings_gen_hours_closed), color = colors.textMuted, fontSize = 12.sp)
+                        }
                     }
                 }
             }
