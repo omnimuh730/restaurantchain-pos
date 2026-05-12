@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.orders
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,19 +13,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
+import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlinx.coroutines.delay
 
@@ -60,6 +63,7 @@ internal fun OrderPanel(
     orderScrollNonce: Int = 0,
     highlightLineId: String? = null,
 ) {
+    val ctx = LocalContext.current
     val activeTables = OrderTables.filter { it.floor == selectedFloorId }
     val orderDisabled = pendingCount == 0
     val allOrdered = currentOrder.isNotEmpty() && pendingCount == 0
@@ -69,8 +73,7 @@ internal fun OrderPanel(
 
     Column(
         modifier
-            .background(colors.surface)
-            .border(1.dp, colors.border),
+            .background(colors.surface),
     ) {
         Row(
             Modifier
@@ -80,25 +83,25 @@ internal fun OrderPanel(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            DropdownChip(
-                text = floorLabel(selectedFloorId),
+            PosDropdownChip(
+                text = ctx.floorOrderLabel(selectedFloorId),
                 expanded = floorMenuOpen,
                 colors = colors,
                 onExpandedChange = onFloorMenu,
             ) {
                 OrderFloors.forEachIndexed { index, floor ->
-                    OrdersDropdownTextRow(
+                    PosDropdownMenuRow(
                         index = index,
                         totalCount = OrderFloors.size,
-                        text = floor.label,
+                        text = ctx.orderCatalogString("orders_floor", floor.id, floor.id),
                         selected = floor.id == selectedFloorId,
                         colors = colors,
                         onClick = { onSelectFloor(floor.id) },
                     )
                 }
             }
-            DropdownChip(
-                text = selectedTable?.label ?: "Select Table",
+            PosDropdownChip(
+                text = selectedTable?.let { ctx.tableOrderLabel(it.id) } ?: stringResource(R.string.orders_select_table),
                 expanded = tableMenuOpen,
                 colors = colors,
                 onExpandedChange = onTableMenu,
@@ -108,7 +111,7 @@ internal fun OrderPanel(
                     OrdersDropdownTableRow(
                         index = index,
                         totalCount = activeTables.size,
-                        label = table.label,
+                        label = ctx.tableOrderLabel(table.id),
                         seats = table.seats,
                         hasOrder = hasOrder,
                         selected = table.id == selectedTableId,
@@ -122,17 +125,17 @@ internal fun OrderPanel(
                 HistoryButton(colors, onClick = onHistory)
             }
         }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
 
         Row(
             Modifier
                 .fillMaxWidth()
                 .height(46.dp)
-                .border(1.dp, colors.border)
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             ActionButton(
-                text = if (allOrdered) "Ordered" else "Order",
+                text = if (allOrdered) stringResource(R.string.orders_action_ordered) else stringResource(R.string.orders_action_order),
                 active = false,
                 enabled = !orderDisabled,
                 badge = pendingCount.takeIf { it > 0 },
@@ -141,7 +144,7 @@ internal fun OrderPanel(
                 onClick = onOrder,
             )
             ActionButton(
-                text = "Pay ${paySummary(totalKrw, totalUsd)}",
+                text = stringResource(R.string.orders_pay_with_totals, paySummary(totalKrw, totalUsd)),
                 active = true,
                 enabled = canPay && currentOrder.isNotEmpty(),
                 colors = colors,
@@ -149,13 +152,14 @@ internal fun OrderPanel(
                 onClick = onPay,
             )
         }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
 
         OrderTableHeader(colors)
         if (currentOrder.isEmpty()) {
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No items yet", color = colors.textMuted, fontSize = 13.sp)
-                    Text("Select items to add to order", color = colors.textMuted.copy(alpha = 0.75f), fontSize = 11.sp)
+                    Text(stringResource(R.string.orders_empty_title), color = colors.textMuted, fontSize = 13.sp)
+                    Text(stringResource(R.string.orders_empty_subtitle), color = colors.textMuted.copy(alpha = 0.75f), fontSize = 11.sp)
                 }
             }
         } else {
@@ -227,58 +231,25 @@ private fun NewItemsSectionLabel(colors: PosColors) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = colors.surface)
-            .drawBehind {
-
-                val strokeWidth = 1.dp.toPx()
-
-                // TOP BORDER
-
-                drawLine(
-
-                    color = colors.border,
-
-                    start = Offset(0f, 0f),
-
-                    end = Offset(size.width, 0f),
-
-                    strokeWidth = strokeWidth
-
-                )
-
-                // BOTTOM BORDER
-
-                drawLine(
-
-                    color = colors.border,
-
-                    start = Offset(0f, size.height),
-
-                    end = Offset(size.width, size.height),
-
-                    strokeWidth = strokeWidth
-
-                )
-
-            },
+            .background(colors.surface)
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "NEW ITEMS",
-            color = Blue500,
+            text = stringResource(R.string.orders_new_items),
+            color = colors.accent,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.6.sp,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
+            modifier = Modifier.padding(horizontal = 8.dp),
         )
         Box(
             Modifier
                 .weight(1f)
                 .height(1.dp)
-                .background(colors.border)
-                .padding(end = 8.dp),
+                .background(colors.border),
         )
     }
 }

@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -59,8 +59,7 @@ fun SettingCard(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(12.dp)),
+            .background(colors.surface),
     ) {
         Row(
             Modifier
@@ -149,15 +148,19 @@ fun SettingTextField(
     Box(
         modifier
             .fillMaxWidth()
-            .heightIn(min = 44.dp)
+            .height(44.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(colors.surface)
             .border(1.dp, colors.border, RoundedCornerShape(10.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterStart,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             if (leadingIcon != null) {
-                Icon(leadingIcon, contentDescription = null, tint = leadingTint, modifier = Modifier.size(16.dp))
+                Icon(leadingIcon, contentDescription = null, tint = leadingTint, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(10.dp))
             } else if (leadingText != null) {
                 Text(leadingText, color = leadingTint, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -171,17 +174,24 @@ fun SettingTextField(
                 keyboardOptions = KeyboardOptions(keyboardType = keyboard),
                 textStyle = TextStyle(color = colors.text, fontSize = 14.sp),
                 cursorBrush = SolidColor(Blue600),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 decorationBox = { inner ->
-                    if (value.isEmpty() && placeholder.isNotEmpty()) {
-                        Text(placeholder, color = colors.textMuted, fontSize = 14.sp)
+                    Box(
+                        Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (value.isEmpty() && placeholder.isNotEmpty()) {
+                            Text(placeholder, color = colors.textMuted, fontSize = 14.sp)
+                        }
+                        inner()
                     }
-                    inner()
                 },
             )
             if (trailingIcon != null) {
                 Spacer(Modifier.size(8.dp))
-                Icon(trailingIcon, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(16.dp))
+                Icon(trailingIcon, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(18.dp))
             }
             if (trailingText != null) {
                 Spacer(Modifier.size(8.dp))

@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.kitchen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,9 +20,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.RestaurantMenu
 import androidx.compose.material.icons.outlined.SwapVert
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,12 +30,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.KitchenOrder
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChipVariant
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
+import com.mh.restaurantchainpos.pos.ui.i18n.stringLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTrigger
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
@@ -46,13 +53,14 @@ internal fun KitchenContent(
     state: KitchenState,
     isMobile: Boolean,
     visible: List<KitchenOrder>,
+    viewTab: KitchenViewTab,
 ) {
     if (visible.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("⚠", color = colors.textMuted, fontSize = 36.sp)
                 Spacer(Modifier.height(8.dp))
-                Text("No tickets in this lane.", color = colors.textMuted, fontSize = 13.sp)
+                Text(stringResource(R.string.kitchen_empty_lane), color = colors.textMuted, fontSize = 13.sp)
             }
         }
         return
@@ -63,7 +71,7 @@ internal fun KitchenContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(visible, key = { it.id }) { order ->
-                OrderCard(colors, state, order)
+                OrderCard(colors, state, order, viewTab)
             }
         }
     } else {
@@ -74,7 +82,7 @@ internal fun KitchenContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(visible, key = { it.id }) { order ->
-                OrderCard(colors, state, order)
+                OrderCard(colors, state, order, viewTab)
             }
         }
     }
@@ -85,11 +93,12 @@ private fun OrderCard(
     colors: PosColors,
     state: KitchenState,
     order: KitchenOrder,
+    viewTab: KitchenViewTab,
 ) {
     KitchenCard(
         colors = colors,
         order = order,
-        viewTab = state.activeTab,
+        viewTab = viewTab,
         onAccept = { state.acceptOrder(order.id) },
         onComplete = { state.completeOrder(order.id) },
         onRecall = { state.recallOrder(order.id) },
@@ -111,8 +120,10 @@ internal fun KitchenHeader(
     receivedOrders: Int,
     inProgressOrders: Int,
     completedOrders: Int,
+    selectedTabPage: Int,
+    onSelectTabPage: (Int) -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().background(colors.surface).border(1.dp, colors.border)) {
+    Column(Modifier.fillMaxWidth().background(colors.surface)) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -127,74 +138,40 @@ internal fun KitchenHeader(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("☰", color = Color.White, fontSize = 12.sp)
-                        Text("Tables", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.common_tables), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                         Text("${state.selectedTables.size}", color = Color(0xCCFFFFFF), fontSize = 11.sp)
                     }
                 }
             }
             Spacer(Modifier.weight(1f))
-            Box {
-                val pillShape = RoundedCornerShape(999.dp)
-                Row(
-                    Modifier
-                        .clip(pillShape)
-                        .border(1.dp, colors.border, pillShape)
-                        .background(colors.surface)
-                        .clickable { state.sortOpen = !state.sortOpen }
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.SwapVert,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = colors.textMuted,
+            // Sort selector — Outlined variant of the unified dropdown chip
+            // so it reads as a passive control on the kitchen header surface.
+            PosDropdownChip(
+                text = state.sortMode.stringTrigger(),
+                expanded = state.sortOpen,
+                colors = colors,
+                onExpandedChange = { state.sortOpen = it },
+                leadingIcon = Icons.Outlined.SwapVert,
+                leadingIconTint = colors.textMuted,
+                labelColor = colors.textMuted,
+                chevronTint = colors.textMuted,
+                variant = PosDropdownChipVariant.Outlined,
+                menuOffset = DpOffset(x = (-58).dp, y = 4.dp),
+                menuWidth = 168.dp,
+            ) {
+                val modes = KitchenSortMode.entries
+                modes.forEachIndexed { index, mode ->
+                    PosDropdownMenuRow(
+                        index = index,
+                        totalCount = modes.size,
+                        text = mode.stringLabel(),
+                        selected = state.sortMode == mode,
+                        colors = colors,
+                        onClick = {
+                            state.sortMode = mode
+                            state.sortOpen = false
+                        },
                     )
-                    Text(
-                        state.sortMode.triggerLabel,
-                        color = colors.textMuted,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = colors.textMuted,
-                    )
-                }
-                DropdownMenu(
-                    expanded = state.sortOpen,
-                    onDismissRequest = { state.sortOpen = false },
-                    modifier = Modifier.width(168.dp),
-                    offset = DpOffset(x = (-58).dp, y = 2.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    containerColor = colors.surface,
-                    tonalElevation = 0.dp,
-                    shadowElevation = 6.dp,
-                ) {
-                    KitchenSortMode.entries.forEach { mode ->
-                        val selected = state.sortMode == mode
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(if (selected) Blue500.copy(alpha = 0.12f) else Color.Transparent)
-                                .clickable {
-                                    state.sortMode = mode
-                                    state.sortOpen = false
-                                }
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                        ) {
-                            Text(
-                                text = mode.label,
-                                color = if (selected) Blue500 else colors.text,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 13.sp,
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -205,30 +182,30 @@ internal fun KitchenHeader(
         ) {
             TabPill(
                 colors = colors,
-                label = "Received",
-                tabActive = state.activeTab == KitchenViewTab.Received,
+                label = KitchenViewTab.Received.stringTitle(),
+                tabActive = selectedTabPage == 0,
                 items = receivedItems,
                 orders = receivedOrders,
                 role = role,
-                onClick = { state.activeTab = KitchenViewTab.Received },
+                onClick = { onSelectTabPage(0) },
             )
             TabPill(
                 colors = colors,
-                label = "In Progress",
-                tabActive = state.activeTab == KitchenViewTab.InProgress,
+                label = KitchenViewTab.InProgress.stringTitle(),
+                tabActive = selectedTabPage == 1,
                 items = inProgressItems,
                 orders = inProgressOrders,
                 role = role,
-                onClick = { state.activeTab = KitchenViewTab.InProgress },
+                onClick = { onSelectTabPage(1) },
             )
             TabPill(
                 colors = colors,
-                label = "Completed",
-                tabActive = state.activeTab == KitchenViewTab.Completed,
+                label = KitchenViewTab.Completed.stringTitle(),
+                tabActive = selectedTabPage == 2,
                 items = completedItems,
                 orders = completedOrders,
                 role = role,
-                onClick = { state.activeTab = KitchenViewTab.Completed },
+                onClick = { onSelectTabPage(2) },
             )
         }
     }
@@ -252,11 +229,23 @@ private fun TabPill(
     ) {
         Text(label, color = if (tabActive) Blue500 else colors.textMuted, fontWeight = FontWeight.Medium, fontSize = 13.sp)
         Spacer(Modifier.size(4.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             if (role != ActiveRole.Waiter) {
-                Text("⊞ $orders", color = colors.textMuted, fontSize = 10.sp)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
+                    contentDescription = null,
+                    tint = colors.textMuted,
+                    modifier = Modifier.size(12.dp),
+                )
+                Text(orders.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
             }
-            Text("☷ $items", color = colors.textMuted, fontSize = 10.sp)
+            Icon(
+                imageVector = Icons.Outlined.RestaurantMenu,
+                contentDescription = null,
+                tint = colors.textMuted,
+                modifier = Modifier.size(12.dp),
+            )
+            Text(items.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
         Box(Modifier.height(2.dp).width(36.dp).background(if (tabActive) Blue500 else Color.Transparent))
     }

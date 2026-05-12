@@ -36,8 +36,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 
 /** Shared dark background + centered card used by all auth screens. */
@@ -62,7 +64,8 @@ fun AuthBackdrop(
 }
 
 @Composable
-fun AuthBrand(title: String, subtitle: String, badge: String = "POS") {
+fun AuthBrand(title: String, subtitle: String, badge: String? = null) {
+    val badgeText = badge ?: stringResource(R.string.auth_badge_pos)
     Box(
         Modifier
             .size(56.dp)
@@ -70,7 +73,7 @@ fun AuthBrand(title: String, subtitle: String, badge: String = "POS") {
             .background(Blue600),
         contentAlignment = Alignment.Center,
     ) {
-        Text(badge, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        Text(badgeText, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
     }
     Spacer(Modifier.height(16.dp))
     Text(title, color = Color(0xFFE5E7EB), fontSize = 20.sp, fontWeight = FontWeight.Medium, letterSpacing = (-0.3).sp)
@@ -161,7 +164,12 @@ fun AuthPrimaryButton(
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(if (loading) "$text…" else text, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            val display = when {
+                !loading -> text
+                text.endsWith('…') || text.endsWith("\u2026") -> text
+                else -> "$text…"
+            }
+            Text(display, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
     }
 }

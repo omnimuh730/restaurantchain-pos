@@ -40,9 +40,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableStatus
+import com.mh.restaurantchainpos.pos.ui.i18n.floorDisplayTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersMenuLineTitle
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
+import com.mh.restaurantchainpos.pos.ui.orders.floorTableDisplayLine
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
@@ -151,25 +157,26 @@ private fun DrawerSheet(
 
 @Composable
 private fun Header(palette: FloorPalette, table: FloorTable, onClose: () -> Unit) {
+    val ctx = LocalContext.current
     Row(
         Modifier.fillMaxWidth().padding(20.dp),
         verticalAlignment = Alignment.Top,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(table.label, color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(ctx.floorTableDisplayLine(table, editMode = false), color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("👥 ${table.seats} seats", color = palette.text2, fontSize = 12.sp)
+                Text(stringResource(R.string.floor_seats_count, table.seats), color = palette.text2, fontSize = 12.sp)
                 Text("|", color = palette.text3, fontSize = 12.sp)
-                Text("⏱ 26m", color = palette.text2, fontSize = 12.sp)
+                Text(stringResource(R.string.floor_party_seated_minutes, 26), color = palette.text2, fontSize = 12.sp)
                 if (table.status != TableStatus.Available) {
                     Text("|", color = palette.text3, fontSize = 12.sp)
-                    val statusColor = when (table.status) {
-                        TableStatus.Occupied -> palette.occupiedText
-                        TableStatus.Reserved -> palette.reservedText
-                        TableStatus.Available -> palette.availableText
+                    val statusColor = if (table.status == TableStatus.Occupied) {
+                        palette.occupiedText
+                    } else {
+                        palette.reservedText
                     }
-                    Text(table.status.name.lowercase(), color = statusColor, fontSize = 12.sp)
+                    Text(table.status.floorDisplayTitle(), color = statusColor, fontSize = 12.sp)
                 }
             }
         }
@@ -183,7 +190,7 @@ private fun OccupiedBody(palette: FloorPalette, table: FloorTable) {
         table.orderItems.forEach { item ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("${item.qty}×", color = palette.text2, fontSize = 12.sp, modifier = Modifier.width(28.dp))
-                Text(item.name, color = palette.text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text(ordersMenuLineTitle(item.nameKey), color = palette.text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
                 Text("₩%,d".format(item.price * item.qty), color = palette.text2, fontSize = 13.sp)
             }
         }
@@ -193,18 +200,18 @@ private fun OccupiedBody(palette: FloorPalette, table: FloorTable) {
 @Composable
 private fun ReservedBody(palette: FloorPalette, table: FloorTable) {
     Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        ReservedRow(palette, "Guest", table.guestName)
-        ReservedRow(palette, "Time", table.reservationTime)
-        ReservedRow(palette, "Party", "${table.seats}")
+        ReservedRow(palette, stringResource(R.string.floor_reserved_label_guest), table.guestName)
+        ReservedRow(palette, stringResource(R.string.floor_reserved_label_time), table.reservationTime)
+        ReservedRow(palette, stringResource(R.string.floor_reserved_label_party), "${table.seats}")
         Spacer(Modifier.height(12.dp))
         Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
         Spacer(Modifier.height(12.dp))
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("⌗ RESERVATION QR", color = palette.text3, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.floor_reservation_qr_heading), color = palette.text3, fontSize = 10.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(8.dp))
             QrPlaceholder(seed = table.id, size = 156.dp)
             Spacer(Modifier.height(8.dp))
-            Text("Show this QR to your guest to confirm.", color = palette.text3, fontSize = 11.sp)
+            Text(stringResource(R.string.floor_reservation_qr_hint), color = palette.text3, fontSize = 11.sp)
         }
     }
 }
@@ -213,14 +220,14 @@ private fun ReservedBody(palette: FloorPalette, table: FloorTable) {
 private fun ReservedRow(palette: FloorPalette, label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
         Text(label, color = palette.text2, fontSize = 13.sp, modifier = Modifier.weight(1f))
-        Text(value.ifBlank { "—" }, color = palette.text1, fontSize = 13.sp)
+        Text(value.ifBlank { stringResource(R.string.floor_empty_dash) }, color = palette.text1, fontSize = 13.sp)
     }
 }
 
 @Composable
 private fun AvailableBody(palette: FloorPalette) {
     Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-        Text("No active orders", color = palette.text3, fontSize = 13.sp)
+        Text(stringResource(R.string.floor_no_active_orders), color = palette.text3, fontSize = 13.sp)
     }
 }
 
@@ -229,19 +236,19 @@ private fun Footer(palette: FloorPalette, table: FloorTable, onPay: (FloorTable)
     Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (table.status == TableStatus.Occupied) {
             Row(Modifier.fillMaxWidth()) {
-                Text("Order total", color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.floor_order_total), color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
                 Text("₩%,d".format(table.revenue), color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
-            FooterButton("Payment", Blue500) { onPay(table) }
+            FooterButton(stringResource(R.string.floor_payment_confirm), Blue500) { onPay(table) }
         }
         if (table.status == TableStatus.Available) {
-            FooterButton("Seat guest", Blue500) {}
+            FooterButton(stringResource(R.string.floor_seat_guest), Blue500) {}
         }
         if (table.status == TableStatus.Reserved) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(Modifier.weight(1f)) { FooterButton("Check-in", Blue500) {} }
+                Box(Modifier.weight(1f)) { FooterButton(stringResource(R.string.floor_check_in), Blue500) {} }
                 Box(Modifier.weight(1f)) {
-                    FooterButton("Cancel", palette.raised, contentColor = palette.text1, border = palette.border) {}
+                    FooterButton(stringResource(R.string.common_cancel), palette.raised, contentColor = palette.text1, border = palette.border) {}
                 }
             }
         }

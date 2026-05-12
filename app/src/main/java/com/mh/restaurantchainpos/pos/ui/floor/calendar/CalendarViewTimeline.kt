@@ -4,6 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,30 +25,47 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
@@ -63,6 +83,7 @@ internal fun CalendarTimeline(
     assigningRez: Reservation?,
     previewTableId: String?,
     flashTableId: String?,
+    reassignDrag: ReassignDrag?,
     showNowLine: Boolean,
     nowPercent: Float,
     nowHour: Float,
@@ -70,6 +91,11 @@ internal fun CalendarTimeline(
     isTableAvailable: (String, Reservation) -> Boolean,
     onPickTable: (String) -> Unit,
     onWindowPan: (Float) -> Unit,
+    onTableRowRectUpdate: (String, Rect) -> Unit,
+    onReassignDragStart: (Reservation, Rect) -> Unit,
+    onReassignDragMove: (deltaY: Float) -> Unit,
+    onReassignDragEnd: () -> Unit,
+    onReassignDragCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val labelWidth = 96.dp
@@ -87,13 +113,27 @@ internal fun CalendarTimeline(
             state = horizontalPanState,
             orientation = Orientation.Horizontal,
         )
+    val scrollState = rememberScrollState()
+    val density = LocalDensity.current
+    val haptics = LocalHapticFeedback.current
+    // We read these state holders inside the gesture coroutine *without*
+    // keying `pointerInput` on their identity — keying on them would tear the
+    // running coroutine down mid-drag (see comment on the gesture below) and
+    // leave reassignDrag stuck without ever firing onDragEnd/onDragCancel.
+    val assigningRezState = rememberUpdatedState(assigningRez)
+    val reassignDragState = rememberUpdatedState(reassignDrag)
+    var dragOverlayCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val onStart by rememberUpdatedState(onReassignDragStart)
+    val onMove by rememberUpdatedState(onReassignDragMove)
+    val onEnd by rememberUpdatedState(onReassignDragEnd)
+    val onCancelDrag by rememberUpdatedState(onReassignDragCancel)
 
     Column(modifier.background(palette.bg)) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .background(palette.bg)
-                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
         ) {
             Spacer(Modifier.width(labelWidth))
             TimeHeader(
@@ -107,72 +147,193 @@ internal fun CalendarTimeline(
                     .then(horizontalPanModifier),
             )
         }
-
-        LazyColumn(
-            Modifier.weight(1f),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+        // Horizontal time-window pan lives only on the header + this strip so it
+        // never competes with vertical slot reassignment on table rows.
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(palette.bg)
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            items(tables, key = { it.id }) { table ->
-                val isAvailableForAssign = assigningRez?.let { isTableAvailable(table.id, it) } == true
-                val isPending = previewTableId == table.id
-                val isFlashing = flashTableId == table.id
-                Row(Modifier.fillMaxWidth().height(rowHeight), verticalAlignment = Alignment.CenterVertically) {
-                    TableNameCell(
-                        palette = palette,
-                        table = table,
-                        isAvailableForAssign = isAvailableForAssign,
-                        isPending = isPending,
-                        assigning = assigningRez != null,
-                        modifier = Modifier.width(labelWidth).height(rowHeight),
-                    )
-                    BoxWithConstraints(
+            Spacer(Modifier.width(labelWidth))
+            Box(
+                Modifier
+                    .weight(1f)
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(palette.border.copy(alpha = 0.28f))
+                    .then(horizontalPanModifier),
+            )
+        }
+
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .onGloballyPositioned { dragOverlayCoords = it },
+        ) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    // Scrolling is intentionally disabled while a slot is being
+                    // reassigned. Otherwise the row geometry shifts under the
+                    // ghost mid-drag and `blockRectRoot` / row hit-rects become
+                    // stale, producing wrong drop targets and a "jumping" ghost.
+                    .verticalScroll(scrollState, enabled = reassignDrag == null)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                for (table in tables) {
+                    val activeReservation = assigningRez ?: reassignDrag?.reservation
+                    val inTablePickMode = activeReservation != null
+                    val isAvailableForAssign = activeReservation?.let { isTableAvailable(table.id, it) } == true
+                    val isPending = when {
+                        assigningRez != null -> previewTableId == table.id
+                        reassignDrag != null -> reassignDrag.hoverTableId == table.id
+                        else -> false
+                    }
+                    val isFlashing = flashTableId == table.id
+                    Row(
                         Modifier
-                            .weight(1f)
+                            .fillMaxWidth()
                             .height(rowHeight)
-                            .then(horizontalPanModifier)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(rowBackground(palette, assigningRez != null, isAvailableForAssign, isPending, isFlashing))
-                            .then(rowBorder(palette, assigningRez != null, isAvailableForAssign, isPending, isFlashing))
-                            .then(
-                                if (assigningRez != null && isAvailableForAssign) {
-                                    Modifier.clickable { onPickTable(table.id) }
-                                } else {
-                                    Modifier
-                                },
-                            ),
+                            .onGloballyPositioned { coords ->
+                                onTableRowRectUpdate(table.id, coords.boundsInRoot())
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        ClosedHoursOverlay(palette, startHour, windowHours)
-                        TimelineGrid(palette, startHour, windowHours, timeLabels)
-                        dayReservations
-                            .filter { it.tableId == table.id }
-                            .forEach { reservation ->
+                        TableNameCell(
+                            palette = palette,
+                            table = table,
+                            isAvailableForAssign = isAvailableForAssign,
+                            isPending = isPending,
+                            assigning = inTablePickMode,
+                            modifier = Modifier.width(labelWidth).height(rowHeight),
+                        )
+                        BoxWithConstraints(
+                            Modifier
+                                .weight(1f)
+                                .height(rowHeight)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(rowBackground(palette, inTablePickMode, isAvailableForAssign, isPending, isFlashing))
+                                .then(rowBorder(palette, inTablePickMode, isAvailableForAssign, isPending, isFlashing))
+                                .then(
+                                    if (assigningRez != null && isAvailableForAssign) {
+                                        Modifier.clickable { onPickTable(table.id) }
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
+                        ) {
+                            ClosedHoursOverlay(palette, startHour, windowHours)
+                            TimelineGrid(palette, startHour, windowHours, timeLabels)
+                            dayReservations
+                                .filter { it.tableId == table.id }
+                                .forEach { reservation ->
+                                    key(reservation.id) {
+                                        var blockLayoutCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+                                        val dimmed = reassignDrag?.reservation?.id == reservation.id
+                                        val interactionModifier = Modifier
+                                            .onGloballyPositioned { blockLayoutCoords = it }
+                                            // IMPORTANT: keys must stay stable for the entire lifetime of
+                                                // a drag. Earlier we keyed on `reassignDrag?.reservation?.id`
+                                                // which flipped from null to this-id the instant onStart fired,
+                                                // tearing the running coroutine down before onDragEnd could
+                                                // run. The result was a "ghost" assign-mode display that the
+                                                // user could only escape by tapping the chip a second time.
+                                                .pointerInput(reservation.id) {
+                                                    if (!calendarReservationIsReassignable(reservation)) return@pointerInput
+                                                    awaitEachGesture {
+                                                        val down = awaitFirstDown(requireUnconsumed = false)
+                                                        // Re-check at the point of the down event — `pointerInput`
+                                                        // is NOT keyed on these, so we read them via
+                                                        // rememberUpdatedState to get the live value.
+                                                        if (assigningRezState.value != null) return@awaitEachGesture
+                                                        val active = reassignDragState.value
+                                                        if (active != null && active.reservation.id != reservation.id) return@awaitEachGesture
+
+                                                        // Wait for touch slop and consume in the callback so
+                                                        // the parent verticalScroll loses the gesture race.
+                                                        val drag: PointerInputChange? = awaitTouchSlopOrCancellation(down.id) { change, _ ->
+                                                            change.consume()
+                                                        }
+                                                        if (drag == null) return@awaitEachGesture
+                                                        val coords = blockLayoutCoords ?: return@awaitEachGesture
+                                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                        onStart(reservation, coords.boundsInRoot())
+                                                        var completed = false
+                                                        try {
+                                                            onMove(drag.positionChange().y)
+                                                            completed = drag(drag.id) { change ->
+                                                                onMove(change.positionChange().y)
+                                                                change.consume()
+                                                            }
+                                                        } finally {
+                                                            // try/finally guarantees state always clears, even
+                                                            // if the coroutine is cancelled externally.
+                                                            if (completed) onEnd() else onCancelDrag()
+                                                        }
+                                                    }
+                                                }
+                                        CalendarReservationBlock(
+                                            palette = palette,
+                                            reservation = reservation,
+                                            allReservations = allReservations,
+                                            startHour = startHour,
+                                            windowHours = windowHours,
+                                            nowHour = nowHour,
+                                            isToday = isToday,
+                                            blockInteractionModifier = interactionModifier,
+                                            dimmed = dimmed,
+                                        )
+                                    }
+                                }
+                            if (isPending && assigningRez != null) {
                                 CalendarReservationBlock(
                                     palette = palette,
-                                    reservation = reservation,
+                                    reservation = assigningRez,
                                     allReservations = allReservations,
                                     startHour = startHour,
                                     windowHours = windowHours,
                                     nowHour = nowHour,
                                     isToday = isToday,
+                                    preview = true,
                                 )
                             }
-                        if (isPending && assigningRez != null) {
-                            CalendarReservationBlock(
-                                palette = palette,
-                                reservation = assigningRez,
-                                allReservations = allReservations,
-                                startHour = startHour,
-                                windowHours = windowHours,
-                                nowHour = nowHour,
-                                isToday = isToday,
-                                preview = true,
-                            )
-                        }
-                        if (showNowLine) {
-                            NowLine(nowPercent)
+                            if (showNowLine) {
+                                NowLine(nowPercent)
+                            }
                         }
                     }
+                }
+            }
+
+            reassignDrag?.let { drag ->
+                val overlay = dragOverlayCoords
+                if (overlay != null && overlay.isAttached) {
+                    val overlayBounds = overlay.boundsInRoot()
+                    val ghostTopLeftRoot = Offset(
+                        drag.blockRectRoot.left,
+                        drag.blockRectRoot.top + drag.accumulatedY,
+                    )
+                    val topLeftInOverlay = ghostTopLeftRoot - overlayBounds.topLeft
+                    val wDp = with(density) { drag.blockRectRoot.width.toDp() }
+                    val hDp = with(density) { drag.blockRectRoot.height.toDp() }
+                    val xDp = with(density) { topLeftInOverlay.x.toDp() }
+                    val yDp = with(density) { topLeftInOverlay.y.toDp() }
+                    ReassignDragGhost(
+                        palette = palette,
+                        reservation = drag.reservation,
+                        allReservations = allReservations,
+                        nowHour = nowHour,
+                        isToday = isToday,
+                        modifier = Modifier
+                            .zIndex(36f)
+                            .offset(x = xDp, y = yDp)
+                            .width(wDp)
+                            .height(hDp),
+                    )
                 }
             }
         }
@@ -307,7 +468,10 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
     nowHour: Float,
     isToday: Boolean,
     preview: Boolean = false,
+    blockInteractionModifier: Modifier = Modifier,
+    dimmed: Boolean = false,
 ) {
+    val ctx = LocalContext.current
     val visibleStart = timeToHour(reservation.startTime)
     val visualState = blockVisualState(reservation, nowHour, isToday)
     val visibleEnd = when (visualState) {
@@ -336,6 +500,8 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
             .clip(RoundedCornerShape(5.dp))
             .background(visuals.fill)
             .then(blockModifier)
+            .then(if (dimmed) Modifier.graphicsLayer { alpha = 0.38f } else Modifier)
+            .then(blockInteractionModifier)
             .padding(horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -354,21 +520,70 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
-                val tag = blockTag(reservation, visualState)
+                val tag = ctx.reservationBlockTag(reservation, visualState)
                 if (tag.isNotBlank()) {
                     Spacer(Modifier.width(4.dp))
                     Text(tag, color = visuals.text.copy(alpha = 0.85f), fontSize = 8.sp, fontWeight = FontWeight.Bold)
                 }
             }
             if (!preview) {
+                val partyLabel = stringResource(R.string.floor_cal_party_size, reservation.partySize)
+                val dur = reservationDurationHoursLabel(reservation.durationHours)
                 Text(
-                    "${reservation.partySize}P - ${formatHours(reservation.durationHours)}",
+                    stringResource(R.string.floor_cal_party_duration_line, partyLabel, dur),
                     color = visuals.subText,
                     fontSize = 9.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ReassignDragGhost(
+    palette: FloorPalette,
+    reservation: Reservation,
+    allReservations: List<Reservation>,
+    nowHour: Float,
+    isToday: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val visualState = blockVisualState(reservation, nowHour, isToday)
+    val visuals = reservationVisual(palette, reservation, visualState, preview = false, allReservations)
+    val blockModifier = if (visuals.dashed) {
+        Modifier.dashedBorder(visuals.border, visuals.strokeWidth, 5.dp)
+    } else {
+        Modifier.border(visuals.strokeWidth, visuals.border, RoundedCornerShape(5.dp))
+    }
+    Row(
+        modifier
+            .graphicsLayer { alpha = 0.95f }
+            .clip(RoundedCornerShape(5.dp))
+            .background(visuals.fill)
+            .then(blockModifier)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+            Text(
+                reservation.guestName,
+                color = visuals.text,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            val partyLabel = stringResource(R.string.floor_cal_party_size, reservation.partySize)
+            val dur = reservationDurationHoursLabel(reservation.durationHours)
+            Text(
+                stringResource(R.string.floor_cal_party_duration_line, partyLabel, dur),
+                color = visuals.subText,
+                fontSize = 9.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

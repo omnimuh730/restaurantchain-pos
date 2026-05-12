@@ -5,22 +5,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.KitchenStatus
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 @Composable
 fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) -> Unit) {
     val state = rememberKitchenState()
-    val visible = state.visibleOrders()
     val received = state.receivedDistinctItemCount()
     val receivedOrders by remember {
         derivedStateOf { state.orders.count { it.status == KitchenStatus.Received } }
@@ -45,6 +52,21 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
 
     LaunchedEffect(received) { onReceivedCount(received) }
     val isMobile = rememberIsMobile()
+    val tabCount = KitchenViewTab.entries.size
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(
+        initialPage = state.activeTab.ordinal.coerceIn(0, tabCount - 1),
+        pageCount = { tabCount },
+    )
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }
+            .distinctUntilChanged()
+            .collect { page ->
+                val tab = KitchenViewTab.entries[page.coerceIn(0, tabCount - 1)]
+                if (state.activeTab != tab) state.activeTab = tab
+            }
+    }
 
     Row(Modifier.fillMaxSize()) {
         if (!isMobile) {
@@ -81,13 +103,29 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
                     receivedOrders = receivedOrders,
                     inProgressOrders = inProgressOrders,
                     completedOrders = completedOrders,
+                    selectedTabPage = pagerState.currentPage,
+                    onSelectTabPage = { page ->
+                        scope.launch { pagerState.animateScrollToPage(page.coerceIn(0, tabCount - 1)) }
+                    },
                 )
-                KitchenContent(
-                    colors = colors,
-                    state = state,
-                    isMobile = isMobile,
-                    visible = visible,
-                )
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    beyondViewportPageCount = 1,
+                    flingBehavior = PagerDefaults.flingBehavior(state = pagerState),
+                ) { page ->
+                    val tab = KitchenViewTab.entries[page.coerceIn(0, tabCount - 1)]
+                    val visible = state.visibleOrdersForTab(tab)
+                    KitchenContent(
+                        colors = colors,
+                        state = state,
+                        isMobile = isMobile,
+                        visible = visible,
+                        viewTab = tab,
+                    )
+                }
             }
 
             if (isMobile) {
@@ -116,11 +154,12 @@ fun KitchenScreen(colors: PosColors, role: ActiveRole, onReceivedCount: (Int) ->
 
             val detail = state.detailOrderId?.let { id -> state.orders.firstOrNull { it.id == id } }
             if (detail != null) {
+                val viewTab = KitchenViewTab.entries[pagerState.currentPage.coerceIn(0, tabCount - 1)]
                 OrderDetailModal(
                     colors = colors,
                     order = detail,
                     allOrders = state.orders,
-                    viewTab = state.activeTab,
+                    viewTab = viewTab,
                     onClose = { state.detailOrderId = null },
                     onAccept = state::acceptOrder,
                     onComplete = state::completeOrder,

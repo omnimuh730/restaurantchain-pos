@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="analytics_axis_unknown">?</string>
+    <string name="analytics_axis_mon">월</string>
+    <string name="analytics_axis_tue">화</string>
+    <string name="analytics_axis_wed">수</string>
+    <string name="analytics_axis_thu">목</string>
+    <string name="analytics_axis_fri">금</string>
+    <string name="analytics_axis_sat">토</string>
+    <string name="analytics_axis_sun">일</string>
+    <string name="analytics_axis_w1">1주</string>
+    <string name="analytics_axis_w2">2주</string>
+    <string name="analytics_axis_w3">3주</string>
+    <string name="analytics_axis_w4">4주</string>
+    <string name="analytics_axis_jan">1월</string>
+    <string name="analytics_axis_feb">2월</string>
+    <string name="analytics_axis_mar">3월</string>
+    <string name="analytics_axis_apr">4월</string>
+
+    <string name="analytics_pay_credit">신용</string>
+    <string name="analytics_pay_cash">현금</string>
+    <string name="analytics_pay_credit_card">신용카드</string>
+    <string name="analytics_pay_unknown">—</string>
+
+    <string name="analytics_item_unknown">항목</string>
+    <string name="analytics_menu_ribeye_steak">리브아이 스테이크</string>
+    <string name="analytics_menu_grilled_salmon">구운 연어</string>
+    <string name="analytics_menu_lobster_tail">랍스터 꼬리</string>
+    <string name="analytics_menu_caesar_salad">시저 샐러드</string>
+    <string name="analytics_menu_truffle_fries">트러플 감자튀김</string>
+    <string name="analytics_menu_lychee_martini">리치 마티니</string>
+    <string name="analytics_menu_chicken_wings">치킨 윙</string>
+    <string name="analytics_menu_tiramisu">티라미수</string>
+    <string name="analytics_menu_fish_and_chips">피시 앤 칩스</string>
+    <string name="analytics_menu_mai_tai">마이타이</string>
+    <string name="analytics_menu_bibimbap">비빔밥</string>
+    <string name="analytics_menu_bulgogi">불고기</string>
+    <string name="analytics_menu_soju">소주</string>
+    <string name="analytics_menu_makgeolli">막걸리</string>
+    <string name="analytics_menu_kimchi">김치</string>
+    <string name="analytics_menu_ramen">라멘</string>
+    <string name="analytics_menu_udon">우동</string>
+    <string name="analytics_menu_gyoza">교자</string>
+    <string name="analytics_menu_green_tea">녹차</string>
+    <string name="analytics_menu_hot_sake">뜨끈한 사케</string>
+    <string name="analytics_line_americano">아메리카노</string>
+    <string name="analytics_line_cafe_latte">카페 라떼</string>
+    <string name="analytics_line_honey_cold_brew">허니 콜드브루</string>
+    <string name="analytics_line_croissant">크루아상</string>
+    <string name="analytics_line_vanilla_cold_brew">바닐라 콜드브루</string>
+    <string name="analytics_line_espresso_con_panna">에스프레소 콘 파나</string>
+
+    <string name="analytics_cat_unknown">카테고리</string>
+    <string name="analytics_cat_grilled_bbq">그릴 &amp; BBQ</string>
+    <string name="analytics_cat_entrees">메인</string>
+    <string name="analytics_cat_salads">샐러드</string>
+    <string name="analytics_cat_sides">사이드</string>
+    <string name="analytics_cat_cocktails">칵테일</string>
+    <string name="analytics_cat_appetizers">전채</string>
+    <string name="analytics_cat_desserts">디저트</string>
+    <string name="analytics_cat_rice_dishes">밥류</string>
+    <string name="analytics_cat_sake_soju">사케·소주</string>
+    <string name="analytics_cat_cold_dishes">냉채</string>
+    <string name="analytics_cat_hot_soups">국물</string>
+    <string name="analytics_cat_noodles">면류</string>
+    <string name="analytics_cat_hot_appetizers">따뜻한 전채</string>
+    <string name="analytics_cat_tea">차</string>
+
+    <string name="analytics_segment_returning">재방문</string>
+    <string name="analytics_segment_new">신규</string>
+    <string name="analytics_segment_unknown">—</string>
+
+    <string name="analytics_visit_v1">1회</string>
+    <string name="analytics_visit_v2_3">2–3회</string>
+    <string name="analytics_visit_v4_6">4–6회</string>
+    <string name="analytics_visit_v7_10">7–10회</string>
+    <string name="analytics_visit_v10p">10회+</string>
+    <string name="analytics_visit_unknown">—</string>
+
+    <string name="analytics_party_p1">1명</string>
+    <string name="analytics_party_p2">2명</string>
+    <string name="analytics_party_p3_4">3–4명</string>
+    <string name="analytics_party_p5_6">5–6명</string>
+    <string name="analytics_party_p7p">7명 이상</string>
+    <string name="analytics_party_unknown">인원</string>
+
+    <string name="analytics_guest_walk_in">워크인</string>
+    <string name="analytics_table_n">테이블 %1$d</string>
+
+    <string name="analytics_note_anniversary">기념일 저녁</string>
+    <string name="analytics_note_grace_20m">20분 유예 후 노쇼 처리</string>
+    <string name="analytics_note_cold_soup_refund">차가운 수프로 전액 환불</string>
+    <string name="analytics_note_out_of_stock_refund">품절 — 전액 환불</string>
+    <string name="analytics_note_no_confirmation">확인 응답 없음</string>
+    <string name="analytics_note_unknown">—</string>
+
+    <string name="analytics_hist_kind_order">주문</string>
+    <string name="analytics_hist_kind_reservation">예약</string>
+    <string name="analytics_hist_kind_payment">결제</string>
+    <string name="analytics_hist_kind_no_show">노쇼</string>
+    <string name="analytics_hist_kind_walk_in">워크인</string>
+
+    <string name="analytics_hist_status_completed">완료</string>
+    <string name="analytics_hist_status_paid">결제됨</string>
+    <string name="analytics_hist_status_no_show">노쇼</string>
+    <string name="analytics_hist_status_refunded">환불</string>
+
+    <string name="analytics_total_revenue">총 매출</string>
+    <string name="analytics_total_orders">총 주문</string>
+    <string name="analytics_avg_ticket">객단가</string>
+    <string name="analytics_cancellations">취소</string>
+    <string name="analytics_sales_trend">매출 추이</string>
+    <string name="analytics_sales_trend_hint">차트를 탭하면 매출과 주문 수를 볼 수 있습니다</string>
+    <string name="analytics_peak_revenue_prefix">최고 매출:\u0020</string>
+    <string name="analytics_revenue_over_time">기간별 매출</string>
+
+    <string name="analytics_menu_top_category_loved">원화 기준으로 %1$s 카테고리가 가장 인기입니다.</string>
+    <string name="analytics_menu_domestic_breakdown">국내 원화 — 카테고리 비중</string>
+    <string name="analytics_menu_items_for_category">항목 — %1$s</string>
+    <string name="analytics_menu_all_items">국내 원화 전체 메뉴</string>
+    <string name="analytics_menu_show_all">모든 카테고리 보기</string>
+    <string name="analytics_col_item">메뉴</string>
+    <string name="analytics_col_category">카테고리</string>
+    <string name="analytics_col_sold">판매</string>
+    <string name="analytics_col_revenue">매출</string>
+    <string name="analytics_menu_weekly_trend_suffix">\u0020— 주간 판매 추이</string>
+    <string name="analytics_menu_top_seller_sub">이번 주 국내 원화 베스트 메뉴</string>
+    <string name="analytics_sort_revenue">매출</string>
+    <string name="analytics_sort_volume">판매량</string>
+
+    <string name="analytics_customer_total_customers">총 고객</string>
+    <string name="analytics_customer_new">신규 고객</string>
+    <string name="analytics_customer_returning_rate">재방문 비율</string>
+    <string name="analytics_customer_satisfaction">평균 만족도</string>
+    <string name="analytics_customer_visitors_prefix">가장 붐비는 시간:\u0020</string>
+    <string name="analytics_customer_traffic_sub">시간대별 방문객</string>
+    <string name="analytics_customer_returning_suffix">의 고객이 재방문입니다!</string>
+    <string name="analytics_customer_new_vs_returning">신규 vs 재방문</string>
+    <string name="analytics_customer_visit_frequency">방문 빈도</string>
+    <string name="analytics_customer_groups_prefix">\u0020</string>
+    <string name="analytics_customer_groups_highlight">3–4명</string>
+    <string name="analytics_customer_groups_suffix">이 가장 흔한 그룹입니다!</string>
+    <string name="analytics_customer_party_sub">그룹 크기 분포</string>
+
+    <string name="analytics_hist_kpi_events">이벤트</string>
+    <string name="analytics_hist_kpi_revenue">매출</string>
+    <string name="analytics_hist_kpi_no_shows">노쇼</string>
+    <string name="analytics_hist_tab_all">전체</string>
+    <string name="analytics_hist_search_hint">주문 ID, 메뉴, 이름, 테이블로 검색…</string>
+    <string name="analytics_hist_results">결과 %1$d건</string>
+    <string name="analytics_hist_empty">일치하는 이벤트가 없습니다</string>
+    <string name="analytics_hist_hint_grace">유예 시간 후 노쇼 처리됨.</string>
+    <string name="analytics_hist_hint_reservation_only">영수증 없음 — 예약만.</string>
+    <string name="analytics_hist_hint_unavailable">영수증 요약을 표시할 수 없습니다.</string>
+
+    <string name="analytics_detail_title">이벤트 상세</string>
+    <string name="analytics_detail_tile_table">테이블</string>
+    <string name="analytics_detail_tile_party">인원</string>
+    <string name="analytics_detail_tile_paid_at">결제 시각</string>
+    <string name="analytics_detail_tile_method">결제 수단</string>
+    <string name="analytics_detail_tile_id"># ID</string>
+    <string name="analytics_detail_party_guests">손님 %1$d명</string>
+    <string name="analytics_detail_em_dash">—</string>
+    <string name="analytics_detail_receipt">영수증</string>
+    <string name="analytics_detail_col_qty">수량</string>
+    <string name="analytics_detail_col_price">단가</string>
+    <string name="analytics_detail_col_total">합계</string>
+    <string name="analytics_detail_total">합계</string>
+    <string name="analytics_detail_notes">메모</string>
+
+    <string name="analytics_date_today">오늘</string>
+    <string name="analytics_range_title">기간 선택</string>
+    <string name="analytics_range_apply">적용</string>
+    <string name="analytics_range_cancel">취소</string>
+    <string name="analytics_preset_last_1_week">지난 1주</string>
+    <string name="analytics_preset_last_2_weeks">지난 2주</string>
+    <string name="analytics_preset_this_month">이번 달</string>
+    <string name="analytics_preset_last_month">지난 달</string>
+
+    <string name="analytics_rel_today">오늘</string>
+    <string name="analytics_rel_yesterday">어제</string>
+    <string name="analytics_rel_days_ago">%1$d일 전</string>
+</resources>

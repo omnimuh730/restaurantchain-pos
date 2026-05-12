@@ -25,12 +25,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
@@ -53,6 +59,7 @@ internal fun CalendarDateBar(
     onNow: () -> Unit,
 ) {
     val controlGap = if (isMobile) 4.dp else 8.dp
+    val ctx = LocalContext.current
     Row(
         Modifier
             .fillMaxWidth()
@@ -84,7 +91,7 @@ internal fun CalendarDateBar(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    if (isMobile) shortDateLabel(dayOffset) else fullDateLabel(dayOffset),
+                    if (isMobile) ctx.calendarShortDateLabel(dayOffset) else ctx.calendarFullDateLabel(dayOffset),
                     color = palette.text1,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -99,7 +106,7 @@ internal fun CalendarDateBar(
                             .background(Red500.copy(alpha = 0.12f))
                             .padding(horizontal = 7.dp, vertical = 2.dp),
                     ) {
-                        Text("Today", color = Red500, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.floor_cal_today), color = Red500, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                     }
                 } else if (!isMobile && reservationCount > 0) {
                     Spacer(Modifier.width(7.dp))
@@ -123,7 +130,7 @@ internal fun CalendarDateBar(
                         .clickable(onClick = onNow)
                         .padding(horizontal = 8.dp, vertical = 5.dp),
                 ) {
-                    Text("Today", color = palette.text2, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.floor_cal_today), color = palette.text2, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -132,12 +139,24 @@ internal fun CalendarDateBar(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconTinyButton(Icons.Outlined.ZoomIn, palette, onZoomIn, enabled = windowHours > MinWindowHours)
+            IconTinyButton(
+                Icons.Outlined.ZoomIn,
+                palette,
+                onZoomIn,
+                enabled = windowHours > MinWindowHours,
+                contentDescription = stringResource(R.string.floor_cd_zoom_in),
+            )
             NowButton(onNow)
-            IconTinyButton(Icons.Outlined.ZoomOut, palette, onZoomOut, enabled = windowHours < MaxWindowHours)
+            IconTinyButton(
+                Icons.Outlined.ZoomOut,
+                palette,
+                onZoomOut,
+                enabled = windowHours < MaxWindowHours,
+                contentDescription = stringResource(R.string.floor_cd_zoom_out),
+            )
             if (!isMobile) {
                 Spacer(Modifier.width(2.dp))
-                Text("${windowHours.toInt()}h", color = palette.text3, fontSize = 10.sp)
+                Text(stringResource(R.string.floor_cal_hours_window, windowHours.toInt()), color = palette.text3, fontSize = 10.sp)
             }
         }
     }
@@ -164,7 +183,7 @@ private fun CalendarMenuButton(
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Icons.Outlined.Menu, contentDescription = "Reservations", tint = palette.text2, modifier = Modifier.size(20.dp))
+            Icon(Icons.Outlined.Menu, contentDescription = stringResource(R.string.floor_cd_calendar_menu), tint = palette.text2, modifier = Modifier.size(20.dp))
         }
         if (requestCount > 0) {
             Box(
@@ -175,7 +194,20 @@ private fun CalendarMenuButton(
                     .background(Blue500),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(requestCount.toString(), color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                // Disable default font padding and snap line height to font size so
+                // the glyph is geometrically centered inside the tight 16dp circle.
+                Text(
+                    text = requestCount.toString(),
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 9.sp,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    ),
+                )
             }
         }
     }

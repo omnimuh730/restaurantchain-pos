@@ -1,12 +1,19 @@
 package com.mh.restaurantchainpos.pos.ui
 
+import android.app.Activity
+import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.AuthRoute
 import com.mh.restaurantchainpos.pos.data.AuthSession
@@ -27,6 +34,7 @@ import com.mh.restaurantchainpos.pos.ui.orders.OrdersScreen
 import com.mh.restaurantchainpos.pos.ui.settings.SettingsScreen
 import com.mh.restaurantchainpos.pos.ui.theme.DarkPosColors
 import com.mh.restaurantchainpos.pos.ui.theme.LightPosColors
+import com.mh.restaurantchainpos.ui.theme.RestaurantchainPOSTheme
 
 @Composable
 fun PosApp() {
@@ -58,6 +66,8 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
     var isDark by remember { mutableStateOf(false) }
     var role by remember { mutableStateOf(ActiveRole.Admin) }
     var page by remember { mutableStateOf(PosPage.FloorPlan) }
+    var ordersFloorPayTableId by remember { mutableStateOf<String?>(null) }
+    var ordersFloorPayNonce by remember { mutableLongStateOf(0L) }
     val badges = remember { mutableStateMapOf<String, Int>() }
     val colors = if (isDark) DarkPosColors else LightPosColors
     val allowed = roleNavAccess.getValue(role)
@@ -67,46 +77,83 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
         if (page !in allowed) page = allowed.first()
     }
 
-    PosShellScaffold(
-        colors = colors,
-        metrics = layoutMetrics,
-        header = {
-            PosAppHeader(
-                colors = colors,
-                isDark = isDark,
-                role = role,
-                horizontalPadding = layoutMetrics.headerHorizontalPadding,
-                onToggleDark = { isDark = !isDark },
-                onRole = { role = it },
-                onLock = onLock,
-                onSignOut = onSignOut,
-            )
-        },
-        bottomBar = {
-            PosAppBottomBar(
-                colors = colors,
-                pages = allowed,
-                selected = page,
-                badges = badges,
-                onSelect = { page = it },
-            )
-        },
-        navigationRail = {
-            PosAppNavigationRail(
-                colors = colors,
-                pages = allowed,
-                selected = page,
-                badges = badges,
-                onSelect = { page = it },
-            )
-        },
-    ) {
-        when (page) {
-            PosPage.FloorPlan -> FloorPlanScreen(colors, role, isDark = isDark, onPendingReservations = { badges[""] = it })
-            PosPage.Orders -> OrdersScreen(colors, role)
-            PosPage.Kitchen -> KitchenScreen(colors, role, onReceivedCount = { badges["kitchen"] = it })
-            PosPage.Analytics -> AnalyticsScreen(colors)
-            PosPage.Settings -> SettingsScreen(colors, role)
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val ctx = view.context
+            if (ctx is Activity) {
+                val window = ctx.window
+                @Suppress("DEPRECATION")
+                window.navigationBarColor = colors.navBackground.toArgb()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.isNavigationBarContrastEnforced = false
+                }
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDark
+            }
+        }
+    }
+
+    RestaurantchainPOSTheme(darkTheme = isDark) {
+        PosShellScaffold(
+            colors = colors,
+            metrics = layoutMetrics,
+            header = {
+                PosAppHeader(
+                    colors = colors,
+                    isDark = isDark,
+                    role = role,
+                    horizontalPadding = layoutMetrics.headerHorizontalPadding,
+                    onToggleDark = { isDark = !isDark },
+                    onRole = { role = it },
+                    onLock = onLock,
+                    onSignOut = onSignOut,
+                )
+            },
+            bottomBar = {
+                PosAppBottomBar(
+                    colors = colors,
+                    pages = allowed,
+                    selected = page,
+                    badges = badges,
+                    onSelect = { page = it },
+                )
+            },
+            navigationRail = {
+                PosAppNavigationRail(
+                    colors = colors,
+                    pages = allowed,
+                    selected = page,
+                    badges = badges,
+                    onSelect = { page = it },
+                )
+            },
+        ) {
+            when (page) {
+                PosPage.FloorPlan -> FloorPlanScreen(
+                    colors = colors,
+                    role = role,
+                    isDark = isDark,
+                    onPendingReservations = { badges[""] = it },
+                    onNavigateToOrderPayment = { tableId ->
+                        ordersFloorPayTableId = tableId
+                        ordersFloorPayNonce = System.nanoTime()
+                        page = PosPage.Orders
+                    },
+                )
+                PosPage.Orders -> OrdersScreen(
+                    colors = colors,
+                    role = role,
+                    floorPaymentTableId = ordersFloorPayTableId,
+                    floorPaymentNonce = ordersFloorPayNonce,
+                    onConsumedFloorPayment = {
+                        ordersFloorPayTableId = null
+                        ordersFloorPayNonce = 0L
+                    },
+                )
+                PosPage.Kitchen -> KitchenScreen(colors, role, onReceivedCount = { badges["kitchen"] = it })
+                PosPage.Analytics -> AnalyticsScreen(colors)
+                PosPage.Settings -> SettingsScreen(colors, role)
+            }
         }
     }
 }

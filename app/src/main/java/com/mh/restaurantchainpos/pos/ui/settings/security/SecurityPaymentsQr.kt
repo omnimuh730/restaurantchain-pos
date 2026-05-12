@@ -30,10 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -118,7 +120,7 @@ internal fun QrScannerPanel(
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     ) {
                         Text(
-                            "Scanning... $progress%",
+                            stringResource(R.string.settings_pay_scan_progress, progress),
                             color = Blue500,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -141,7 +143,7 @@ internal fun QrScannerPanel(
                             Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(30.dp))
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("Card scanned successfully", color = Blue500, fontSize = 12.sp)
+                        Text(stringResource(R.string.settings_pay_scan_success), color = Blue500, fontSize = 12.sp)
                     }
                 }
                 else -> {
@@ -161,7 +163,7 @@ internal fun QrScannerPanel(
                         }
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            "Position QR code within the scanner frame",
+                            stringResource(R.string.settings_pay_qr_position_hint),
                             color = Color(0xFF9CA3AF),
                             fontSize = 11.sp,
                         )
@@ -194,19 +196,19 @@ internal fun QrScannerPanel(
 
         when {
             scanning -> OutlineButton(
-                label = "Cancel Scan",
+                label = stringResource(R.string.settings_pay_cancel_scan),
                 color = colors.text,
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth(),
             )
             scanned -> OutlineButton(
-                label = "Scan Again",
+                label = stringResource(R.string.settings_pay_scan_again),
                 color = colors.text,
                 onClick = onScanAgain,
                 modifier = Modifier.fillMaxWidth(),
             )
             else -> PrimaryButton(
-                label = "Start Scanning",
+                label = stringResource(R.string.settings_pay_start_scanning),
                 onClick = onStart,
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = Icons.Outlined.QrCodeScanner,

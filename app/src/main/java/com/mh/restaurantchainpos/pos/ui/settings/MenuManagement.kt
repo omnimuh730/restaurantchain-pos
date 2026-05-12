@@ -38,9 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.CurrencyKind
 import com.mh.restaurantchainpos.pos.data.MenuItem
 import com.mh.restaurantchainpos.pos.data.PosMockData
@@ -110,20 +112,20 @@ fun MenuManagement(colors: PosColors) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         SettingCard(
             colors = colors,
-            title = "Menu Management",
-            subtitle = "Select a sub-category and add items from the catalog",
-            badge = "$totalItems items",
+            title = stringResource(R.string.settings_menu_page_title),
+            subtitle = stringResource(R.string.settings_menu_page_subtitle),
+            badge = stringResource(R.string.settings_menu_badge_items, totalItems),
             badgeIcon = Icons.Outlined.Restaurant,
             headerIcon = Icons.Outlined.Restaurant,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatBox(colors, "Categories", "${categories.size}", Modifier.weight(1f))
-                StatBox(colors, "Sub-Categories", "$totalSubCategories", Modifier.weight(1f))
-                StatBox(colors, "Total Items", "$totalItems", Modifier.weight(1f))
+                StatBox(colors, stringResource(R.string.settings_menu_stat_categories), "${categories.size}", Modifier.weight(1f))
+                StatBox(colors, stringResource(R.string.settings_menu_stat_subcategories), "$totalSubCategories", Modifier.weight(1f))
+                StatBox(colors, stringResource(R.string.settings_menu_stat_total_items), "$totalItems", Modifier.weight(1f))
             }
         }
 
-        SettingCard(colors = colors, title = "Main Categories") {
+        SettingCard(colors = colors, title = stringResource(R.string.settings_menu_main_categories)) {
             CategoryGrid(
                 colors = colors,
                 items = categories.map { c -> CategoryCell(id = c.id, label = c.label, count = null) },
@@ -136,7 +138,7 @@ fun MenuManagement(colors: PosColors) {
             )
         }
 
-        SettingCard(colors = colors, title = "${active.label} - Sub-Categories") {
+        SettingCard(colors = colors, title = stringResource(R.string.settings_menu_subcategories_format, active.label)) {
             CategoryGrid(
                 colors = colors,
                 items = active.subCategories.map { s ->
@@ -150,7 +152,11 @@ fun MenuManagement(colors: PosColors) {
             )
         }
 
-        val itemsCardTitle = if (activeSub != null) "${activeSub.label} Items" else "All ${active.label} Items"
+        val itemsCardTitle = if (activeSub != null) {
+            stringResource(R.string.settings_menu_sub_items_title, activeSub.label)
+        } else {
+            stringResource(R.string.settings_menu_all_cat_items, active.label)
+        }
         SettingCard(colors = colors, title = itemsCardTitle) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(
@@ -162,13 +168,13 @@ fun MenuManagement(colors: PosColors) {
                             colors = colors,
                             value = query,
                             onChange = { query = it },
-                            placeholder = "Search items...",
+                            placeholder = stringResource(R.string.settings_menu_search_ph),
                             leadingIcon = Icons.Outlined.Search,
                         )
                     }
                     if (activeSub != null) {
                         PrimaryButton(
-                            label = "Add Item",
+                            label = stringResource(R.string.settings_menu_add_item),
                             onClick = { addItemSubId = activeSub.id },
                             leadingIcon = Icons.Outlined.Add,
                         )
@@ -177,14 +183,18 @@ fun MenuManagement(colors: PosColors) {
 
                 if (activeSub == null) {
                     Text(
-                        "Select a sub-category above to add items",
+                        stringResource(R.string.settings_menu_select_sub_hint),
                         color = colors.textMuted,
                         fontSize = 12.sp,
                     )
                 } else if (filteredItems.isEmpty()) {
                     Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
                         Text(
-                            if (query.isNotBlank()) "No items match your search" else "No items in this sub-category yet",
+                            if (query.isNotBlank()) {
+                                stringResource(R.string.settings_menu_no_search)
+                            } else {
+                                stringResource(R.string.settings_menu_empty_sub)
+                            },
                             color = colors.textMuted,
                             fontSize = 12.sp,
                         )
@@ -319,9 +329,9 @@ private fun AddCatalogItemsDialog(
                 verticalAlignment = Alignment.Top,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text("Add items to $subLabel", color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.settings_menu_add_title, subLabel), color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(2.dp))
-                    Text("Select one or more items from the catalog", color = colors.textMuted, fontSize = 12.sp)
+                    Text(stringResource(R.string.settings_menu_add_subtitle), color = colors.textMuted, fontSize = 12.sp)
                 }
                 Box(
                     Modifier
@@ -344,7 +354,7 @@ private fun AddCatalogItemsDialog(
                     colors = colors,
                     value = search,
                     onChange = { search = it },
-                    placeholder = "Search food items...",
+                    placeholder = stringResource(R.string.settings_menu_search_catalog_ph),
                     leadingIcon = Icons.Outlined.Search,
                 )
 
@@ -357,7 +367,7 @@ private fun AddCatalogItemsDialog(
                 ) {
                     if (filteredCatalog.isEmpty()) {
                         Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
-                            Text("No items match your search", color = colors.textMuted, fontSize = 12.sp)
+                            Text(stringResource(R.string.settings_menu_no_search), color = colors.textMuted, fontSize = 12.sp)
                         }
                     } else {
                         filteredCatalog.chunked(2).forEach { row ->
@@ -387,7 +397,7 @@ private fun AddCatalogItemsDialog(
                 }
 
                 Text(
-                    "${selected.value.size} selected",
+                    stringResource(R.string.settings_menu_selected_count, selected.value.size),
                     color = colors.textMuted,
                     fontSize = 12.sp,
                 )
@@ -402,13 +412,13 @@ private fun AddCatalogItemsDialog(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlineButton("Cancel", colors.text, onClick = onDismiss)
+                OutlineButton(stringResource(R.string.common_cancel), colors.text, onClick = onDismiss)
                 Spacer(Modifier.size(8.dp))
                 val count = selected.value.size
                 val label = when (count) {
-                    0 -> "Add items"
-                    1 -> "Add 1 item"
-                    else -> "Add $count items"
+                    0 -> stringResource(R.string.settings_menu_add_btn_zero)
+                    1 -> stringResource(R.string.settings_menu_add_btn_one)
+                    else -> stringResource(R.string.settings_menu_add_btn_n, count)
                 }
                 PrimaryButton(
                     label = label,
@@ -465,7 +475,7 @@ private fun CatalogTile(
                 )
                 if (alreadyAdded) {
                     Spacer(Modifier.height(4.dp))
-                    Text("Already added", color = colors.textMuted, fontSize = 10.sp)
+                    Text(stringResource(R.string.settings_menu_already_added), color = colors.textMuted, fontSize = 10.sp)
                 }
             }
             Spacer(Modifier.size(8.dp))

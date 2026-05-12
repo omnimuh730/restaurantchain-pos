@@ -1,40 +1,24 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.CalendarToday
-import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mh.restaurantchainpos.pos.ui.theme.Amber500
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
 
@@ -53,7 +37,13 @@ internal fun IconCircleButton(icon: ImageVector, palette: FloorPalette, onClick:
 }
 
 @Composable
-internal fun IconTinyButton(icon: ImageVector, palette: FloorPalette, onClick: () -> Unit, enabled: Boolean = true) {
+internal fun IconTinyButton(
+    icon: ImageVector,
+    palette: FloorPalette,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    contentDescription: String? = null,
+) {
     Box(
         Modifier
             .size(28.dp)
@@ -61,7 +51,7 @@ internal fun IconTinyButton(icon: ImageVector, palette: FloorPalette, onClick: (
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription = null, tint = if (enabled) palette.text2 else palette.text3.copy(alpha = 0.45f), modifier = Modifier.size(15.dp))
+        Icon(icon, contentDescription = contentDescription, tint = if (enabled) palette.text2 else palette.text3.copy(alpha = 0.45f), modifier = Modifier.size(15.dp))
     }
 }
 
@@ -75,6 +65,6 @@ internal fun NowButton(onClick: () -> Unit) {
             .padding(horizontal = 10.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text("Now", color = Red500, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.floor_cal_now), color = Red500, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
     }
 }

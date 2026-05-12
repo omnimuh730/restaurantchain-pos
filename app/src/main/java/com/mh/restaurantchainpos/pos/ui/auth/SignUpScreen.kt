@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,9 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.AuthSession
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import kotlinx.coroutines.delay
@@ -65,6 +65,10 @@ fun SignUpScreen(
 
     val selectedRestaurant = Restaurants.firstOrNull { it.id == selectedRestaurantId }
 
+    val errAllRequired = stringResource(R.string.auth_su_error_all_required)
+    val errPwdShort = stringResource(R.string.auth_su_error_password_short)
+    val errMismatch = stringResource(R.string.auth_su_error_password_mismatch)
+
     fun reset() {
         mode = SignUpMode.Select
         restaurantStep = RestaurantStep.Form
@@ -92,32 +96,76 @@ fun SignUpScreen(
     AuthBackdrop {
         when (mode) {
             SignUpMode.Select -> {
-                AuthBrand("Create Account", "Choose how you'd like to sign up")
-                ChoiceCard("Restaurant Sign Up", "Register a new restaurant as admin") { mode = SignUpMode.Restaurant }
+                AuthBrand(stringResource(R.string.auth_su_select_title), stringResource(R.string.auth_su_select_subtitle))
+                ChoiceCard(
+                    stringResource(R.string.auth_su_choice_restaurant_title),
+                    stringResource(R.string.auth_su_choice_restaurant_desc),
+                ) { mode = SignUpMode.Restaurant }
                 Spacer(Modifier.height(12.dp))
-                ChoiceCard("Staff Sign Up", "Join an existing restaurant as staff") { mode = SignUpMode.Staff }
+                ChoiceCard(
+                    stringResource(R.string.auth_su_choice_staff_title),
+                    stringResource(R.string.auth_su_choice_staff_desc),
+                ) { mode = SignUpMode.Staff }
                 Spacer(Modifier.height(20.dp))
-                AuthSecondaryLink("Already have an account?", "Sign In", onSignIn)
+                AuthSecondaryLink(
+                    stringResource(R.string.auth_su_already_have),
+                    stringResource(R.string.auth_sign_in),
+                    onSignIn,
+                )
             }
             SignUpMode.Restaurant -> when (restaurantStep) {
                 RestaurantStep.Form -> {
-                    AuthBrand("Restaurant Sign Up", "Register your restaurant on the platform")
-                    AuthField("Restaurant Name *", restName, { restName = it; restError = "" }, "e.g. Glass Onion")
+                    AuthBrand(
+                        stringResource(R.string.auth_su_restaurant_brand_title),
+                        stringResource(R.string.auth_su_restaurant_brand_subtitle),
+                    )
+                    AuthField(
+                        stringResource(R.string.auth_su_field_restaurant_name),
+                        restName,
+                        { restName = it; restError = "" },
+                        stringResource(R.string.auth_su_ph_restaurant_name),
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Admin Name *", adminName, { adminName = it; restError = "" }, "Your full name")
+                    AuthField(
+                        stringResource(R.string.auth_su_field_admin_name),
+                        adminName,
+                        { adminName = it; restError = "" },
+                        stringResource(R.string.auth_su_ph_full_name),
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Username *", restUsername, { restUsername = it; restError = "" }, "Choose a username")
+                    AuthField(
+                        stringResource(R.string.auth_su_field_username),
+                        restUsername,
+                        { restUsername = it; restError = "" },
+                        stringResource(R.string.auth_su_ph_username),
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Password *", restPassword, { restPassword = it; restError = "" }, "Create a password", password = true)
+                    AuthField(
+                        stringResource(R.string.auth_su_field_password),
+                        restPassword,
+                        { restPassword = it; restError = "" },
+                        stringResource(R.string.auth_su_ph_password),
+                        password = true,
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Confirm Password *", restConfirm, { restConfirm = it; restError = "" }, "Confirm your password", password = true)
+                    AuthField(
+                        stringResource(R.string.auth_su_field_confirm_password),
+                        restConfirm,
+                        { restConfirm = it; restError = "" },
+                        stringResource(R.string.auth_su_ph_confirm_password),
+                        password = true,
+                    )
                     if (restError.isNotBlank()) {
                         Spacer(Modifier.height(12.dp))
                         AuthErrorBox(restError)
                     }
                     Spacer(Modifier.height(20.dp))
                     AuthPrimaryButton(
-                        text = if (restLoading) "Submitting" else "Register Restaurant",
+                        text = if (restLoading) {
+                            stringResource(R.string.auth_su_submitting)
+                        } else {
+                            stringResource(R.string.auth_su_register_restaurant)
+                        },
                         enabled = !restLoading,
                         loading = restLoading,
                         modifier = Modifier.fillMaxWidth(),
@@ -125,28 +173,36 @@ fun SignUpScreen(
                         restError = ""
                         when {
                             restName.isBlank() || adminName.isBlank() || restUsername.isBlank() ->
-                                restError = "All fields are required."
-                            restPassword.length < 6 -> restError = "Password must be at least 6 characters."
-                            restPassword != restConfirm -> restError = "Passwords do not match."
+                                restError = errAllRequired
+                            restPassword.length < 6 -> restError = errPwdShort
+                            restPassword != restConfirm -> restError = errMismatch
                             else -> restLoading = true
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    BackTextLink("Back") { reset() }
+                    BackTextLink(stringResource(R.string.auth_su_back)) { reset() }
                 }
                 RestaurantStep.WaitingApproval -> WaitingPanel(
-                    title = "Registration Submitted",
-                    subtitle = "Your restaurant registration is pending approval. You'll be automatically logged in once approved.",
+                    title = stringResource(R.string.auth_su_rest_submitted_title),
+                    subtitle = stringResource(R.string.auth_su_rest_submitted_subtitle),
                     onSignIn = onSignIn,
                 )
             }
             SignUpMode.Staff -> when (staffStep) {
                 StaffStep.SelectRestaurant -> {
-                    AuthBrand("Staff Sign Up", "Select your restaurant to get started")
-                    Text("Select Restaurant *", color = Color(0xFF9CA3AF), fontSize = 13.sp, modifier = Modifier.fillMaxWidth())
+                    AuthBrand(
+                        stringResource(R.string.auth_su_staff_brand_title),
+                        stringResource(R.string.auth_su_staff_brand_subtitle),
+                    )
+                    Text(
+                        stringResource(R.string.auth_su_select_restaurant_label),
+                        color = Color(0xFF9CA3AF),
+                        fontSize = 13.sp,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                     Spacer(Modifier.height(6.dp))
                     DropdownButton(
-                        label = selectedRestaurant?.name ?: "Choose a restaurant...",
+                        label = selectedRestaurant?.name ?: stringResource(R.string.auth_su_choose_restaurant),
                         placeholder = selectedRestaurant == null,
                         open = dropdownOpen,
                         onToggle = { dropdownOpen = !dropdownOpen },
@@ -165,13 +221,13 @@ fun SignUpScreen(
                                     label = "",
                                     value = restaurantSearch,
                                     onChange = { restaurantSearch = it },
-                                    placeholder = "Search restaurants...",
+                                    placeholder = stringResource(R.string.auth_su_search_restaurants_ph),
                                 )
                             }
                             val filtered = Restaurants.filter { it.name.contains(restaurantSearch, ignoreCase = true) }
                             if (filtered.isEmpty()) {
                                 Text(
-                                    "No restaurants found",
+                                    stringResource(R.string.auth_su_no_restaurants),
                                     color = Color(0xFF6B7280),
                                     fontSize = 13.sp,
                                     modifier = Modifier
@@ -205,7 +261,7 @@ fun SignUpScreen(
                                                         .padding(horizontal = 6.dp, vertical = 2.dp),
                                                 ) {
                                                     Text(
-                                                        "Approved",
+                                                        stringResource(R.string.auth_su_restaurant_approved),
                                                         color = if (active) Color(0xFFDBEAFE) else Color(0xFF60A5FA),
                                                         fontSize = 10.sp,
                                                         fontWeight = FontWeight.Medium,
@@ -220,7 +276,7 @@ fun SignUpScreen(
                     }
                     Spacer(Modifier.height(20.dp))
                     AuthPrimaryButton(
-                        text = "Next",
+                        text = stringResource(R.string.auth_su_next),
                         enabled = selectedRestaurant != null,
                         loading = false,
                         modifier = Modifier.fillMaxWidth(),
@@ -229,16 +285,25 @@ fun SignUpScreen(
                         staffStep = if (rest.approved) StaffStep.Details else StaffStep.WaitingRestaurantApproval
                     }
                     Spacer(Modifier.height(12.dp))
-                    BackTextLink("Back") { reset() }
+                    BackTextLink(stringResource(R.string.auth_su_back)) { reset() }
                 }
                 StaffStep.WaitingRestaurantApproval -> WaitingPanel(
-                    title = "Restaurant Not Approved",
-                    subtitle = "\"${selectedRestaurant?.name}\" is still pending approval. You can sign up once the restaurant has been approved.",
+                    title = stringResource(R.string.auth_su_rest_not_approved_title),
+                    subtitle = stringResource(
+                        R.string.auth_su_rest_not_approved_subtitle,
+                        selectedRestaurant?.name.orEmpty(),
+                    ),
                     onBack = { staffStep = StaffStep.SelectRestaurant },
                     onSignIn = onSignIn,
                 )
                 StaffStep.Details -> {
-                    AuthBrand("Staff Details", "Create your staff account for ${selectedRestaurant?.name ?: ""}")
+                    AuthBrand(
+                        stringResource(R.string.auth_su_staff_details_title),
+                        stringResource(
+                            R.string.auth_su_staff_details_subtitle,
+                            selectedRestaurant?.name.orEmpty(),
+                        ),
+                    )
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -253,27 +318,53 @@ fun SignUpScreen(
                         Text(selectedRestaurant?.name ?: "", color = Color(0xFF60A5FA), fontSize = 13.sp)
                         Spacer(Modifier.weight(1f))
                         Text(
-                            "Change",
+                            stringResource(R.string.auth_su_change_restaurant),
                             color = Color(0xFF6B7280),
                             fontSize = 11.sp,
                             modifier = Modifier.clickableNoIndication { staffStep = StaffStep.SelectRestaurant },
                         )
                     }
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Full Name *", staffName, { staffName = it; staffError = "" }, "Your full name")
+                    AuthField(
+                        stringResource(R.string.auth_su_field_staff_full_name),
+                        staffName,
+                        { staffName = it; staffError = "" },
+                        stringResource(R.string.auth_su_ph_full_name),
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Username *", staffUsername, { staffUsername = it; staffError = "" }, "Choose a username")
+                    AuthField(
+                        stringResource(R.string.auth_su_field_username),
+                        staffUsername,
+                        { staffUsername = it; staffError = "" },
+                        stringResource(R.string.auth_su_ph_username),
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Password *", staffPassword, { staffPassword = it; staffError = "" }, "Create a password", password = true)
+                    AuthField(
+                        stringResource(R.string.auth_su_field_password),
+                        staffPassword,
+                        { staffPassword = it; staffError = "" },
+                        stringResource(R.string.auth_su_ph_password),
+                        password = true,
+                    )
                     Spacer(Modifier.height(12.dp))
-                    AuthField("Confirm Password *", staffConfirm, { staffConfirm = it; staffError = "" }, "Confirm your password", password = true)
+                    AuthField(
+                        stringResource(R.string.auth_su_field_confirm_password),
+                        staffConfirm,
+                        { staffConfirm = it; staffError = "" },
+                        stringResource(R.string.auth_su_ph_confirm_password),
+                        password = true,
+                    )
                     if (staffError.isNotBlank()) {
                         Spacer(Modifier.height(12.dp))
                         AuthErrorBox(staffError)
                     }
                     Spacer(Modifier.height(20.dp))
                     AuthPrimaryButton(
-                        text = if (staffLoading) "Submitting" else "Request to Join",
+                        text = if (staffLoading) {
+                            stringResource(R.string.auth_su_submitting)
+                        } else {
+                            stringResource(R.string.auth_su_request_join)
+                        },
                         enabled = !staffLoading,
                         loading = staffLoading,
                         modifier = Modifier.fillMaxWidth(),
@@ -281,18 +372,21 @@ fun SignUpScreen(
                         staffError = ""
                         when {
                             staffName.isBlank() || staffUsername.isBlank() ->
-                                staffError = "All fields are required."
-                            staffPassword.length < 6 -> staffError = "Password must be at least 6 characters."
-                            staffPassword != staffConfirm -> staffError = "Passwords do not match."
+                                staffError = errAllRequired
+                            staffPassword.length < 6 -> staffError = errPwdShort
+                            staffPassword != staffConfirm -> staffError = errMismatch
                             else -> staffLoading = true
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    BackTextLink("Back") { staffStep = StaffStep.SelectRestaurant }
+                    BackTextLink(stringResource(R.string.auth_su_back)) { staffStep = StaffStep.SelectRestaurant }
                 }
                 StaffStep.WaitingStaffApproval -> WaitingPanel(
-                    title = "Request Submitted",
-                    subtitle = "Your request to join \"${selectedRestaurant?.name}\" has been sent. The admin will review and approve your registration.",
+                    title = stringResource(R.string.auth_su_request_submitted_title),
+                    subtitle = stringResource(
+                        R.string.auth_su_request_submitted_subtitle,
+                        selectedRestaurant?.name.orEmpty(),
+                    ),
                     onSignIn = onSignIn,
                 )
             }

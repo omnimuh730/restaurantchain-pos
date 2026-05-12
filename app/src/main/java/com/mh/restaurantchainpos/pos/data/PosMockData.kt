@@ -117,18 +117,18 @@ object PosMockData {
     )
 
     private val cafeItems = listOf(
-        TableOrderItem("Americano", 2, 3500),
-        TableOrderItem("Cafe Latte", 1, 4000),
-        TableOrderItem("Flat White", 1, 4500),
-        TableOrderItem("Honey Cold Brew", 1, 5500),
-        TableOrderItem("Tiramisu", 1, 6500),
+        TableOrderItem("americano", 2, 3500),
+        TableOrderItem("cafe_latte", 1, 4000),
+        TableOrderItem("flat_white", 1, 4500),
+        TableOrderItem("honey_cold_brew", 1, 5500),
+        TableOrderItem("tiramisu", 1, 6500),
     )
 
     private val shortCafeItems = listOf(
-        TableOrderItem("Espresso con Panna", 1, 4500),
-        TableOrderItem("Honey Cold Brew", 2, 5500),
-        TableOrderItem("Oat cold brew", 3, 6500),
-        TableOrderItem("Tiramisu", 1, 6000),
+        TableOrderItem("espresso_con_panna", 1, 4500),
+        TableOrderItem("honey_cold_brew", 2, 5500),
+        TableOrderItem("oat_cold_brew", 3, 6500),
+        TableOrderItem("tiramisu", 1, 6000),
     )
 
     val floors = listOf(
@@ -142,7 +142,7 @@ object PosMockData {
             FloorTable("T7", "Table 7", 2, TableShape.Rect, 264, 504, 144, 72, TableStatus.Available),
             FloorTable("T8", "Table 8", 4, TableShape.Rect, 480, 504, 144, 72, TableStatus.Available),
             FloorTable("T9", "Table 9", 6, TableShape.Circle, 696, 480, 144, 144, TableStatus.Available),
-            FloorTable("T10", "Table 10", 6, TableShape.Rect, 552, 336, 216, 144, TableStatus.Occupied, 17500, 5, "Choi M.", orderItems = listOf(TableOrderItem("Vanilla cold brew", 2, 6500), TableOrderItem("Espresso con Panna", 1, 4500))),
+            FloorTable("T10", "Table 10", 6, TableShape.Rect, 552, 336, 216, 144, TableStatus.Occupied, 17500, 5, "Choi M.", orderItems = listOf(TableOrderItem("vanilla_cold_brew", 2, 6500), TableOrderItem("espresso_con_panna", 1, 4500))),
             FloorTable("T11", "Table 11", 4, TableShape.Rect, 48, 648, 144, 72, TableStatus.Available),
         )),
         Floor("f2", "Lounge", listOf(
@@ -208,12 +208,12 @@ object PosMockData {
     )
 
     val kitchenOrders = listOf(
-        KitchenOrder("k1", "T3", KitchenStatus.InProgress, 20, items = listOf(KitchenItem("k1a", "Seafood Pasta", 2), KitchenItem("k1b", "White Rice Cake", 1, done = true), KitchenItem("k1c", "Mango Juice", 3, done = true))),
-        KitchenOrder("k2", "T1", KitchenStatus.InProgress, 10, items = listOf(KitchenItem("k2a", "T-Bone Steak", 1, modifier = "Medium rare"), KitchenItem("k2b", "Sirloin Steak", 2, previouslyCompleted = true))),
-        KitchenOrder("k5", "T7", KitchenStatus.InProgress, 30, items = listOf(KitchenItem("k5a", "Pad Thai", 2, done = true), KitchenItem("k5b", "Green Curry", 1), KitchenItem("k5c", "Tom Yum Soup", 1, done = true))),
-        KitchenOrder("k21", "T4", KitchenStatus.Received, 1, items = listOf(KitchenItem("k21a", "Bulgogi", 2), KitchenItem("k21b", "Steamed Rice", 2))),
-        KitchenOrder("k22", "T10", KitchenStatus.Received, 1, items = listOf(KitchenItem("k22a", "Udon Noodles", 1), KitchenItem("k22b", "Tempura", 1))),
-        KitchenOrder("k11", "T6", KitchenStatus.Completed, 55, 35, listOf(KitchenItem("k11a", "Teriyaki Chicken", 1), KitchenItem("k11b", "Udon Noodles", 1))),
+        KitchenOrder("k1", "T3", KitchenStatus.InProgress, 20, items = listOf(KitchenItem("k1a", "seafood-pasta", 2), KitchenItem("k1b", "white-rice-cake", 1, done = true), KitchenItem("k1c", "mango-juice", 3, done = true))),
+        KitchenOrder("k2", "T1", KitchenStatus.InProgress, 10, items = listOf(KitchenItem("k2a", "t-bone-steak", 1, modifier = "Medium rare"), KitchenItem("k2b", "sirloin-steak", 2, previouslyCompleted = true))),
+        KitchenOrder("k5", "T7", KitchenStatus.InProgress, 30, items = listOf(KitchenItem("k5a", "pad-thai", 2, done = true), KitchenItem("k5b", "thai-green-curry", 1), KitchenItem("k5c", "tom-yum-soup", 1, done = true))),
+        KitchenOrder("k21", "T4", KitchenStatus.Received, 1, items = listOf(KitchenItem("k21a", "bulgogi", 2), KitchenItem("k21b", "steamed-rice", 2))),
+        KitchenOrder("k22", "T10", KitchenStatus.Received, 1, items = listOf(KitchenItem("k22a", "udon", 1), KitchenItem("k22b", "tempura", 1))),
+        KitchenOrder("k11", "T6", KitchenStatus.Completed, 55, 35, listOf(KitchenItem("k11a", "teriyaki-chicken", 1), KitchenItem("k11b", "udon", 1))),
     )
 
     val staff = listOf(

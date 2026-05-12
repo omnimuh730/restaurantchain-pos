@@ -16,12 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 
 @Composable
@@ -104,7 +106,7 @@ internal fun WaitingPanel(
                 .padding(vertical = 10.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text("Go Back", color = Color(0xFFD1D5DB), fontSize = 13.sp)
+            Text(stringResource(R.string.auth_su_go_back), color = Color(0xFFD1D5DB), fontSize = 13.sp)
         }
         Spacer(Modifier.height(8.dp))
     }
@@ -115,7 +117,7 @@ internal fun WaitingPanel(
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text("Back to Sign In", color = Color(0xFF60A5FA), fontSize = 13.sp)
+        Text(stringResource(R.string.auth_su_back_to_sign_in), color = Color(0xFF60A5FA), fontSize = 13.sp)
     }
 }
 

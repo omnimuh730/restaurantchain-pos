@@ -19,12 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
@@ -44,15 +46,17 @@ internal fun RoleFilters(
     ) {
         RolePill(
             colors = colors,
-            label = "All Roles ($allCount)",
+            label = stringResource(R.string.staff_filter_all_roles, allCount),
             icon = null,
             selected = active == "all",
             onClick = { onChange("all") },
         )
         Roles.forEach { r ->
+            val roleRes = roleTitleRes(r)
+            val roleLabel = if (roleRes != 0) stringResource(roleRes) else r
             RolePill(
                 colors = colors,
-                label = "$r (${roleCounts[r] ?: 0})",
+                label = stringResource(R.string.staff_filter_role_pill, roleLabel, roleCounts[r] ?: 0),
                 icon = RoleConfigs[r]?.icon,
                 selected = active == r,
                 onClick = { onChange(if (active == r) "all" else r) },

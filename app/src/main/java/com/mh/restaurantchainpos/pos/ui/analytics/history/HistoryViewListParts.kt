@@ -22,8 +22,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.fmtTimeLocalized
+import com.mh.restaurantchainpos.pos.ui.i18n.historyGuestLine
+import com.mh.restaurantchainpos.pos.ui.i18n.historyNoteText
+import com.mh.restaurantchainpos.pos.ui.i18n.paymentMethodLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.receiptLineTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.relDayLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.tableNumberLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 
 @Composable
@@ -97,6 +108,7 @@ internal fun ReceiptCard(
     text2: Color,
     muted: Color,
 ) {
+    val ctx = LocalContext.current
     val (icon, accent) = kindIconAccent(event.kind, isDark)
     val statusBg = statusBadgeBg(event.status, isDark)
     val statusFg = statusBadgeFg(event.status, isDark)
@@ -119,25 +131,25 @@ internal fun ReceiptCard(
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(event.guest, color = text1, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(historyGuestLine(event.guest, event.guestKey), color = text1, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.width(6.dp))
                     Box(
                         Modifier
                             .clip(RoundedCornerShape(4.dp))
                             .background(statusBg)
                             .padding(horizontal = 6.dp, vertical = 2.dp),
-                    ) { Text(event.status.label, color = statusFg, fontSize = 10.sp, fontWeight = FontWeight.Medium) }
+                    ) { Text(event.status.stringTitle(), color = statusFg, fontSize = 10.sp, fontWeight = FontWeight.Medium) }
                 }
                 Spacer(Modifier.height(2.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("# ${event.id}", color = text2, fontSize = 11.sp)
                     Spacer(Modifier.width(8.dp))
-                    Text("⌖ ${event.tableLabel}", color = text2, fontSize = 11.sp)
+                    Text("⌖ ${tableNumberLabel(event.tableNum)}", color = text2, fontSize = 11.sp)
                     Spacer(Modifier.width(8.dp))
-                    Text("⌚ ${relDay(event.timestampMs)} · ${fmtTime(event.timestampMs)}", color = text2, fontSize = 11.sp)
+                    Text("⌚ ${relDayLabel(ctx, event.timestampMs)} · ${fmtTimeLocalized(event.timestampMs)}", color = text2, fontSize = 11.sp)
                 }
-                if (!event.payment.isNullOrEmpty()) {
-                    Text("⌥ ${event.payment}", color = text2, fontSize = 11.sp)
+                if (event.paymentKey != null) {
+                    Text("⌥ ${paymentMethodLabel(event.paymentKey)}", color = text2, fontSize = 11.sp)
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
@@ -158,7 +170,7 @@ internal fun ReceiptCard(
             Column(Modifier.padding(12.dp)) {
                 event.items.forEach { it ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(it.name, color = text1, fontSize = 12.sp, modifier = Modifier.weight(1f))
+                        Text(receiptLineTitle(it), color = text1, fontSize = 12.sp, modifier = Modifier.weight(1f))
                         Text(it.qty.toString(), color = text1, fontSize = 12.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.End)
                         Text(formatLine(it.price, it.currency), color = text2, fontSize = 12.sp, modifier = Modifier.width(64.dp), textAlign = TextAlign.End)
                         Text(formatLine(it.qty * it.price, it.currency), color = text1, fontSize = 12.sp, modifier = Modifier.width(72.dp), textAlign = TextAlign.End)
@@ -168,9 +180,9 @@ internal fun ReceiptCard(
         } else {
             Text(
                 when (event.kind) {
-                    HistoryKind.NoShow -> "Released after grace period."
-                    HistoryKind.Reservation -> "No receipt — reservation only."
-                    else -> event.notes ?: "Receipt summary unavailable."
+                    HistoryKind.NoShow -> stringResource(R.string.analytics_hist_hint_grace)
+                    HistoryKind.Reservation -> stringResource(R.string.analytics_hist_hint_reservation_only)
+                    else -> historyNoteText(event.noteKey) ?: stringResource(R.string.analytics_hist_hint_unavailable)
                 },
                 color = muted,
                 fontSize = 12.sp,

@@ -2,7 +2,6 @@ package com.mh.restaurantchainpos.pos.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import kotlinx.coroutines.delay
@@ -92,7 +93,7 @@ internal fun AddCardDialog(
             ) {
                 Icon(Icons.Outlined.CreditCard, contentDescription = null, tint = Blue500, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.size(10.dp))
-                Text("Add New Card", color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.settings_pay_add_card_title), color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
 
@@ -108,7 +109,7 @@ internal fun AddCardDialog(
                 ) {
                     ModeTab(
                         colors = colors,
-                        label = "Type Card Number",
+                        label = stringResource(R.string.settings_pay_mode_type),
                         icon = Icons.Outlined.CreditCard,
                         selected = mode == "type",
                         modifier = Modifier.weight(1f),
@@ -120,7 +121,7 @@ internal fun AddCardDialog(
                     Box(Modifier.size(width = 1.dp, height = 38.dp).background(colors.border))
                     ModeTab(
                         colors = colors,
-                        label = "Scan QR Code",
+                        label = stringResource(R.string.settings_pay_mode_scan),
                         icon = Icons.Outlined.QrCode,
                         selected = mode == "qr",
                         modifier = Modifier.weight(1f),
@@ -133,7 +134,7 @@ internal fun AddCardDialog(
 
                 if (mode == "type") {
                     Column {
-                        Text("Card Number", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.settings_pay_card_number), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                         Spacer(Modifier.height(6.dp))
                         SettingTextField(
                             colors = colors,
@@ -143,7 +144,7 @@ internal fun AddCardDialog(
                             keyboard = androidx.compose.ui.text.input.KeyboardType.Number,
                         )
                         Spacer(Modifier.height(4.dp))
-                        Text("Enter your 16-digit card number", color = colors.textMuted, fontSize = 11.sp)
+                        Text(stringResource(R.string.settings_pay_card_number_hint), color = colors.textMuted, fontSize = 11.sp)
                     }
                 } else {
                     QrScannerPanel(
@@ -173,10 +174,10 @@ internal fun AddCardDialog(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlineButton("Cancel", colors.text, onClick = onDismiss)
+                OutlineButton(stringResource(R.string.common_cancel), colors.text, onClick = onDismiss)
                 Spacer(Modifier.size(8.dp))
                 PrimaryButton(
-                    label = "Add Card",
+                    label = stringResource(R.string.settings_pay_add_card_btn),
                     onClick = { if (canAdd) onConfirm(digits) },
                     enabled = canAdd,
                 )

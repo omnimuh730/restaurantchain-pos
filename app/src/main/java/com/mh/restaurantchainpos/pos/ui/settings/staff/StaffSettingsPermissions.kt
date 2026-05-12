@@ -30,9 +30,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.StaffMember
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -92,7 +94,11 @@ internal fun PermissionsModal(
                 Spacer(Modifier.size(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(member.name, color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                    Text("$enabledCount of $TotalPermCount permissions", color = colors.textMuted, fontSize = 12.sp)
+                    Text(
+                        stringResource(R.string.staff_perm_count_line, enabledCount, TotalPermCount),
+                        color = colors.textMuted,
+                        fontSize = 12.sp,
+                    )
                 }
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
@@ -106,13 +112,18 @@ internal fun PermissionsModal(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    QuickActionPill(colors, "Reset to ${member.role} defaults") { resetToRoleDefaults() }
-                    QuickActionPill(colors, "Select All") { selectAll() }
-                    QuickActionPill(colors, "Clear All") { clearAll() }
+                    val roleRes = roleTitleRes(member.role)
+                    val roleLabel = if (roleRes != 0) stringResource(roleRes) else member.role
+                    QuickActionPill(
+                        colors,
+                        stringResource(R.string.staff_perm_reset_role_defaults, roleLabel),
+                    ) { resetToRoleDefaults() }
+                    QuickActionPill(colors, stringResource(R.string.staff_perm_select_all)) { selectAll() }
+                    QuickActionPill(colors, stringResource(R.string.staff_perm_clear_all)) { clearAll() }
                 }
                 Spacer(Modifier.height(4.dp))
 
-                PermGroups.forEach { (groupName, group) ->
+                PermGroups.forEach { (groupTitleRes, group) ->
                     val groupEnabled = group.count { mapState[it.id] == true }
                     Row(
                         Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
@@ -121,13 +132,17 @@ internal fun PermissionsModal(
                         Icon(Icons.Outlined.Settings, contentDescription = null, tint = colors.textMuted, modifier = Modifier.size(13.dp))
                         Spacer(Modifier.size(6.dp))
                         Text(
-                            groupName,
+                            stringResource(groupTitleRes),
                             color = colors.textMuted,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f),
                         )
-                        Text("$groupEnabled/${group.size}", color = colors.textMuted, fontSize = 11.sp)
+                        Text(
+                            stringResource(R.string.staff_perm_group_count, groupEnabled, group.size),
+                            color = colors.textMuted,
+                            fontSize = 11.sp,
+                        )
                     }
                     group.forEach { perm ->
                         val on = mapState[perm.id] == true
@@ -144,10 +159,10 @@ internal fun PermissionsModal(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlineButton("Cancel", colors.text, onClick = onClose)
+                OutlineButton(stringResource(R.string.common_cancel), colors.text, onClick = onClose)
                 Spacer(Modifier.size(8.dp))
                 PrimaryButton(
-                    label = "Save Permissions",
+                    label = stringResource(R.string.staff_perm_save),
                     onClick = { onSave(mapState) },
                     leadingIcon = Icons.Outlined.Check,
                 )
@@ -178,9 +193,9 @@ internal fun PermissionRow(colors: PosColors, perm: PermItem, on: Boolean, onTog
         }
         Spacer(Modifier.size(10.dp))
         Column(Modifier.weight(1f)) {
-            Text(perm.label, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            if (perm.desc.isNotEmpty()) {
-                Text(perm.desc, color = colors.textMuted, fontSize = 11.sp)
+            Text(stringResource(perm.titleRes), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            if (perm.descRes != 0) {
+                Text(stringResource(perm.descRes), color = colors.textMuted, fontSize = 11.sp)
             }
         }
         ToggleSwitch(checked = on, onChange = onToggle)

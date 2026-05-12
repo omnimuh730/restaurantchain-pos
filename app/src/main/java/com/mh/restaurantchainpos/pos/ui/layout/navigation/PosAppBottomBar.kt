@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.layout.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,20 +18,24 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.ui.draw.clip
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import com.mh.restaurantchainpos.pos.data.PosPage
 import com.mh.restaurantchainpos.pos.ui.components.CountBadge
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
+import com.mh.restaurantchainpos.pos.ui.theme.PosSizes
+import com.mh.restaurantchainpos.ui.theme.InterFontFamily
 
 @Composable
 fun PosAppBottomBar(
@@ -47,34 +50,29 @@ fun PosAppBottomBar(
         modifier
             .fillMaxWidth()
             .height(PosDimens.BottomNavHeight)
-            .background(colors.navBackground)
-            .border(1.dp, colors.headerBorder),
+            .background(colors.navBackground),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         pages.forEach { item ->
             val active = item == selected
             val badge = badges[item.badgeKey] ?: 0
+            val label = item.stringTitle()
             Box(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .background(if (active) Blue600.copy(alpha = 0.08f) else Color.Transparent)
+                    .background(if (active) colors.navSelectedBackground else Color.Transparent)
                     .clickable { onSelect(item) },
             ) {
                 Box(
                     Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 3.dp)
-                        .width(30.dp)
-                        .height(3.dp)
+                        .width(PosSizes.NavIndicatorWidth)
+                        .height(PosSizes.NavIndicatorHeight)
                         .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp))
-                        .background(if (active) Blue600 else Color.Transparent),
+                        .background(if (active) colors.navSelectedIndicator else Color.Transparent),
                 )
-                // The (icon + label) block is sized to its own content and
-                // centered as a unit inside the tab. Previously the icon lived
-                // inside a 40dp square that dwarfed the 24-26dp glyph and
-                // shifted the perceived visual centre upwards (visible as the
-                // icons drifting toward the top of the bar).
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -82,19 +80,14 @@ fun PosAppBottomBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    // Tight icon container — just slightly taller than the
-                    // glyph so the floating badge has room to bleed out of the
-                    // top-right without changing the visual centre.
                     Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
                         Icon(
                             painter = posPageNavPainter(item),
-                            contentDescription = item.label,
-                            tint = if (active) Blue600 else colors.navInactive,
+                            contentDescription = label,
+                            tint = if (active) colors.navSelectedForeground else colors.navInactive,
                             modifier = Modifier.size(if (active) 26.dp else 24.dp),
                         )
                         if (badge > 0) {
-                            // A small ring in the bar's own background colour visually
-                            // detaches the badge from the icon glyph behind it.
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
@@ -103,16 +96,22 @@ fun PosAppBottomBar(
                                     .background(colors.navBackground)
                                     .padding(2.dp),
                             ) {
-                                CountBadge(count = badge)
+                                CountBadge(count = badge, accentColor = colors.accent)
                             }
                         }
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        item.label,
-                        color = if (active) Blue600 else colors.navInactive,
-                        fontSize = if (active) 12.sp else 11.sp,
-                        fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                        text = label,
+                        color = if (active) colors.navSelectedForeground else colors.navInactive,
+                        style = LocalTextStyle.current.merge(
+                            TextStyle(
+                                fontFamily = InterFontFamily,
+                                fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = if (active) 12.sp else 11.sp,
+                                lineHeight = if (active) 14.sp else 13.sp,
+                            ),
+                        ),
                         maxLines = 1,
                     )
                 }

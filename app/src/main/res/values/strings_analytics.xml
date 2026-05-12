@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="analytics_axis_unknown">?</string>
+    <string name="analytics_axis_mon">Mon</string>
+    <string name="analytics_axis_tue">Tue</string>
+    <string name="analytics_axis_wed">Wed</string>
+    <string name="analytics_axis_thu">Thu</string>
+    <string name="analytics_axis_fri">Fri</string>
+    <string name="analytics_axis_sat">Sat</string>
+    <string name="analytics_axis_sun">Sun</string>
+    <string name="analytics_axis_w1">W1</string>
+    <string name="analytics_axis_w2">W2</string>
+    <string name="analytics_axis_w3">W3</string>
+    <string name="analytics_axis_w4">W4</string>
+    <string name="analytics_axis_jan">Jan</string>
+    <string name="analytics_axis_feb">Feb</string>
+    <string name="analytics_axis_mar">Mar</string>
+    <string name="analytics_axis_apr">Apr</string>
+
+    <string name="analytics_pay_credit">Credit</string>
+    <string name="analytics_pay_cash">Cash</string>
+    <string name="analytics_pay_credit_card">Credit card</string>
+    <string name="analytics_pay_unknown">—</string>
+
+    <string name="analytics_item_unknown">Item</string>
+    <string name="analytics_menu_ribeye_steak">Ribeye steak</string>
+    <string name="analytics_menu_grilled_salmon">Grilled salmon</string>
+    <string name="analytics_menu_lobster_tail">Lobster tail</string>
+    <string name="analytics_menu_caesar_salad">Caesar salad</string>
+    <string name="analytics_menu_truffle_fries">Truffle fries</string>
+    <string name="analytics_menu_lychee_martini">Lychee martini</string>
+    <string name="analytics_menu_chicken_wings">Chicken wings</string>
+    <string name="analytics_menu_tiramisu">Tiramisu</string>
+    <string name="analytics_menu_fish_and_chips">Fish &amp; chips</string>
+    <string name="analytics_menu_mai_tai">Mai Tai</string>
+    <string name="analytics_menu_bibimbap">Bibimbap</string>
+    <string name="analytics_menu_bulgogi">Bulgogi</string>
+    <string name="analytics_menu_soju">Soju</string>
+    <string name="analytics_menu_makgeolli">Makgeolli</string>
+    <string name="analytics_menu_kimchi">Kimchi</string>
+    <string name="analytics_menu_ramen">Ramen</string>
+    <string name="analytics_menu_udon">Udon noodles</string>
+    <string name="analytics_menu_gyoza">Gyoza</string>
+    <string name="analytics_menu_green_tea">Green tea</string>
+    <string name="analytics_menu_hot_sake">Hot sake</string>
+    <string name="analytics_line_americano">Americano</string>
+    <string name="analytics_line_cafe_latte">Café latte</string>
+    <string name="analytics_line_honey_cold_brew">Honey cold brew</string>
+    <string name="analytics_line_croissant">Croissant</string>
+    <string name="analytics_line_vanilla_cold_brew">Vanilla cold brew</string>
+    <string name="analytics_line_espresso_con_panna">Espresso con panna</string>
+
+    <string name="analytics_cat_unknown">Category</string>
+    <string name="analytics_cat_grilled_bbq">Grilled &amp; BBQ</string>
+    <string name="analytics_cat_entrees">Entrees</string>
+    <string name="analytics_cat_salads">Salads</string>
+    <string name="analytics_cat_sides">Sides</string>
+    <string name="analytics_cat_cocktails">Cocktails</string>
+    <string name="analytics_cat_appetizers">Appetizers</string>
+    <string name="analytics_cat_desserts">Desserts</string>
+    <string name="analytics_cat_rice_dishes">Rice dishes</string>
+    <string name="analytics_cat_sake_soju">Sake &amp; soju</string>
+    <string name="analytics_cat_cold_dishes">Cold dishes</string>
+    <string name="analytics_cat_hot_soups">Hot soups</string>
+    <string name="analytics_cat_noodles">Noodles</string>
+    <string name="analytics_cat_hot_appetizers">Hot appetizers</string>
+    <string name="analytics_cat_tea">Tea</string>
+
+    <string name="analytics_segment_returning">Returning</string>
+    <string name="analytics_segment_new">New</string>
+    <string name="analytics_segment_unknown">—</string>
+
+    <string name="analytics_visit_v1">1×</string>
+    <string name="analytics_visit_v2_3">2–3×</string>
+    <string name="analytics_visit_v4_6">4–6×</string>
+    <string name="analytics_visit_v7_10">7–10×</string>
+    <string name="analytics_visit_v10p">10×+</string>
+    <string name="analytics_visit_unknown">—</string>
+
+    <string name="analytics_party_p1">1 guest</string>
+    <string name="analytics_party_p2">2 guests</string>
+    <string name="analytics_party_p3_4">3–4 guests</string>
+    <string name="analytics_party_p5_6">5–6 guests</string>
+    <string name="analytics_party_p7p">7+ guests</string>
+    <string name="analytics_party_unknown">Guests</string>
+
+    <string name="analytics_guest_walk_in">Walk-in</string>
+    <string name="analytics_table_n">Table %1$d</string>
+
+    <string name="analytics_note_anniversary">Anniversary dinner</string>
+    <string name="analytics_note_grace_20m">Released after 20m grace period</string>
+    <string name="analytics_note_cold_soup_refund">Customer refunded for cold soup</string>
+    <string name="analytics_note_out_of_stock_refund">Item out of stock — full refund</string>
+    <string name="analytics_note_no_confirmation">Did not respond to confirmation</string>
+    <string name="analytics_note_unknown">—</string>
+
+    <string name="analytics_hist_kind_order">Orders</string>
+    <string name="analytics_hist_kind_reservation">Reservations</string>
+    <string name="analytics_hist_kind_payment">Payments</string>
+    <string name="analytics_hist_kind_no_show">No-shows</string>
+    <string name="analytics_hist_kind_walk_in">Walk-ins</string>
+
+    <string name="analytics_hist_status_completed">Completed</string>
+    <string name="analytics_hist_status_paid">Paid</string>
+    <string name="analytics_hist_status_no_show">No-show</string>
+    <string name="analytics_hist_status_refunded">Refunded</string>
+
+    <string name="analytics_total_revenue">Total revenue</string>
+    <string name="analytics_total_orders">Total orders</string>
+    <string name="analytics_avg_ticket">Avg ticket</string>
+    <string name="analytics_cancellations">Cancellations</string>
+    <string name="analytics_sales_trend">Sales trend</string>
+    <string name="analytics_sales_trend_hint">Tap on the chart to view revenue and order count</string>
+    <string name="analytics_peak_revenue_prefix">Peak revenue at\u0020</string>
+    <string name="analytics_revenue_over_time">Revenue over time</string>
+
+    <string name="analytics_menu_top_category_loved">The %1$s category is loved the most in KRW.</string>
+    <string name="analytics_menu_domestic_breakdown">Domestic KRW — category breakdown</string>
+    <string name="analytics_menu_items_for_category">Items — %1$s</string>
+    <string name="analytics_menu_all_items">All domestic items</string>
+    <string name="analytics_menu_show_all">Show all categories</string>
+    <string name="analytics_col_item">Item</string>
+    <string name="analytics_col_category">Category</string>
+    <string name="analytics_col_sold">Sold</string>
+    <string name="analytics_col_revenue">Revenue</string>
+    <string name="analytics_menu_weekly_trend_suffix">\u0020— Weekly sales trend</string>
+    <string name="analytics_menu_top_seller_sub">Top domestic KRW seller this week</string>
+    <string name="analytics_sort_revenue">Revenue</string>
+    <string name="analytics_sort_volume">Volume</string>
+
+    <string name="analytics_customer_total_customers">Total customers</string>
+    <string name="analytics_customer_new">New customers</string>
+    <string name="analytics_customer_returning_rate">Returning rate</string>
+    <string name="analytics_customer_satisfaction">Avg satisfaction</string>
+    <string name="analytics_customer_visitors_prefix">Most visitors come at\u0020</string>
+    <string name="analytics_customer_traffic_sub">Customer traffic by hour</string>
+    <string name="analytics_customer_returning_suffix">\u0020of customers are returning!</string>
+    <string name="analytics_customer_new_vs_returning">New vs returning customers</string>
+    <string name="analytics_customer_visit_frequency">Visit frequency</string>
+    <string name="analytics_customer_groups_prefix">Groups of\u0020</string>
+    <string name="analytics_customer_groups_highlight">3–4</string>
+    <string name="analytics_customer_groups_suffix">\u0020are the most common!</string>
+    <string name="analytics_customer_party_sub">Party size distribution</string>
+
+    <string name="analytics_hist_kpi_events">Events</string>
+    <string name="analytics_hist_kpi_revenue">Revenue</string>
+    <string name="analytics_hist_kpi_no_shows">No-shows</string>
+    <string name="analytics_hist_tab_all">All</string>
+    <string name="analytics_hist_search_hint">Search by order ID, menu item, payer name, table…</string>
+    <string name="analytics_hist_results">%1$d results</string>
+    <string name="analytics_hist_empty">No matching events</string>
+    <string name="analytics_hist_hint_grace">Released after grace period.</string>
+    <string name="analytics_hist_hint_reservation_only">No receipt — reservation only.</string>
+    <string name="analytics_hist_hint_unavailable">Receipt summary unavailable.</string>
+
+    <string name="analytics_detail_title">Event details</string>
+    <string name="analytics_detail_tile_table">Table</string>
+    <string name="analytics_detail_tile_party">Party</string>
+    <string name="analytics_detail_tile_paid_at">Paid at</string>
+    <string name="analytics_detail_tile_method">Method</string>
+    <string name="analytics_detail_tile_id"># ID</string>
+    <string name="analytics_detail_party_guests">%1$d guests</string>
+    <string name="analytics_detail_em_dash">—</string>
+    <string name="analytics_detail_receipt">Receipt</string>
+    <string name="analytics_detail_col_qty">Qty</string>
+    <string name="analytics_detail_col_price">Price</string>
+    <string name="analytics_detail_col_total">Total</string>
+    <string name="analytics_detail_total">Total</string>
+    <string name="analytics_detail_notes">Notes</string>
+
+    <string name="analytics_date_today">Today</string>
+    <string name="analytics_range_title">Select date range</string>
+    <string name="analytics_range_apply">Apply</string>
+    <string name="analytics_range_cancel">Cancel</string>
+    <string name="analytics_preset_last_1_week">Last 1 week</string>
+    <string name="analytics_preset_last_2_weeks">Last 2 weeks</string>
+    <string name="analytics_preset_this_month">This month</string>
+    <string name="analytics_preset_last_month">Last month</string>
+
+    <string name="analytics_rel_today">Today</string>
+    <string name="analytics_rel_yesterday">Yesterday</string>
+    <string name="analytics_rel_days_ago">%1$d days ago</string>
+</resources>

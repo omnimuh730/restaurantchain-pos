@@ -33,11 +33,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.KitchenItem
 import com.mh.restaurantchainpos.pos.data.KitchenOrder
 import com.mh.restaurantchainpos.pos.data.KitchenStatus
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersMenuLineTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Green500
@@ -60,14 +63,14 @@ fun OrderDetailModal(
 ) {
     val tableOrders = allOrders.filter { it.table == order.table }
     val lines = detailLinesForTable(tableOrders, viewTab)
-    val receivedCount = tableOrders.filter { it.status == KitchenStatus.Received }.flatMap { it.items }.distinctBy { it.name + it.modifier }.size
+    val receivedCount = tableOrders.filter { it.status == KitchenStatus.Received }.flatMap { it.items }.distinctBy { it.titleKey + it.modifier }.size
     val inProgressCount = tableOrders.filter { it.status == KitchenStatus.InProgress }
         .flatMap { it.items.filter { i -> !i.previouslyCompleted } }
-        .distinctBy { it.name + it.modifier }
+        .distinctBy { it.titleKey + it.modifier }
         .size
     val completedCount = (tableOrders.filter { it.status == KitchenStatus.Completed }.flatMap { it.items } +
         tableOrders.filter { it.status == KitchenStatus.InProgress }.flatMap { it.items.filter { i -> i.previouslyCompleted } })
-        .distinctBy { it.name + it.modifier }
+        .distinctBy { it.titleKey + it.modifier }
         .size
 
     val checkedToCompleteCount = lines.count { it.item.done && !it.item.previouslyCompleted }
@@ -95,7 +98,7 @@ fun OrderDetailModal(
                     Column(Modifier.weight(1f)) {
                         Text(order.table, color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Spacer(Modifier.height(4.dp))
-                        Text("Ordered ${order.minutesAgo}m ago", color = colors.textMuted, fontSize = 11.sp)
+                        Text(stringResource(R.string.kitchen_ordered_minutes_ago, order.minutesAgo), color = colors.textMuted, fontSize = 11.sp)
                     }
                     Box(
                         Modifier
@@ -109,9 +112,9 @@ fun OrderDetailModal(
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (receivedCount > 0) StatusBadge("Received $receivedCount", Amber500)
-                    if (inProgressCount > 0) StatusBadge("In progress $inProgressCount", Blue500)
-                    if (completedCount > 0) StatusBadge("Completed $completedCount", Green500)
+                    if (receivedCount > 0) StatusBadge(stringResource(R.string.kitchen_badge_received, receivedCount), Amber500)
+                    if (inProgressCount > 0) StatusBadge(stringResource(R.string.kitchen_badge_in_progress, inProgressCount), Blue500)
+                    if (completedCount > 0) StatusBadge(stringResource(R.string.kitchen_badge_completed, completedCount), Green500)
                 }
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
@@ -247,7 +250,7 @@ private fun DetailItemRow(
         }
         Column(Modifier.weight(1f)) {
             Text(
-                item.name,
+                ordersMenuLineTitle(item.titleKey),
                 color = if (checked) colors.textMuted else colors.text,
                 fontSize = 13.sp,
                 textDecoration = if (checked) TextDecoration.LineThrough else null,

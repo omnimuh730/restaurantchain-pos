@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -28,9 +29,12 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.data.TableShape
 import com.mh.restaurantchainpos.pos.data.TableStatus
+import com.mh.restaurantchainpos.pos.ui.orders.floorTableDisplayLine
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import kotlin.math.abs
 
@@ -45,6 +49,7 @@ internal fun TableNode(
     onSelect: () -> Unit,
     onDragMove: (dragStartTable: FloorTable, totalDxDp: Float, totalDyDp: Float, commit: Boolean) -> Unit,
 ) {
+    val ctx = LocalContext.current
     val occupied = table.status == TableStatus.Occupied
     val reserved = table.status == TableStatus.Reserved
     val (fill, border, fg) = when {
@@ -132,23 +137,27 @@ internal fun TableNode(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            table.label,
+            ctx.floorTableDisplayLine(table, editMode),
             color = fg,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
         )
         if (editMode) {
-            if (showSeats) Text("(${table.seats})", color = fg.copy(alpha = 0.7f), fontSize = 13.sp)
+            if (showSeats) Text(stringResource(R.string.floor_seats_in_parens, table.seats), color = fg.copy(alpha = 0.7f), fontSize = 13.sp)
         } else if (occupied) {
             Text(
-                "${if (table.occupiedSeats > 0) table.occupiedSeats else table.seats}/${table.seats}",
+                stringResource(
+                    R.string.floor_seats_occupied_of,
+                    if (table.occupiedSeats > 0) table.occupiedSeats else table.seats,
+                    table.seats,
+                ),
                 color = fg,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
             )
             if (table.revenue > 0) Text("₩%,d".format(table.revenue), color = fg, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         } else if (reserved) {
-            Text("Reserved · ${table.reservationTime}", color = fg, fontSize = 12.sp)
+            Text(stringResource(R.string.floor_reserved_at, table.reservationTime), color = fg, fontSize = 12.sp)
         } else {
             Text("${table.seats}", color = fg, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         }

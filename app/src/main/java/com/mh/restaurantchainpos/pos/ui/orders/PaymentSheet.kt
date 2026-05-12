@@ -47,6 +47,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +55,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.ordersPaymentMethodLabel
 import com.mh.restaurantchainpos.pos.ui.theme.Blue50
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -67,10 +70,10 @@ private val PaymentMethodTilesLightSurface = Color(0xFFFFFFFF)
 
 private fun PosColors.paymentMethodTilesLightChrome(): Boolean = surface == PaymentMethodTilesLightSurface
 
-private enum class PayMethod(val id: String, val label: String, val icon: ImageVector) {
-    Cash("cash", "Cash", Icons.Outlined.AccountBalanceWallet),
-    Credit("credit", "Credit", Icons.Outlined.CreditCard),
-    Mix("mix", "Mix", Icons.Outlined.CallSplit),
+private enum class PayMethod(val id: String, val icon: ImageVector) {
+    Cash("cash", Icons.Outlined.AccountBalanceWallet),
+    Credit("credit", Icons.Outlined.CreditCard),
+    Mix("mix", Icons.Outlined.CallSplit),
 }
 
 @Composable
@@ -198,13 +201,13 @@ private fun PaymentHeader(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.orders_cd_back),
                 tint = colors.text,
                 modifier = Modifier.size(18.dp),
             )
         }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text("Payment", color = colors.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.orders_pay_title), color = colors.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(
                 "$tableLabel · $checkNumber",
                 color = colors.textMuted,
@@ -308,14 +311,15 @@ private fun MethodTile(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val label = ordersPaymentMethodLabel(method.id)
         Icon(
             imageVector = method.icon,
-            contentDescription = method.label,
+            contentDescription = label,
             tint = fg,
             modifier = Modifier.size(22.dp),
         )
         Text(
-            text = method.label,
+            text = label,
             color = fg,
             fontSize = 13.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
@@ -445,7 +449,7 @@ private fun CreditCardFormPage(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Card Number", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.orders_pay_card_number), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             BorderedTextField(
                 value = cardNumber,
                 onValueChange = onCardNumber,
@@ -461,7 +465,7 @@ private fun CreditCardFormPage(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
-            Text("Password", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.orders_pay_card_password), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             BorderedTextField(
                 value = cardPassword,
                 onValueChange = onCardPassword,
@@ -673,7 +677,7 @@ private fun DoneState(
             }
             Spacer(Modifier.height(14.dp))
             Text(
-                "Payment complete",
+                stringResource(R.string.orders_pay_complete),
                 color = colors.text,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -683,7 +687,7 @@ private fun DoneState(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                Text(method.label, color = colors.textMuted, fontSize = 13.sp)
+                Text(ordersPaymentMethodLabel(method.id), color = colors.textMuted, fontSize = 13.sp)
                 if (totalKrw > 0) {
                     Text(
                         "\u20A9" + "%,.0f".format(totalKrw),
@@ -723,7 +727,7 @@ private fun DoneState(
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(6.dp))
-            Text("Done", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.orders_pay_done), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(Modifier.height(12.dp))
     }

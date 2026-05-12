@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
@@ -59,7 +61,7 @@ internal fun EditTopBar(palette: FloorPalette, state: FloorPlanState, isMobile: 
         )
         if (!isMobile) Text("|", color = palette.editText3)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (!isMobile) Text("Show seats", color = palette.editText2, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            if (!isMobile) Text(stringResource(R.string.floor_edit_show_seats), color = palette.editText2, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Box(
                 Modifier
                     .size(width = 32.dp, height = 18.dp)
@@ -87,7 +89,7 @@ internal fun EditTopBar(palette: FloorPalette, state: FloorPlanState, isMobile: 
                 .clickable { state.editMode = false; state.selectedTableId = null }
                 .padding(horizontal = if (isMobile) 12.dp else 16.dp, vertical = 6.dp),
         ) {
-            Text("Save", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.floor_edit_save), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

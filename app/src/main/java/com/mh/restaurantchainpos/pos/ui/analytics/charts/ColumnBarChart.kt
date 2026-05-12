@@ -136,7 +136,7 @@ fun ColumnBarChart(
             )
         }
 
-        if (selected in bars.indices) {
+        if (selected in bars.indices && canvasW > 0 && canvasH > 0) {
             val left = with(density) { 36.dp.toPx() }
             val right = with(density) { 8.dp.toPx() }
             val top = with(density) { 8.dp.toPx() }
@@ -147,14 +147,20 @@ fun ColumnBarChart(
             val cx = left + gap * (selected + 0.5f)
             val v = bars[selected].value
             val py = top + plotH * (1f - v / niceMax)
-            Box(
-                Modifier
-                    .offset { IntOffset((cx - 30f).roundToInt(), (py - 32f).roundToInt()) }
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(tooltipBg)
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
+            ChartClampedTooltip(
+                anchorX = cx,
+                anchorY = py,
+                style = ChartTooltipAnchorStyle.ColumnBarTop,
+                modifier = Modifier.fillMaxSize(),
             ) {
-                Text(formatTooltip(selected), color = tooltipFg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(tooltipBg)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(formatTooltip(selected), color = tooltipFg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                }
             }
         }
     }

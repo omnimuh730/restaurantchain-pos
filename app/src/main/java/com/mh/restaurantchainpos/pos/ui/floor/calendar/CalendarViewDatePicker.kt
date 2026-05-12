@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -32,9 +34,7 @@ import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 @Composable
 internal fun CalendarDatePickerPopup(
@@ -46,11 +46,15 @@ internal fun CalendarDatePickerPopup(
     onSelectOffset: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val ctx = LocalContext.current
+    val configuration = LocalConfiguration.current
     val base = calendarForOffset(pickerMonthOffset)
     val year = base.get(Calendar.YEAR)
     val month = base.get(Calendar.MONTH)
     val monthGrid = remember(year, month) { buildCalendarMonth(year, month) }
-    val monthLabel = SimpleDateFormat("MMMM yyyy", Locale.US).format(base.time)
+    val monthLabel = ctx.calendarMonthYearLabel(base)
+    val localeTag = configuration.locales[0].toLanguageTag()
+    val weekdayLabels = remember(localeTag) { ctx.calendarPickerWeekdayInitials() }
     val selectedDate = calendarForOffset(selectedOffset)
 
     Column(
@@ -83,9 +87,9 @@ internal fun CalendarDatePickerPopup(
         }
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth()) {
-            listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach {
+            weekdayLabels.forEach { label ->
                 Box(Modifier.weight(1f).height(22.dp), contentAlignment = Alignment.Center) {
-                    Text(it, color = palette.text3, fontSize = 10.sp)
+                    Text(label, color = palette.text3, fontSize = 10.sp)
                 }
             }
         }

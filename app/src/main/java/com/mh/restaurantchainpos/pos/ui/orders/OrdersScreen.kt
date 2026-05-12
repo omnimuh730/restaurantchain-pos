@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -24,17 +23,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.mh.restaurantchainpos.pos.data.ActiveRole
+import com.mh.restaurantchainpos.pos.ui.i18n.orderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.pos.ui.theme.posBackground
 import kotlin.math.min
 import java.util.UUID
 import kotlinx.coroutines.delay
 
 @Composable
-fun OrdersScreen(colors: PosColors, role: ActiveRole) {
+fun OrdersScreen(
+    colors: PosColors,
+    role: ActiveRole,
+    floorPaymentTableId: String? = null,
+    floorPaymentNonce: Long = 0L,
+    onConsumedFloorPayment: () -> Unit = {},
+) {
     val density = LocalDensity.current
+    val ctx = LocalContext.current
     var selectedFloorId by remember { mutableStateOf("1F") }
     var selectedTableId by remember { mutableStateOf("T12") }
     var floorMenuOpen by remember { mutableStateOf(false) }
@@ -63,7 +72,11 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
     val currentItems = selectedCategory.subCategories
         .filter { selectedSubId == null || it.id == selectedSubId }
         .flatMap { sub -> sub.items.map { item -> sub to item } }
-        .filter { (_, item) -> query.isBlank() || item.name.contains(query.trim(), ignoreCase = true) }
+        .filter { (_, item) ->
+            query.isBlank() ||
+                ctx.orderCatalogString("orders_item", item.id, item.id).contains(query.trim(), ignoreCase = true) ||
+                item.id.contains(query.trim(), ignoreCase = true)
+        }
     val pendingCount = currentOrder.count { line ->
         when {
             line.deleted && line.ordered -> true
@@ -75,6 +88,15 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
     val pendingNewItems = currentOrder.filter { !it.ordered && !it.deleted }
     val selectedTable = OrderTables.firstOrNull { it.id == selectedTableId }
     val canPay = role == ActiveRole.Admin || role == ActiveRole.Cashier
+
+    LaunchedEffect(floorPaymentNonce) {
+        if (floorPaymentNonce == 0L) return@LaunchedEffect
+        val tableId = floorPaymentTableId ?: return@LaunchedEffect
+        OrderTables.firstOrNull { it.id == tableId }?.let { t -> selectedFloorId = t.floor }
+        selectedTableId = tableId
+        showPayment = true
+        onConsumedFloorPayment()
+    }
 
     LaunchedEffect(orderHighlightLineId) {
         val id = orderHighlightLineId ?: return@LaunchedEffect
@@ -128,10 +150,9 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
             current + OrderLine(
                 id = "${item.id}-${UUID.randomUUID()}",
                 baseId = item.id,
-                name = item.name,
                 price = item.price,
                 qty = 1,
-                category = sub.label,
+                categoryId = sub.id,
                 currency = item.currency,
             )
         }
@@ -165,7 +186,7 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
         setCurrentOrder(merged)
     }
 
-    Box(Modifier.fillMaxSize().background(colors.surfaceRaised)) {
+    Box(Modifier.fillMaxSize().background(posBackground(colors))) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             /** Use layout width so the order + menu split matches the real content area (not just screen config). */
             val useVerticalSplit = maxWidth < 768.dp
@@ -300,7 +321,7 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
                 totalUsd = totalUsd,
                 totalKrw = totalKrw,
                 checkNumber = checkNumber(selectedTableId),
-                tableLabel = selectedTable?.label ?: selectedTableId,
+                tableLabel = selectedTable?.let { ctx.tableOrderLabel(it.id) } ?: selectedTableId,
                 onClose = { showPayment = false },
             )
         }
@@ -308,7 +329,7 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
         AnimatedVisibility(showOrderConfirm, modifier = Modifier.fillMaxSize()) {
             ConfirmOrderDialog(
                 colors = colors,
-                tableLabel = selectedTable?.label ?: selectedTableId,
+                tableLabel = selectedTable?.let { ctx.tableOrderLabel(it.id) } ?: selectedTableId,
                 newItems = pendingNewItems,
                 onCancel = { showOrderConfirm = false },
                 onConfirm = {

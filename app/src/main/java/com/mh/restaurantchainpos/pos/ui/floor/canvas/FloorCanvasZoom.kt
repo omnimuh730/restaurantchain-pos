@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.floor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,11 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import kotlin.math.roundToInt
 
@@ -41,11 +41,12 @@ internal fun ZoomControls(
     onZoomChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val zoomOutLabel = stringResource(R.string.floor_cd_zoom_out)
+    val zoomInLabel = stringResource(R.string.floor_cd_zoom_in)
     Row(
         modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(palette.editBorder.copy(alpha = 0.32f))
-            .border(1.dp, palette.editBorder.copy(alpha = 0.38f), RoundedCornerShape(10.dp))
+            .background(palette.raised.copy(alpha = 0.96f))
             .padding(horizontal = 4.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -54,12 +55,12 @@ internal fun ZoomControls(
             enabled = zoom > minZoom + 0.001f,
             palette = palette,
             icon = Icons.Outlined.Remove,
-            contentDescription = "Zoom out",
+            contentDescription = zoomOutLabel,
             onClick = { onZoomChange(nextZoom(zoom, -ZoomStep, minZoom)) },
         )
         Text(
             "${(zoom * 100).roundToInt()}%",
-            color = palette.text2,
+            color = palette.text1,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
@@ -69,7 +70,7 @@ internal fun ZoomControls(
             enabled = zoom < MaxFloorZoom - 0.001f,
             palette = palette,
             icon = Icons.Outlined.Add,
-            contentDescription = "Zoom in",
+            contentDescription = zoomInLabel,
             onClick = { onZoomChange(nextZoom(zoom, ZoomStep, minZoom)) },
         )
     }
@@ -87,14 +88,14 @@ internal fun ZoomButton(
         Modifier
             .size(26.dp)
             .clip(RoundedCornerShape(7.dp))
-            .background(if (enabled) Color.White.copy(alpha = 0.72f) else Color.White.copy(alpha = 0.32f))
+            .background(if (enabled) palette.card else palette.card.copy(alpha = 0.45f))
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (enabled) palette.editText1 else palette.editText3,
+            tint = if (enabled) palette.text1 else palette.text3,
             modifier = Modifier.size(15.dp),
         )
     }

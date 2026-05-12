@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,8 +24,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,14 +40,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.Floor
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenu
+import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
+import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
 @Composable
 fun FloorTabsRow(
+    colors: PosColors,
     palette: FloorPalette,
     role: ActiveRole,
     floors: List<Floor>,
@@ -67,164 +72,165 @@ fun FloorTabsRow(
     val scroll = rememberScrollState()
     val isAdmin = role == ActiveRole.Admin
 
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(palette.card)
-            .border(1.dp, palette.border)
-            .padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier
-                .weight(1f)
-                .horizontalScroll(scroll),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .fillMaxWidth()
+                .height(52.dp)
+                .background(palette.card)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.Bottom,
         ) {
-            floors.forEach { f ->
-                val isActive = f.id == activeFloorId
-                if (renamingId == f.id) {
-                    Box(
-                        Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(palette.raised)
-                            .border(1.dp, palette.border, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                    ) {
-                        BasicTextField(
-                            value = renameVal,
-                            onValueChange = { renameVal = it },
-                            singleLine = true,
-                            textStyle = TextStyle(color = palette.text1, fontSize = 13.sp),
-                            cursorBrush = SolidColor(Blue500),
-                            modifier = Modifier.width(80.dp),
-                        )
-                    }
-                } else {
-                    Column(
-                        Modifier
-                            .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
-                            .background(if (isActive) Blue500.copy(alpha = 0.10f) else Color.Transparent)
-                            .clickable { onSelectFloor(f.id) }
-                            .padding(horizontal = 14.dp)
-                            .padding(top = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(bottom = 8.dp),
-                        ) {
-                            Text(
-                                f.name,
-                                color = if (isActive) Blue600 else palette.text2,
-                                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 15.sp,
-                            )
-                            Box(
-                                Modifier
-                                    .clip(RoundedCornerShape(5.dp))
-                                    .background(
-                                        if (isActive) Blue600.copy(alpha = 0.16f) else palette.raised,
-                                    )
-                                    .padding(horizontal = 7.dp, vertical = 2.dp),
-                            ) {
-                                Text(
-                                    f.tables.size.toString(),
-                                    color = if (isActive) Blue600 else palette.text3,
-                                    fontSize = 11.sp,
-                                    fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
-                                )
-                            }
-                        }
+            Row(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .horizontalScroll(scroll),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                floors.forEach { f ->
+                    val isActive = f.id == activeFloorId
+                    if (renamingId == f.id) {
                         Box(
                             Modifier
-                                .height(3.dp)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
-                                .background(if (isActive) Blue600 else Color.Transparent),
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(palette.raised)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            BasicTextField(
+                                value = renameVal,
+                                onValueChange = { renameVal = it },
+                                singleLine = true,
+                                textStyle = TextStyle(color = palette.text1, fontSize = 13.sp),
+                                cursorBrush = SolidColor(Blue500),
+                                modifier = Modifier.width(80.dp),
+                            )
+                        }
+                    } else {
+                        Column(
+                            Modifier
+                                .clickable { onSelectFloor(f.id) }
+                                .padding(horizontal = 12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Text(
+                                    f.name,
+                                    color = if (isActive) Blue600 else palette.text2,
+                                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = 14.sp,
+                                )
+                                Box(
+                                    Modifier
+                                        .clip(RoundedCornerShape(5.dp))
+                                        .background(
+                                            if (isActive) Blue600.copy(alpha = 0.16f) else palette.raised,
+                                        )
+                                        .padding(horizontal = 7.dp, vertical = 2.dp),
+                                ) {
+                                    Text(
+                                        f.tables.size.toString(),
+                                        color = if (isActive) Blue600 else palette.text3,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Box(
+                                Modifier
+                                    .height(4.dp)
+                                    .fillMaxWidth()
+                                    .background(if (isActive) Blue600 else Color.Transparent),
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (isAdmin) {
+                Box(
+                    Modifier
+                        .height(52.dp)
+                        .width(40.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        Modifier
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable { menuOpen = true },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.MoreVert,
+                            contentDescription = stringResource(R.string.floor_menu_cd_actions),
+                            tint = if (menuOpen) Blue500 else palette.text2,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                    PosDropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false },
+                        colors = colors,
+                        menuWidth = 200.dp,
+                    ) {
+                        PosDropdownMenuRow(
+                            index = 0,
+                            totalCount = 3,
+                            text = stringResource(R.string.floor_menu_add_floor),
+                            selected = false,
+                            colors = colors,
+                            leadingIcon = Icons.Outlined.Add,
+                            onClick = {
+                                menuOpen = false
+                                addOpen = true
+                            },
+                        )
+                        PosDropdownMenuRow(
+                            index = 1,
+                            totalCount = 3,
+                            text = stringResource(R.string.floor_menu_edit_layout),
+                            selected = false,
+                            colors = colors,
+                            leadingIcon = Icons.Outlined.Edit,
+                            onClick = {
+                                menuOpen = false
+                                onEditLayout()
+                            },
+                        )
+                        PosDropdownMenuRow(
+                            index = 2,
+                            totalCount = 3,
+                            text = stringResource(R.string.floor_menu_remove_floor),
+                            selected = false,
+                            colors = colors,
+                            leadingIcon = Icons.Outlined.Delete,
+                            danger = true,
+                            onClick = {
+                                menuOpen = false
+                                if (floors.size > 1) removeOpen = true
+                            },
                         )
                     }
                 }
             }
         }
-
-        if (isAdmin) {
-            Box {
-                Box(
-                    Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .clickable { menuOpen = true },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.MoreVert,
-                        contentDescription = "Floor actions",
-                        tint = if (menuOpen) Blue500 else palette.text2,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Add,
-                                contentDescription = null,
-                                tint = palette.text1,
-                                modifier = Modifier.size(18.dp),
-                            )
-                        },
-                        text = { Text("Add Floor", color = palette.text1) },
-                        onClick = {
-                            menuOpen = false
-                            addOpen = true
-                        },
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Edit,
-                                contentDescription = null,
-                                tint = palette.text1,
-                                modifier = Modifier.size(18.dp),
-                            )
-                        },
-                        text = { Text("Edit Layout", color = palette.text1) },
-                        onClick = {
-                            menuOpen = false
-                            onEditLayout()
-                        },
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = null,
-                                tint = Color(0xFFEF4444),
-                                modifier = Modifier.size(18.dp),
-                            )
-                        },
-                        text = { Text("Remove Floor", color = Color(0xFFEF4444)) },
-                        onClick = {
-                            menuOpen = false
-                            if (floors.size > 1) removeOpen = true
-                        },
-                    )
-                }
-            }
-        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(palette.border))
     }
 
     if (addOpen) {
         ModalShell(onClose = { addOpen = false }) {
             FloorRenameDialog(
                 palette = palette,
-                title = "Add Floor",
-                hint = "Give this floor a short name like 1F or Patio.",
+                title = stringResource(R.string.floor_dialog_add_floor_title),
+                hint = stringResource(R.string.floor_dialog_add_floor_hint),
                 initial = "${floors.size + 1}F",
-                primaryLabel = "Add",
+                primaryLabel = stringResource(R.string.floor_dialog_add_primary),
                 onConfirm = { name ->
                     onAddFloor(name)
                     addOpen = false
@@ -237,9 +243,12 @@ fun FloorTabsRow(
         ModalShell(onClose = { removeOpen = false }) {
             FloorConfirmDialog(
                 palette = palette,
-                title = "Remove Floor",
-                message = "Delete \"${floors.first { it.id == activeFloorId }.name}\"? Tables on this floor will be lost.",
-                primaryLabel = "Delete",
+                title = stringResource(R.string.floor_dialog_remove_floor_title),
+                message = stringResource(
+                    R.string.floor_dialog_remove_floor_message,
+                    floors.first { it.id == activeFloorId }.name,
+                ),
+                primaryLabel = stringResource(R.string.floor_dialog_delete),
                 primaryColor = Color(0xFFEF4444),
                 onConfirm = {
                     onRemoveFloor(activeFloorId)
@@ -318,7 +327,7 @@ private fun FloorRenameDialog(
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Spacer(Modifier.weight(1f))
-            DialogButton("Cancel", palette.text1, palette.card, palette.border, onCancel)
+            DialogButton(stringResource(R.string.common_cancel), palette.text1, palette.card, palette.border, onCancel)
             DialogButton(primaryLabel, Color.White, Blue500, Blue500, { onConfirm(value.ifBlank { initial }) })
         }
     }
@@ -347,7 +356,7 @@ private fun FloorConfirmDialog(
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Spacer(Modifier.weight(1f))
-            DialogButton("Cancel", palette.text1, palette.card, palette.border, onCancel)
+            DialogButton(stringResource(R.string.common_cancel), palette.text1, palette.card, palette.border, onCancel)
             DialogButton(primaryLabel, Color.White, primaryColor, primaryColor, onConfirm)
         }
     }

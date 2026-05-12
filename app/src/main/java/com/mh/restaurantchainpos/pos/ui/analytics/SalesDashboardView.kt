@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,11 +25,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.paymentMethodLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.toAxisLabels
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.AreaCurveChart
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.ColumnBar
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.ColumnBarChart
@@ -48,7 +52,7 @@ fun SalesDashboardView(
 ) {
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-    val card = if (isDark) Color(0xFF1F2937) else Color.White
+    val card = if (isDark) Color(0xFF283548) else Color.White
     val border = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val grid = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
     val tickColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF94A3B8)
@@ -58,11 +62,12 @@ fun SalesDashboardView(
     val kpiUsd = SalesDashboardData.foreignKpis.getValue(period)
     val data = SalesDashboardData.forPeriod(period)
 
+    val trendLabels = data.toAxisLabels()
     Column(
         modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card, isDark) {
             DateFilterBar(
                 period = period,
                 onPeriodChange = onPeriodChange,
@@ -74,12 +79,15 @@ fun SalesDashboardView(
         }
 
         // Total Revenue + payment split
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card, isDark) {
             BoxWithConstraints(Modifier.fillMaxWidth().padding(16.dp)) {
                 val compact = maxWidth < 360.dp
                 val revenueSummary: @Composable () -> Unit = {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
                             Box(
                                 Modifier
                                     .size(28.dp)
@@ -89,8 +97,18 @@ fun SalesDashboardView(
                             ) {
                                 Icon(Icons.Outlined.Payments, contentDescription = null, tint = Blue600, modifier = Modifier.size(16.dp))
                             }
-                            Text("Total Revenue", color = text2, fontSize = 12.sp)
-                            ChangeChip(kpiKrw.revChange)
+                            Box(
+                                Modifier.height(28.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(stringResource(R.string.analytics_total_revenue), color = text2, fontSize = 12.sp)
+                            }
+                            Box(
+                                Modifier.height(28.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                ChangeChip(kpiKrw.revChange)
+                            }
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
@@ -120,8 +138,8 @@ fun SalesDashboardView(
                             val krw = (kpiKrw.totalRev * dom.pct / 100.0).toLong()
                             val usd = kpiUsd.totalRev * foreign.pct / 100.0
                             PaymentRow(
-                                label = dom.method,
-                                icon = if (dom.method == "Credit") Icons.Outlined.CreditCard else Icons.Outlined.Payments,
+                                label = paymentMethodLabel(dom.methodKey),
+                                icon = if (dom.methodKey == "credit") Icons.Outlined.CreditCard else Icons.Outlined.Payments,
                                 accent = Color(dom.accent),
                                 krw = krw,
                                 usd = usd,
@@ -150,34 +168,34 @@ fun SalesDashboardView(
         // Three KPI cards
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             KpiCard(
-                "Total Orders",
+                stringResource(R.string.analytics_total_orders),
                 kpiKrw.totalOrders,
                 kpiKrw.ordChange,
                 Icons.Outlined.ShoppingCart,
                 card,
-                border,
+                isDark,
                 text1,
                 text2,
                 Modifier.weight(1f),
             )
             KpiCard(
-                "Avg Ticket",
+                stringResource(R.string.analytics_avg_ticket),
                 AnalyticsFormat.won(kpiKrw.avgTicket.toLong()),
                 kpiKrw.ticketChange,
                 Icons.AutoMirrored.Outlined.TrendingUp,
                 card,
-                border,
+                isDark,
                 text1,
                 text2,
                 Modifier.weight(1f),
             )
             KpiCard(
-                "Cancellations",
+                stringResource(R.string.analytics_cancellations),
                 kpiKrw.cancels,
                 kpiKrw.cancelChange,
                 Icons.Outlined.Cancel,
                 card,
-                border,
+                isDark,
                 text1,
                 text2,
                 Modifier.weight(1f),
@@ -185,18 +203,18 @@ fun SalesDashboardView(
         }
 
         // Sales Trend area
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card, isDark) {
             Column(Modifier.padding(16.dp)) {
-                Text("Sales Trend", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.analytics_sales_trend), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
-                    "Tap on the chart to view revenue and order count",
+                    stringResource(R.string.analytics_sales_trend_hint),
                     color = text2,
                     fontSize = 12.sp,
                 )
                 Spacer(Modifier.height(12.dp))
                 AreaCurveChart(
                     points = data.map { (it.revenueKrw / 1000f) },
-                    labels = data.map { it.label },
+                    labels = trendLabels,
                     formatY = { v -> if (v >= 1000f) "${(v / 1000f).roundToInt()}M" else "${v.toInt()}k" },
                     formatTooltip = { i ->
                         val d = data[i]
@@ -211,20 +229,20 @@ fun SalesDashboardView(
         }
 
         // Peak revenue bar chart
-        AnalyticsCard(card, border) {
+        AnalyticsCard(card, isDark) {
             val activeKey = data.map { it.revenueKrw.toFloat() }
             val peakIdx = activeKey.withIndex().maxByOrNull { it.value }?.index ?: 0
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Peak revenue at ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text(data[peakIdx].label, color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_peak_revenue_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(trendLabels[peakIdx], color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
-                Text("Revenue over time", color = text2, fontSize = 12.sp)
+                Text(stringResource(R.string.analytics_revenue_over_time), color = text2, fontSize = 12.sp)
                 Spacer(Modifier.height(12.dp))
                 ColumnBarChart(
                     bars = data.mapIndexed { i, d ->
                         ColumnBar(
-                            label = d.label,
+                            label = trendLabels[i],
                             value = (d.revenueKrw / 1000f),
                             color = if (i == peakIdx) Blue600 else mutedTrack,
                         )
@@ -249,7 +267,10 @@ private fun PaymentRow(
     usd: Double,
     text2: Color,
 ) {
-    Row(verticalAlignment = Alignment.Top) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(8.dp))
         Text(label, color = text2, fontSize = 13.sp, modifier = Modifier.weight(1f))
@@ -274,22 +295,35 @@ private fun KpiCard(
     change: String,
     icon: ImageVector,
     card: Color,
-    border: Color,
+    isDark: Boolean,
     text1: Color,
     text2: Color,
     modifier: Modifier = Modifier,
 ) {
+    val shape = RoundedCornerShape(14.dp)
+    val elevation = if (isDark) 14.dp else 5.dp
+    val ambient = if (isDark) Color.Black.copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.06f)
+    val spot = if (isDark) Color.Black.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.1f)
     Box(
         modifier
-            .clip(RoundedCornerShape(14.dp))
+            .then(modifier)
+            .shadow(elevation, shape, ambientColor = ambient, spotColor = spot)
+            .clip(shape)
             .background(card)
-            .border(1.dp, border, RoundedCornerShape(14.dp))
             .padding(14.dp),
     ) {
         Column {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                Icon(icon, contentDescription = null, tint = text2, modifier = Modifier.size(16.dp))
-                ChangeChip(change)
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.height(20.dp), contentAlignment = Alignment.Center) {
+                    Icon(icon, contentDescription = null, tint = text2, modifier = Modifier.size(16.dp))
+                }
+                Box(Modifier.height(20.dp), contentAlignment = Alignment.Center) {
+                    ChangeChip(change)
+                }
             }
             Spacer(Modifier.height(4.dp))
             Text(value, color = text1, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)

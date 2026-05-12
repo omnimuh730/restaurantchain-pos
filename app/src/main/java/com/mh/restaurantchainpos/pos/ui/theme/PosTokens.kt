@@ -4,6 +4,23 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+val Blue600 = Color(0xFF2563EB)
+val Blue500 = Color(0xFF3B82F6)
+val Blue700 = Color(0xFF1D4ED8)
+val Blue400 = Color(0xFF60A5FA)
+val Blue300 = Color(0xFF93C5FD)
+val Blue50 = Color(0xFFEFF6FF)
+val Green500 = Color(0xFF22C55E)
+val Green400 = Color(0xFF4ADE80)
+val Amber500 = Color(0xFFF59E0B)
+val Amber400 = Color(0xFFFBBF24)
+val Orange500 = Color(0xFFF97316)
+val Red500 = Color(0xFFEF4444)
+val Red400 = Color(0xFFF87171)
+val Slate400 = Color(0xFF94A3B8)
+val Slate300 = Color(0xFFCBD5E1)
+val Slate200 = Color(0xFFE2E8F0)
+
 data class PosColors(
     val backgroundTop: Color,
     val backgroundBottom: Color,
@@ -26,11 +43,27 @@ data class PosColors(
      * from the surrounding order list. Light: subtle Blue-50; dark: dark blue tint.
      */
     val newItemsBg: Color,
+    // —— Semantic interactive / brand (theme-aware; fixes low-contrast “active” in dark mode) ——
+    /** Primary brand accent: selected nav icon/label, key links, filled control strokes. */
+    val accent: Color,
+    /** Text/icons on a solid [accent] fill (dropdown row selected, badges on accent). */
+    val onAccent: Color,
+    /** Soft accent surface (dropdown triggers, chips on neutral). */
+    val accentContainer: Color,
+    /** Text on [accentContainer] (must meet contrast vs accentContainer). */
+    val onAccentContainer: Color,
+    /** Bottom nav / rail: selected tab background (must read on [navBackground]). */
+    val navSelectedBackground: Color,
+    /** Bottom nav: top indicator sliver. */
+    val navSelectedIndicator: Color,
+    /** Bottom nav / rail: icon + label when selected (WCAG vs navBackground). */
+    val navSelectedForeground: Color,
 )
 
 val LightPosColors = PosColors(
-    backgroundTop = Color(0xFFE2E8F0),
-    backgroundBottom = Color(0xFFF8FAFC),
+    /** Darker scaffold so white/surface cards read with stronger separation. */
+    backgroundTop = Color(0xFFD9E1EB),
+    backgroundBottom = Color(0xFFD9E1EB),
     headerBorder = Color(0xFFCBD5E1),
     navBackground = Color.White,
     navInactive = Color(0xFF94A3B8),
@@ -38,13 +71,20 @@ val LightPosColors = PosColors(
     text = Color(0xFF1E293B),
     textMuted = Color(0xFF64748B),
     surface = Color.White,
-    surfaceRaised = Color(0xFFF1F5F9),
+    surfaceRaised = Color(0xFFEEF2F7),
     border = Color(0xFFE2E8F0),
     inputOutline = Color(0xFFCBD5E1),
     /** Foreground "tile" surface for category buttons / food tiles - lighter than the panel bg. */
     chip = Color.White,
     overlay = Color(0x66000000),
     newItemsBg = Color(0xFFEFF6FF),
+    accent = Blue600,
+    onAccent = Color.White,
+    accentContainer = Blue50,
+    onAccentContainer = Blue700,
+    navSelectedBackground = Blue600.copy(alpha = PosOpacity.NavSelectedLight),
+    navSelectedIndicator = Blue600,
+    navSelectedForeground = Blue600,
 )
 
 val DarkPosColors = PosColors(
@@ -64,6 +104,15 @@ val DarkPosColors = PosColors(
     chip = Color(0xFF454A58),
     overlay = Color(0x99000000),
     newItemsBg = Color(0xFF2C3550),
+    // Brighter accent on dark surfaces so tabs, menus, and badges stay legible.
+    accent = Blue400,
+    onAccent = Color(0xFF0B1220),
+    accentContainer = Color(0xFF243656),
+    onAccentContainer = Blue300,
+    navSelectedBackground = Blue500.copy(alpha = PosOpacity.NavSelectedDark),
+    navSelectedIndicator = Blue400,
+    /** Active tab icon + label: bright white on tinted blue chip (reads clearly in dark). */
+    navSelectedForeground = Color(0xFFF9FAFB),
 )
 
 object PosDimens {
@@ -84,23 +133,6 @@ object PosDimens {
 
 fun posBackground(colors: PosColors): Brush =
     Brush.verticalGradient(listOf(colors.backgroundTop, colors.backgroundBottom))
-
-val Blue600 = Color(0xFF2563EB)
-val Blue500 = Color(0xFF3B82F6)
-val Blue700 = Color(0xFF1D4ED8)
-val Blue400 = Color(0xFF60A5FA)
-val Blue300 = Color(0xFF93C5FD)
-val Blue50 = Color(0xFFEFF6FF)
-val Green500 = Color(0xFF22C55E)
-val Green400 = Color(0xFF4ADE80)
-val Amber500 = Color(0xFFF59E0B)
-val Amber400 = Color(0xFFFBBF24)
-val Orange500 = Color(0xFFF97316)
-val Red500 = Color(0xFFEF4444)
-val Red400 = Color(0xFFF87171)
-val Slate400 = Color(0xFF94A3B8)
-val Slate300 = Color(0xFFCBD5E1)
-val Slate200 = Color(0xFFE2E8F0)
 
 data class FloorPalette(
     val bg: Color,
@@ -132,7 +164,8 @@ data class FloorPalette(
 )
 
 val LightFloorPalette = FloorPalette(
-    bg = Color.Transparent,
+    /** Solid canvas so dot grid reads; darker than table cards for contrast. */
+    bg = Color(0xFFD9E1EB),
     card = Color.White,
     raised = Color(0xFFF8FAFC),
     border = Color(0xFFE2E8F0),
@@ -161,7 +194,7 @@ val LightFloorPalette = FloorPalette(
 )
 
 val DarkFloorPalette = FloorPalette(
-    bg = Color.Transparent,
+    bg = Color(0xFF0A0D12),
     card = Color(0xFF141A22),
     raised = Color(0xFF1C242F),
     border = Color(0xFF222C38),

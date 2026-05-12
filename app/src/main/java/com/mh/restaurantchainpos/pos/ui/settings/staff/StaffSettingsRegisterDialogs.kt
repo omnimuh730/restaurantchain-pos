@@ -33,13 +33,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
+import java.util.Locale
 
 @Composable
 internal fun ConfirmActionDialog(
@@ -59,15 +62,19 @@ internal fun ConfirmActionDialog(
                 .consumeModalTaps(),
         ) {
             Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-                Text(request.kind.title, color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(request.kind.titleRes()), color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Staff: ${request.member.name} (@${request.member.username})",
+                    stringResource(
+                        R.string.staff_confirm_staff_line,
+                        request.member.name,
+                        request.member.username,
+                    ),
                     color = colors.textMuted,
                     fontSize = 13.sp,
                 )
                 Spacer(Modifier.height(2.dp))
-                Text(request.kind.description, color = colors.textMuted, fontSize = 12.sp)
+                Text(stringResource(request.kind.descriptionRes()), color = colors.textMuted, fontSize = 12.sp)
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
             Row(
@@ -77,7 +84,7 @@ internal fun ConfirmActionDialog(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlineButton("Cancel", colors.text, onClick = onCancel)
+                OutlineButton(stringResource(R.string.common_cancel), colors.text, onClick = onCancel)
                 Spacer(Modifier.size(8.dp))
                 Box(
                     Modifier
@@ -86,7 +93,7 @@ internal fun ConfirmActionDialog(
                         .clickable(onClick = onConfirm)
                         .padding(horizontal = 16.dp, vertical = 11.dp),
                 ) {
-                    Text(request.kind.btnLabel, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(request.kind.buttonLabelRes()), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -125,7 +132,7 @@ internal fun RegisterStaffDialog(
             ) {
                 Icon(Icons.Outlined.Add, contentDescription = null, tint = Blue500, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.size(10.dp))
-                Text("Register New Staff", color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.staff_register_new_title), color = colors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
 
@@ -138,36 +145,38 @@ internal fun RegisterStaffDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 Column {
-                    RequiredLabel(colors, "Full Name")
+                    RequiredLabel(colors, stringResource(R.string.staff_register_field_full_name))
                     Spacer(Modifier.height(6.dp))
                     SettingTextField(
                         colors = colors,
                         value = name,
                         onChange = { name = it },
-                        placeholder = "e.g. John Smith",
+                        placeholder = stringResource(R.string.staff_register_ph_full_name),
                     )
                 }
                 Column {
-                    RequiredLabel(colors, "Username")
+                    RequiredLabel(colors, stringResource(R.string.staff_register_field_username))
                     Spacer(Modifier.height(6.dp))
                     SettingTextField(
                         colors = colors,
                         value = username,
                         onChange = { username = it.replace(' ', '.') },
-                        placeholder = "e.g. john.smith",
+                        placeholder = stringResource(R.string.staff_register_ph_username),
                     )
                 }
                 Column {
-                    RequiredLabel(colors, "Role")
+                    RequiredLabel(colors, stringResource(R.string.staff_register_field_role))
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Roles.forEach { r ->
                             val cfg = RoleConfigs[r]
                             val rDefaults = RoleDefaults[r] ?: emptyMap()
                             val permCount = rDefaults.values.count { it }
+                            val roleRes = roleTitleRes(r)
+                            val roleLabel = if (roleRes != 0) stringResource(roleRes) else r
                             RoleSelectCard(
                                 colors = colors,
-                                label = r,
+                                label = roleLabel,
                                 icon = cfg?.icon,
                                 permCount = permCount,
                                 selected = role == r,
@@ -184,8 +193,14 @@ internal fun RegisterStaffDialog(
                         .background(colors.surfaceRaised)
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                 ) {
+                    val roleRes = roleTitleRes(role)
+                    val roleForHeader = if (roleRes != 0) {
+                        stringResource(roleRes).uppercase(Locale.ROOT)
+                    } else {
+                        role.uppercase(Locale.ROOT)
+                    }
                     Text(
-                        "DEFAULT PERMISSIONS FOR ${role.uppercase()}",
+                        stringResource(R.string.staff_register_default_perms_header, roleForHeader),
                         color = colors.textMuted,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -193,7 +208,7 @@ internal fun RegisterStaffDialog(
                     )
                     Spacer(Modifier.height(8.dp))
                     if (activePerms.isEmpty()) {
-                        Text("No default permissions", color = colors.textMuted, fontSize = 11.sp)
+                        Text(stringResource(R.string.staff_register_no_default_perms), color = colors.textMuted, fontSize = 11.sp)
                     } else {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -213,10 +228,10 @@ internal fun RegisterStaffDialog(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlineButton("Cancel", colors.text, onClick = onDismiss)
+                OutlineButton(stringResource(R.string.common_cancel), colors.text, onClick = onDismiss)
                 Spacer(Modifier.size(8.dp))
                 PrimaryButton(
-                    label = "Register",
+                    label = stringResource(R.string.staff_register_register_btn),
                     onClick = { if (canSubmit) onRegister(name.trim(), username.trim(), role) },
                     enabled = canSubmit,
                     leadingIcon = Icons.Outlined.Check,
@@ -230,7 +245,7 @@ internal fun RegisterStaffDialog(
 internal fun RequiredLabel(colors: PosColors, label: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-        Text(" *", color = Red500, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(stringResource(R.string.staff_register_required_mark), color = Red500, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -264,7 +279,7 @@ internal fun RoleSelectCard(
         }
         Text(label, color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(2.dp))
-        Text("$permCount perms", color = colors.textMuted, fontSize = 10.sp)
+        Text(stringResource(R.string.staff_register_perm_count, permCount), color = colors.textMuted, fontSize = 10.sp)
     }
 }
 
@@ -279,6 +294,6 @@ internal fun PermChip(colors: PosColors, perm: PermItem) {
     ) {
         Icon(perm.icon, contentDescription = null, tint = Blue600, modifier = Modifier.size(11.dp))
         Spacer(Modifier.size(4.dp))
-        Text(perm.label, color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        Text(stringResource(perm.titleRes), color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.Medium)
     }
 }

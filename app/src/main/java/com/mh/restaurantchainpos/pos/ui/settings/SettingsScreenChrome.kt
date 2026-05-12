@@ -3,20 +3,19 @@ package com.mh.restaurantchainpos.pos.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Group
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Restaurant
@@ -31,15 +30,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.locale.AppLocaleStore
+import com.mh.restaurantchainpos.pos.ui.i18n.stringDescription
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
-import com.mh.restaurantchainpos.pos.ui.theme.Blue500
-import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
-internal enum class SettingsSection(
+enum class SettingsSection(
     val id: String,
     val label: String,
     val description: String,
@@ -58,18 +61,18 @@ internal fun SettingsHeader(
     colors: PosColors,
     showMenuButton: Boolean,
     isAdmin: Boolean,
-    language: String,
-    onLanguageChange: (String) -> Unit,
     onMenuClick: () -> Unit,
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(colors.surface)
-            .border(width = 1.dp, color = colors.border)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    val context = LocalContext.current
+    val selection = AppLocaleStore.effectiveUiCode(context)
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(colors.surface)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
         if (showMenuButton) {
             Box(
                 Modifier
@@ -78,11 +81,16 @@ internal fun SettingsHeader(
                     .clickable(onClick = onMenuClick),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.Outlined.Menu, contentDescription = null, tint = colors.text, modifier = Modifier.size(20.dp))
+                Icon(
+                    Icons.Outlined.Menu,
+                    contentDescription = stringResource(R.string.settings_menu_cd),
+                    tint = colors.text,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Spacer(Modifier.size(8.dp))
         }
-        Text("Settings", color = colors.text, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(stringResource(R.string.settings_title), color = colors.text, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         if (!isAdmin) {
             Spacer(Modifier.size(8.dp))
             Row(
@@ -94,24 +102,42 @@ internal fun SettingsHeader(
             ) {
                 Icon(Icons.Outlined.Lock, contentDescription = null, tint = Amber500, modifier = Modifier.size(11.dp))
                 Spacer(Modifier.size(4.dp))
-                Text("Password only", color = Amber500, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_password_only), color = Amber500, fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
         }
         Spacer(Modifier.weight(1f))
-        LanguageToggle(colors = colors, language = language, onChange = onLanguageChange)
+        LanguageToggle(
+            colors = colors,
+            selection = selection,
+            onChange = { AppLocaleStore.setLocale(context, it) },
+        )
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
     }
 }
 
 @Composable
-private fun LanguageToggle(colors: PosColors, language: String, onChange: (String) -> Unit) {
+private fun LanguageToggle(
+    colors: PosColors,
+    selection: String,
+    onChange: (String) -> Unit,
+) {
     Row(
         Modifier
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, colors.border, RoundedCornerShape(8.dp)),
     ) {
-        LanguageOption(colors, "KO", language == "KO") { onChange("KO") }
+        LanguageOption(
+            colors,
+            stringResource(R.string.language_option_ko),
+            selection == "KO",
+        ) { onChange("KO") }
         Box(Modifier.size(width = 1.dp, height = 28.dp).background(colors.border))
-        LanguageOption(colors, "EN", language == "EN") { onChange("EN") }
+        LanguageOption(
+            colors,
+            stringResource(R.string.language_option_en),
+            selection == "EN",
+        ) { onChange("EN") }
     }
 }
 
@@ -120,13 +146,13 @@ private fun LanguageOption(colors: PosColors, label: String, active: Boolean, on
     Box(
         Modifier
             .clickable(onClick = onClick)
-            .background(if (active) Blue600 else Color.Transparent)
+            .background(if (active) colors.accent else Color.Transparent)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             label,
-            color = if (active) Color.White else colors.textMuted,
+            color = if (active) colors.onAccent else colors.textMuted,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
         )
@@ -139,7 +165,7 @@ internal fun SettingsSidebarItem(colors: PosColors, section: SettingsSection, ac
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(if (active) Blue500.copy(alpha = 0.12f) else Color.Transparent)
+            .background(if (active) colors.accent.copy(alpha = 0.12f) else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -147,16 +173,16 @@ internal fun SettingsSidebarItem(colors: PosColors, section: SettingsSection, ac
         Icon(
             section.icon,
             contentDescription = null,
-            tint = if (active) Blue600 else colors.textMuted,
+            tint = if (active) colors.accent else colors.textMuted,
             modifier = Modifier.size(18.dp),
         )
         Spacer(Modifier.size(10.dp))
         Column(Modifier.weight(1f)) {
-            Text(section.label, color = if (active) Blue600 else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-            Text(section.description, color = colors.textMuted, fontSize = 10.sp)
+            Text(section.stringTitle(), color = if (active) colors.accent else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text(section.stringDescription(), color = colors.textMuted, fontSize = 10.sp)
         }
         Icon(
-            Icons.Outlined.KeyboardArrowRight,
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
             contentDescription = null,
             tint = colors.textMuted,
             modifier = Modifier.size(16.dp),

@@ -1,9 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.ui.graphics.Color
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 internal fun kindIconAccent(kind: HistoryKind, isDark: Boolean): Pair<String, Color> = when (kind) {
     HistoryKind.Order -> "🧾" to (if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB))
@@ -32,15 +29,3 @@ internal fun formatLine(value: Double, currency: AnalyticsCurrency): String =
         AnalyticsCurrency.Domestic -> AnalyticsFormat.won(value.toLong())
         AnalyticsCurrency.Foreign -> AnalyticsFormat.usd(value)
     }
-
-internal val timeFmt = SimpleDateFormat("hh:mm a", Locale.US)
-internal fun fmtTime(ms: Long): String = timeFmt.format(Date(ms))
-internal fun relDay(ms: Long): String {
-    val now = System.currentTimeMillis()
-    val days = ((now - ms) / HistoryData.DAY).toInt()
-    return when {
-        days <= 0 -> "Today"
-        days == 1 -> "Yesterday"
-        else -> "${days}d ago"
-    }
-}

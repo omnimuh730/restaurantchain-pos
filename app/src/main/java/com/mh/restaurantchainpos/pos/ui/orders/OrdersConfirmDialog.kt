@@ -25,10 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.rememberOrderCatalogString
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -64,13 +67,17 @@ internal fun ConfirmOrderDialog(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                "Confirm Order",
+                stringResource(R.string.orders_confirm_title),
                 color = colors.text,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "${newItems.size} ${if (newItems.size == 1) "item" else "items"} for $tableLabel",
+                if (newItems.size == 1) {
+                    stringResource(R.string.orders_confirm_new_item_for_table, tableLabel)
+                } else {
+                    stringResource(R.string.orders_confirm_new_items_for_table, newItems.size, tableLabel)
+                },
                 color = colors.textMuted,
                 fontSize = 13.sp,
             )
@@ -106,13 +113,13 @@ internal fun ConfirmOrderDialog(
             ) {
                 Spacer(Modifier.weight(1f))
                 DialogButton(
-                    label = "Cancel",
+                    label = stringResource(R.string.common_cancel),
                     background = colors.surfaceRaised,
                     foreground = colors.text,
                     onClick = onCancel,
                 )
                 DialogButton(
-                    label = "Confirm",
+                    label = stringResource(R.string.common_confirm),
                     background = Blue600,
                     foreground = Color.White,
                     onClick = onConfirm,
@@ -138,7 +145,7 @@ private fun ConfirmDialogRow(line: OrderLine, colors: PosColors) {
                 .padding(horizontal = 6.dp, vertical = 2.dp),
         ) {
             Text(
-                "New",
+                stringResource(R.string.orders_badge_new),
                 color = Color.White,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -146,7 +153,7 @@ private fun ConfirmDialogRow(line: OrderLine, colors: PosColors) {
         }
         Spacer(Modifier.width(8.dp))
         Text(
-            line.name,
+            rememberOrderCatalogString("orders_item", line.baseId, line.baseId),
             color = colors.text,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,

@@ -72,79 +72,94 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
-private data class AmenityOption(val id: String, val label: String, val icon: ImageVector)
+private data class AmenityOption(val id: String, val icon: ImageVector)
+
+@Composable
+private fun amenityLabel(id: String): String {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val resName = "amenity_" + id.replace('-', '_')
+    val resId = remember(id, configuration) {
+        context.resources.getIdentifier(resName, "string", context.packageName)
+    }
+    return if (resId != 0) context.resources.getString(resId) else id
+}
 
 private val AmenityList = listOf(
-    AmenityOption("parking", "Parking", Icons.Outlined.LocalParking),
-    AmenityOption("valet", "Valet", Icons.Outlined.DirectionsCar),
-    AmenityOption("wifi", "Free WiFi", Icons.Outlined.Wifi),
-    AmenityOption("credit-cards", "Credit Cards", Icons.Outlined.CreditCard),
-    AmenityOption("cash", "Cash", Icons.Outlined.Payments),
-    AmenityOption("mobile-pay", "Mobile Pay", Icons.Outlined.PhoneAndroid),
-    AmenityOption("wheelchair", "Wheelchair", Icons.Outlined.Accessible),
-    AmenityOption("high-chairs", "High Chairs", Icons.Outlined.ChildCare),
-    AmenityOption("kids-menu", "Kids Menu", Icons.Outlined.Restaurant),
-    AmenityOption("dog-friendly", "Dog Friendly", Icons.Outlined.Pets),
-    AmenityOption("live-music", "Live Music", Icons.Outlined.MusicNote),
-    AmenityOption("dress-code", "Dress Code", Icons.Outlined.Work),
-    AmenityOption("smoking", "Smoking Area", Icons.Outlined.SmokingRooms),
-    AmenityOption("private-events", "Private Events", Icons.Outlined.Celebration),
-    AmenityOption("catering", "Catering", Icons.Outlined.RoomService),
-    AmenityOption("delivery", "Delivery", Icons.Outlined.LocalShipping),
-    AmenityOption("takeout", "Takeout", Icons.Outlined.LunchDining),
-    AmenityOption("reservations", "Reservations", Icons.Outlined.AccessTime),
-    AmenityOption("walk-ins", "Walk-ins", Icons.Outlined.Group),
-    AmenityOption("outdoor", "Outdoor", Icons.Outlined.Weekend),
-    AmenityOption("heated-patio", "Heated Patio", Icons.Outlined.DeviceThermostat),
-    AmenityOption("ac", "A/C", Icons.Outlined.Air),
-    AmenityOption("multilingual", "Multi-Lingual", Icons.Outlined.Language),
-    AmenityOption("bar-lounge", "Bar / Lounge", Icons.Outlined.LocalBar),
+    AmenityOption("parking", Icons.Outlined.LocalParking),
+    AmenityOption("valet", Icons.Outlined.DirectionsCar),
+    AmenityOption("wifi", Icons.Outlined.Wifi),
+    AmenityOption("credit-cards", Icons.Outlined.CreditCard),
+    AmenityOption("cash", Icons.Outlined.Payments),
+    AmenityOption("mobile-pay", Icons.Outlined.PhoneAndroid),
+    AmenityOption("wheelchair", Icons.Outlined.Accessible),
+    AmenityOption("high-chairs", Icons.Outlined.ChildCare),
+    AmenityOption("kids-menu", Icons.Outlined.Restaurant),
+    AmenityOption("dog-friendly", Icons.Outlined.Pets),
+    AmenityOption("live-music", Icons.Outlined.MusicNote),
+    AmenityOption("dress-code", Icons.Outlined.Work),
+    AmenityOption("smoking", Icons.Outlined.SmokingRooms),
+    AmenityOption("private-events", Icons.Outlined.Celebration),
+    AmenityOption("catering", Icons.Outlined.RoomService),
+    AmenityOption("delivery", Icons.Outlined.LocalShipping),
+    AmenityOption("takeout", Icons.Outlined.LunchDining),
+    AmenityOption("reservations", Icons.Outlined.AccessTime),
+    AmenityOption("walk-ins", Icons.Outlined.Group),
+    AmenityOption("outdoor", Icons.Outlined.Weekend),
+    AmenityOption("heated-patio", Icons.Outlined.DeviceThermostat),
+    AmenityOption("ac", Icons.Outlined.Air),
+    AmenityOption("multilingual", Icons.Outlined.Language),
+    AmenityOption("bar-lounge", Icons.Outlined.LocalBar),
 )
 
 private val CuisineList = listOf(
-    AmenityOption("grilled-beef", "Grilled Beef", Icons.Outlined.LocalFireDepartment),
-    AmenityOption("grilled-pork", "Grilled Pork", Icons.Outlined.DinnerDining),
-    AmenityOption("bar-pub", "Bar & Pub", Icons.Outlined.SportsBar),
-    AmenityOption("meat", "Meat", Icons.Outlined.RestaurantMenu),
-    AmenityOption("fine-dining", "Fine Dining", Icons.Outlined.Star),
-    AmenityOption("seafood", "Seafood", Icons.Outlined.SetMeal),
-    AmenityOption("korean", "Korean", Icons.Outlined.LocalDining),
-    AmenityOption("western", "Western Cuisine", Icons.Outlined.LocalPizza),
-    AmenityOption("wine", "Wine", Icons.Outlined.WineBar),
-    AmenityOption("brunch", "Brunch", Icons.Outlined.LocalCafe),
-    AmenityOption("vegan", "Vegan", Icons.Outlined.Spa),
-    AmenityOption("steakhouse", "Steakhouse", Icons.Outlined.RestaurantMenu),
-    AmenityOption("fusion", "Fusion", Icons.Outlined.FlashOn),
-    AmenityOption("healthy", "Healthy", Icons.Outlined.Grain),
-    AmenityOption("noodles-soup", "Noodles & Soup", Icons.Outlined.RoomService),
-    AmenityOption("family-meal", "Family Meal", Icons.Outlined.Group),
+    AmenityOption("grilled-beef", Icons.Outlined.LocalFireDepartment),
+    AmenityOption("grilled-pork", Icons.Outlined.DinnerDining),
+    AmenityOption("bar-pub", Icons.Outlined.SportsBar),
+    AmenityOption("meat", Icons.Outlined.RestaurantMenu),
+    AmenityOption("fine-dining", Icons.Outlined.Star),
+    AmenityOption("seafood", Icons.Outlined.SetMeal),
+    AmenityOption("korean", Icons.Outlined.LocalDining),
+    AmenityOption("western", Icons.Outlined.LocalPizza),
+    AmenityOption("wine", Icons.Outlined.WineBar),
+    AmenityOption("brunch", Icons.Outlined.LocalCafe),
+    AmenityOption("vegan", Icons.Outlined.Spa),
+    AmenityOption("steakhouse", Icons.Outlined.RestaurantMenu),
+    AmenityOption("fusion", Icons.Outlined.FlashOn),
+    AmenityOption("healthy", Icons.Outlined.Grain),
+    AmenityOption("noodles-soup", Icons.Outlined.RoomService),
+    AmenityOption("family-meal", Icons.Outlined.Group),
 )
 
 private val OccasionList = listOf(
-    AmenityOption("date-night", "Date Night", Icons.Outlined.Favorite),
-    AmenityOption("business-dinner", "Business Dinner", Icons.Outlined.Work),
-    AmenityOption("celebration", "Celebration", Icons.Outlined.Cake),
-    AmenityOption("casual-dining", "Casual Dining", Icons.Outlined.Restaurant),
-    AmenityOption("romantic", "Romantic", Icons.Outlined.FavoriteBorder),
-    AmenityOption("family-friendly", "Family-friendly", Icons.Outlined.ChildCare),
-    AmenityOption("late-night", "Late Night", Icons.Outlined.NightlightRound),
-    AmenityOption("quick-bite", "Quick Bite", Icons.Outlined.FlashOn),
+    AmenityOption("date-night", Icons.Outlined.Favorite),
+    AmenityOption("business-dinner", Icons.Outlined.Work),
+    AmenityOption("celebration", Icons.Outlined.Cake),
+    AmenityOption("casual-dining", Icons.Outlined.Restaurant),
+    AmenityOption("romantic", Icons.Outlined.FavoriteBorder),
+    AmenityOption("family-friendly", Icons.Outlined.ChildCare),
+    AmenityOption("late-night", Icons.Outlined.NightlightRound),
+    AmenityOption("quick-bite", Icons.Outlined.FlashOn),
 )
 
 private val SeatingList = listOf(
-    AmenityOption("dining-hall", "Dining Hall", Icons.Outlined.House),
-    AmenityOption("private-room", "Private Room", Icons.Outlined.MeetingRoom),
-    AmenityOption("terrace", "Terrace", Icons.Outlined.Forest),
-    AmenityOption("window-seat", "Window Seat", Icons.Outlined.ViewSidebar),
-    AmenityOption("bar", "Bar", Icons.Outlined.LocalBar),
+    AmenityOption("dining-hall", Icons.Outlined.House),
+    AmenityOption("private-room", Icons.Outlined.MeetingRoom),
+    AmenityOption("terrace", Icons.Outlined.Forest),
+    AmenityOption("window-seat", Icons.Outlined.ViewSidebar),
+    AmenityOption("bar", Icons.Outlined.LocalBar),
 )
 
 @Composable
@@ -157,29 +172,29 @@ fun AmenitiesSettings(colors: PosColors) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         AmenitiesGridCard(
             colors = colors,
-            title = "Amenities & Services",
-            subtitle = "Toggle features and services your restaurant offers",
+            titleRes = R.string.settings_amenities_services_title,
+            subtitleRes = R.string.settings_amenities_services_sub,
             options = AmenityList,
             selected = amenities,
         )
         AmenitiesGridCard(
             colors = colors,
-            title = "Cuisine",
-            subtitle = "Select the cuisine types your restaurant serves",
+            titleRes = R.string.settings_amenities_cuisine_title,
+            subtitleRes = R.string.settings_amenities_cuisine_sub,
             options = CuisineList,
             selected = cuisines,
         )
         AmenitiesGridCard(
             colors = colors,
-            title = "Occasion & Vibe",
-            subtitle = "Highlight the occasions and vibes your restaurant fits best",
+            titleRes = R.string.settings_amenities_occasion_title,
+            subtitleRes = R.string.settings_amenities_occasion_sub,
             options = OccasionList,
             selected = occasions,
         )
         AmenitiesGridCard(
             colors = colors,
-            title = "Seating Preference",
-            subtitle = "Seating options available to your guests",
+            titleRes = R.string.settings_amenities_seating_title,
+            subtitleRes = R.string.settings_amenities_seating_sub,
             options = SeatingList,
             selected = seating,
         )
@@ -189,20 +204,18 @@ fun AmenitiesSettings(colors: PosColors) {
 @Composable
 private fun AmenitiesGridCard(
     colors: PosColors,
-    title: String,
-    subtitle: String,
+    titleRes: Int,
+    subtitleRes: Int,
     options: List<AmenityOption>,
     selected: SnapshotStateList<String>,
 ) {
     SettingCard(
         colors = colors,
-        title = title,
-        subtitle = subtitle,
-        badge = "${selected.size} active",
+        title = stringResource(titleRes),
+        subtitle = stringResource(subtitleRes),
+        badge = stringResource(R.string.settings_amenities_active_count, selected.size),
         badgeIcon = null,
     ) {
-        // Manually chunk into rows of 2 since we are inside a vertical-scroll container and
-        // nested LazyVerticalGrid won't measure correctly. The screenshots use 2 columns on mobile.
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             options.chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -236,6 +249,7 @@ private fun AmenityTile(
     val iconBg = if (active) Blue500.copy(alpha = 0.18f) else colors.surfaceRaised
     val iconTint = if (active) Blue600 else colors.textMuted
     val labelColor = if (active) Blue600 else colors.text
+    val label = amenityLabel(option.id)
 
     Box(
         modifier
@@ -272,7 +286,7 @@ private fun AmenityTile(
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                option.label,
+                label,
                 color = labelColor,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,

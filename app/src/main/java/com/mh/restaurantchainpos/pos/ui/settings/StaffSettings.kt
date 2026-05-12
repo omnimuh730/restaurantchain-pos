@@ -31,9 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.data.StaffMember
 import com.mh.restaurantchainpos.pos.ui.components.PosNotificationHost
@@ -53,6 +56,7 @@ fun StaffSettings(colors: PosColors) {
     var tempPinFor by remember { mutableStateOf<String?>(null) }
     var registerOpen by remember { mutableStateOf(false) }
     val notifications = rememberPosNotificationHostState()
+    val resources = LocalResources.current
 
     val pending = staff.filter { it.status == "pending" }
     val nonPending = staff.filter { it.status != "pending" }
@@ -81,22 +85,22 @@ fun StaffSettings(colors: PosColors) {
                 Icon(Icons.Outlined.Group, contentDescription = null, tint = Blue500, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(10.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Staff Management", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.staff_mgmt_title), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(2.dp))
-                    Text("Register staff and manage permissions", color = colors.textMuted, fontSize = 12.sp)
+                    Text(stringResource(R.string.staff_mgmt_subtitle), color = colors.textMuted, fontSize = 12.sp)
                 }
                 PrimaryButton(
-                    label = "Register Staff",
+                    label = stringResource(R.string.staff_action_register),
                     onClick = { registerOpen = true },
                     leadingIcon = Icons.Outlined.Add,
                 )
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StaffStatCard(colors, "Total", staff.size, Icons.Outlined.Group, Blue500, Modifier.weight(1f))
-                StaffStatCard(colors, "Active", activeCount, Icons.Outlined.Check, Blue500, Modifier.weight(1f))
-                StaffStatCard(colors, "Inactive", inactiveCount, Icons.Outlined.Close, Slate400, Modifier.weight(1f))
-                StaffStatCard(colors, "Pending", pendingCount, Icons.Outlined.Schedule, Amber500, Modifier.weight(1f))
+                StaffStatCard(colors, stringResource(R.string.staff_stat_total), staff.size, Icons.Outlined.Group, Blue500, Modifier.weight(1f))
+                StaffStatCard(colors, stringResource(R.string.staff_stat_active), activeCount, Icons.Outlined.Check, Blue500, Modifier.weight(1f))
+                StaffStatCard(colors, stringResource(R.string.staff_stat_inactive), inactiveCount, Icons.Outlined.Close, Slate400, Modifier.weight(1f))
+                StaffStatCard(colors, stringResource(R.string.staff_stat_pending), pendingCount, Icons.Outlined.Schedule, Amber500, Modifier.weight(1f))
             }
 
             if (pending.isNotEmpty()) {
@@ -107,9 +111,11 @@ fun StaffSettings(colors: PosColors) {
                         val idx = staff.indexOfFirst { it.id == member.id }
                         if (idx >= 0) {
                             staff[idx] = staff[idx].copy(status = "active")
+                            val roleRes = roleTitleRes(member.role)
+                            val roleLabel = if (roleRes != 0) resources.getString(roleRes) else member.role
                             notifications.success(
-                                title = "Staff approved",
-                                message = "${member.name} can now access the POS as ${member.role}.",
+                                title = resources.getString(R.string.staff_toast_approved_title),
+                                message = resources.getString(R.string.staff_toast_approved_msg, member.name, roleLabel),
                             )
                         }
                     },
@@ -121,7 +127,7 @@ fun StaffSettings(colors: PosColors) {
                 colors = colors,
                 value = search,
                 onChange = { search = it },
-                placeholder = "Search by name, username or card ID...",
+                placeholder = stringResource(R.string.staff_search_ph),
                 leadingIcon = Icons.Outlined.Search,
             )
 
@@ -154,7 +160,7 @@ fun StaffSettings(colors: PosColors) {
                     Modifier.fillMaxWidth().padding(vertical = 24.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("No matching staff", color = colors.textMuted, fontSize = 13.sp)
+                    Text(stringResource(R.string.staff_mgmt_no_match), color = colors.textMuted, fontSize = 13.sp)
                 }
             }
         }

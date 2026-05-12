@@ -33,9 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.PaymentCard
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
@@ -56,6 +58,7 @@ fun SecurityPaymentsSettings(colors: PosColors, passwordOnly: Boolean = false) {
     val cards = remember { mutableStateListOf(*PosMockData.paymentCards.toTypedArray()) }
     var selectedCardId by remember { mutableStateOf(cards.firstOrNull { it.isDefault }?.last4 ?: cards.firstOrNull()?.last4) }
     var addCardOpen by remember { mutableStateOf(false) }
+    val newCardHolder = stringResource(R.string.settings_pay_new_card_holder)
 
     val mismatch = confirm.isNotEmpty() && newPass != confirm
     val canSubmit = newPass.isNotEmpty() && newPass == confirm
@@ -70,44 +73,44 @@ fun SecurityPaymentsSettings(colors: PosColors, passwordOnly: Boolean = false) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         SettingCard(
             colors = colors,
-            title = "Password Settings",
-            subtitle = "Update your manager PIN or account password",
+            title = stringResource(R.string.settings_sec_password_title),
+            subtitle = stringResource(R.string.settings_sec_password_subtitle),
             headerIcon = Icons.Outlined.Shield,
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Column {
-                    Text("New Password", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.settings_sec_new_password), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(6.dp))
                     SettingTextField(
                         colors = colors,
                         value = newPass,
                         onChange = { newPass = it; passwordUpdated = false },
-                        placeholder = "Enter new password",
+                        placeholder = stringResource(R.string.settings_sec_ph_new_password),
                         leadingIcon = Icons.Outlined.Lock,
                         trailingIcon = if (showNew) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
                         keyboard = if (showNew) androidx.compose.ui.text.input.KeyboardType.Text else androidx.compose.ui.text.input.KeyboardType.Password,
                     )
                 }
                 Column {
-                    Text("Confirm Password", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.settings_sec_confirm_password), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(6.dp))
                     SettingTextField(
                         colors = colors,
                         value = confirm,
                         onChange = { confirm = it; passwordUpdated = false },
-                        placeholder = "Confirm new password",
+                        placeholder = stringResource(R.string.settings_sec_ph_confirm_password),
                         leadingIcon = Icons.Outlined.LockOpen,
                         trailingIcon = if (showConfirm) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
                         keyboard = if (showConfirm) androidx.compose.ui.text.input.KeyboardType.Text else androidx.compose.ui.text.input.KeyboardType.Password,
                     )
                     if (mismatch) {
                         Spacer(Modifier.height(4.dp))
-                        Text("Passwords do not match", color = Red500, fontSize = 11.sp)
+                        Text(stringResource(R.string.settings_sec_password_mismatch), color = Red500, fontSize = 11.sp)
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     PrimaryButton(
-                        "Update Password",
+                        stringResource(R.string.settings_sec_update_password),
                         onClick = {
                             if (canSubmit) {
                                 passwordUpdated = true
@@ -129,7 +132,7 @@ fun SecurityPaymentsSettings(colors: PosColors, passwordOnly: Boolean = false) {
                         ) {
                             Icon(Icons.Outlined.Check, contentDescription = null, tint = Blue600, modifier = Modifier.size(13.dp))
                             Spacer(Modifier.size(5.dp))
-                            Text("Password updated", color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.settings_sec_password_updated), color = Blue600, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -139,24 +142,24 @@ fun SecurityPaymentsSettings(colors: PosColors, passwordOnly: Boolean = false) {
         if (!passwordOnly) {
             SettingCard(
                 colors = colors,
-                title = "Notifications",
-                subtitle = "Toggle toast alerts for incoming activity",
+                title = stringResource(R.string.settings_sec_notifications_title),
+                subtitle = stringResource(R.string.settings_sec_notifications_subtitle),
                 headerIcon = Icons.Outlined.Notifications,
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     NotificationRow(
                         colors = colors,
                         icon = Icons.Outlined.GridView,
-                        title = "Floor Plan",
-                        description = "New reservation requests",
+                        title = stringResource(R.string.settings_sec_notif_floor_title),
+                        description = stringResource(R.string.settings_sec_notif_floor_desc),
                         checked = floorPlanAlert,
                         onChange = { floorPlanAlert = !floorPlanAlert },
                     )
                     NotificationRow(
                         colors = colors,
                         icon = Icons.Outlined.SoupKitchen,
-                        title = "Kitchen",
-                        description = "New chef tickets created",
+                        title = stringResource(R.string.settings_sec_notif_kitchen_title),
+                        description = stringResource(R.string.settings_sec_notif_kitchen_desc),
                         checked = kitchenAlert,
                         onChange = { kitchenAlert = !kitchenAlert },
                     )
@@ -165,8 +168,8 @@ fun SecurityPaymentsSettings(colors: PosColors, passwordOnly: Boolean = false) {
 
             SettingCard(
                 colors = colors,
-                title = "Saved Payment Methods",
-                subtitle = "Manage your saved cards for billing",
+                title = stringResource(R.string.settings_sec_saved_cards_title),
+                subtitle = stringResource(R.string.settings_sec_saved_cards_subtitle),
                 headerIcon = Icons.Outlined.CreditCard,
                 badge = "${cards.size}",
             ) {
@@ -195,7 +198,7 @@ fun SecurityPaymentsSettings(colors: PosColors, passwordOnly: Boolean = false) {
             onDismiss = { addCardOpen = false },
             onConfirm = { digits ->
                 val last4 = digits.takeLast(4)
-                cards.add(PaymentCard("credit card", last4, "12/28", "New Card Holder"))
+                cards.add(PaymentCard("credit card", last4, "12/28", newCardHolder))
                 addCardOpen = false
             },
         )

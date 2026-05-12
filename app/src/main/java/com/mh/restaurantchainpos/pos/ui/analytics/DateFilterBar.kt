@@ -1,14 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,14 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,14 +29,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+
+private const val WeekPagerCenterPage = 260
+private const val WeekPagerPageCount = 521
 
 @Composable
 fun DateFilterBar(
@@ -54,57 +53,48 @@ fun DateFilterBar(
     modifier: Modifier = Modifier,
 ) {
     val today = remember { Calendar.getInstance().also { it.zeroTime() } }
-    var weekOffset by remember { mutableIntStateOf(0) }
+    val weekPager = rememberPagerState(
+        initialPage = WeekPagerCenterPage,
+        pageCount = { WeekPagerPageCount },
+    )
     var pickerOpen by remember { mutableStateOf(false) }
     var selectedDate by remember {
         mutableStateOf(Calendar.getInstance().also { it.zeroTime() }.timeInMillis)
     }
 
-    val days = remember(today, weekOffset) {
-        val sunday = Calendar.getInstance().apply {
-            timeInMillis = today.timeInMillis
-            add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + weekOffset * 7)
-        }
-        (0 until 7).map {
-            Calendar.getInstance().apply {
-                timeInMillis = sunday.timeInMillis
-                add(Calendar.DATE, it)
-            }
+    val weekOffset = weekPager.settledPage - WeekPagerCenterPage
+    val days = remember(today, weekOffset) { buildWeekDays(today, weekOffset) }
+
+    LaunchedEffect(selectedDate) {
+        val delta = weekPageDeltaForSelectedDay(selectedDate, today)
+        val target = (WeekPagerCenterPage + delta).coerceIn(0, WeekPagerPageCount - 1)
+        if (weekPager.settledPage != target) {
+            weekPager.scrollToPage(target)
         }
     }
 
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-    val border = if (isDark) Color(0xFF374151) else Color(0xFFCBD5E1)
     val pillBg = if (isDark) Color(0xFF1F2937) else Color.White
 
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        AnimatedContent(
-            targetState = weekOffset,
-            transitionSpec = {
-                (slideInHorizontally(tween(220)) { 60 } + fadeIn(tween(220))).togetherWith(
-                    slideOutHorizontally(tween(220)) { -60 } + fadeOut(tween(220)),
-                )
-            },
-            label = "week-strip",
-        ) { animatedWeekOffset ->
-            val visibleDays = remember(today, animatedWeekOffset) {
-                val sunday = Calendar.getInstance().apply {
-                    timeInMillis = today.timeInMillis
-                    add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + animatedWeekOffset * 7)
-                }
-                (0 until 7).map {
-                    Calendar.getInstance().apply {
-                        timeInMillis = sunday.timeInMillis
-                        add(Calendar.DATE, it)
-                    }
-                }
-            }
-
+        HorizontalPager(
+            state = weekPager,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+        ) { page ->
+            val off = page - WeekPagerCenterPage
+            val visibleDays = remember(today, off) { buildWeekDays(today, off) }
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                contentAlignment = Alignment.Center,
+            ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 6.dp),
             ) {
                 visibleDays.forEach { d ->
                     val isToday = d.sameDayAs(today)
@@ -122,15 +112,12 @@ fun DateFilterBar(
                             Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color.Transparent)
-                                .border(
-                                    2.dp,
+                                .background(
                                     when {
-                                        isFuture -> if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
-                                        isSelected -> text1
-                                        else -> border
+                                        isFuture -> Color.Transparent
+                                        isSelected -> Blue600
+                                        else -> pillBg
                                     },
-                                    CircleShape,
                                 )
                                 .then(
                                     if (isFuture) {
@@ -148,10 +135,10 @@ fun DateFilterBar(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = if (animatedWeekOffset == 0) weekdayShort(d) else dayOfMonth(d),
+                                text = if (off == 0) weekdayShort(d) else dayOfMonth(d),
                                 color = when {
                                     isFuture -> if (isDark) Color(0xFF475569) else Color(0xFFCBD5E1)
-                                    isSelected -> text1
+                                    isSelected -> Color.White
                                     else -> text2
                                 },
                                 fontSize = 13.sp,
@@ -161,14 +148,19 @@ fun DateFilterBar(
                     }
                 }
             }
+            }
         }
 
         Box(
             Modifier
-                .padding(top = 4.dp)
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+        Box(
+            Modifier
                 .clip(CircleShape)
                 .background(if (period == Period.Custom && rangeMatchesNonDay(range, days, today)) Blue600 else pillBg)
-                .border(1.dp, if (period == Period.Custom && rangeMatchesNonDay(range, days, today)) Blue600 else border, CircleShape)
                 .clickable { pickerOpen = true }
                 .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {
@@ -177,13 +169,14 @@ fun DateFilterBar(
             val label = when {
                 range != null && range.startMs != range.endMs - HistoryData.DAY + 1 ->
                     "${shortDate(range.startMs)} - ${shortDate(range.endMs)}"
-                selectedDate == today.timeInMillis -> "Today"
+                selectedDate == today.timeInMillis -> stringResource(R.string.analytics_date_today)
                 else -> shortDate(selectedDate)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = labelColor, modifier = Modifier.size(14.dp))
                 Text(label, color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.Medium)
             }
+        }
         }
     }
 
@@ -200,6 +193,37 @@ fun DateFilterBar(
                 pickerOpen = false
             },
         )
+    }
+}
+
+private fun buildWeekDays(today: Calendar, weekOffset: Int): List<Calendar> {
+    val sunday = Calendar.getInstance().apply {
+        timeInMillis = today.timeInMillis
+        add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1 + weekOffset * 7)
+    }
+    return (0 until 7).map {
+        Calendar.getInstance().apply {
+            timeInMillis = sunday.timeInMillis
+            add(Calendar.DATE, it)
+        }
+    }
+}
+
+private fun weekPageDeltaForSelectedDay(selectedMs: Long, today: Calendar): Int {
+    val d = Calendar.getInstance().apply {
+        timeInMillis = selectedMs
+        zeroTime()
+    }
+    val sunD = startOfWeekSunday(d)
+    val sunT = startOfWeekSunday(today)
+    return ((sunD.timeInMillis - sunT.timeInMillis) / (7 * HistoryData.DAY)).toInt()
+}
+
+private fun startOfWeekSunday(c: Calendar): Calendar {
+    return Calendar.getInstance().apply {
+        timeInMillis = c.timeInMillis
+        zeroTime()
+        add(Calendar.DATE, -get(Calendar.DAY_OF_WEEK) + 1)
     }
 }
 
@@ -225,10 +249,11 @@ private fun Calendar.sameDayAs(other: Calendar): Boolean {
         get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
 }
 
-private val weekdayFmt = SimpleDateFormat("EEEEE", Locale.US)
-private val dayFmt = SimpleDateFormat("d", Locale.US)
-private val monthDayFmt = SimpleDateFormat("MMM d", Locale.US).apply { timeZone = TimeZone.getDefault() }
+private fun weekdayShort(c: Calendar): String =
+    SimpleDateFormat("EEEEE", Locale.getDefault()).format(Date(c.timeInMillis))
 
-private fun weekdayShort(c: Calendar): String = weekdayFmt.format(Date(c.timeInMillis))
-private fun dayOfMonth(c: Calendar): String = dayFmt.format(Date(c.timeInMillis))
-private fun shortDate(ms: Long): String = monthDayFmt.format(Date(ms))
+private fun dayOfMonth(c: Calendar): String =
+    SimpleDateFormat("d", Locale.getDefault()).format(Date(c.timeInMillis))
+
+private fun shortDate(ms: Long): String =
+    SimpleDateFormat("MMM d", Locale.getDefault()).apply { timeZone = TimeZone.getDefault() }.format(Date(ms))

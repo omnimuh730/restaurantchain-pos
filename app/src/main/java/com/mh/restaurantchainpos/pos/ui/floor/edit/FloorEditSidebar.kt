@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 
 @Composable
@@ -43,13 +45,13 @@ internal fun EditSidebar(palette: FloorPalette, state: FloorPlanState, modifier:
                 .clickable { state.addTable() },
             contentAlignment = Alignment.Center,
         ) {
-            Text("+ Add table", color = palette.editText2, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.floor_edit_add_table), color = palette.editText2, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
         val sel = state.selectedTable
         if (sel != null) {
             TableInspector(palette, sel, state)
         } else {
-            Text("Tap a table to edit", color = palette.editText3, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.floor_edit_tap_table), color = palette.editText3, fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
     }
 }

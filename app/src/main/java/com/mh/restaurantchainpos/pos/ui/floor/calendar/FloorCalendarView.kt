@@ -17,21 +17,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mh.restaurantchainpos.pos.data.Floor
 import com.mh.restaurantchainpos.pos.data.Reservation
 import com.mh.restaurantchainpos.pos.data.ReservationType
 import com.mh.restaurantchainpos.pos.ui.components.PosNotificationHost
+import com.mh.restaurantchainpos.pos.ui.orders.tableOrderLabel
 import com.mh.restaurantchainpos.pos.ui.components.rememberPosNotificationHostState
 import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
+import com.mh.restaurantchainpos.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -53,6 +60,8 @@ fun FloorCalendarView(
     onPendingAssignConsumed: () -> Unit = {},
 ) {
     val isMobile = rememberIsMobile()
+    val ctx = LocalContext.current
+    val resources = LocalResources.current
     var startHour by remember { mutableFloatStateOf(16f) }
     var windowHours by remember { mutableFloatStateOf(8f) }
     var datePickerOpen by remember { mutableStateOf(false) }
@@ -60,6 +69,8 @@ fun FloorCalendarView(
     var assigningId by remember { mutableStateOf<String?>(null) }
     var previewTableId by remember { mutableStateOf<String?>(null) }
     var flashTableId by remember { mutableStateOf<String?>(null) }
+    var reassignDrag by remember { mutableStateOf<ReassignDrag?>(null) }
+    val tableRowRectsRoot = remember { mutableStateMapOf<String, Rect>() }
     var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     val notifications = rememberPosNotificationHostState()
 
@@ -86,6 +97,10 @@ fun FloorCalendarView(
     // day with zero pending shows no badge (the side panel is also day-scoped
     // — a global count would mislead users).
     val requestCount = pending.size
+    LaunchedEffect(activeFloorId, tables.map { it.id }) {
+        tableRowRectsRoot.clear()
+    }
+
     val assigningRez = assigningId?.let { id -> reservations.firstOrNull { it.id == id } }
     val previewTable = previewTableId?.let { id -> tables.firstOrNull { it.id == id } }
     val isToday = dayOffset == 0
@@ -105,6 +120,24 @@ fun FloorCalendarView(
     fun cancelAssign() {
         assigningId = null
         previewTableId = null
+    }
+
+    fun hitTableAtRoot(rootPos: Offset): String? =
+        tableRowRectsRoot.entries.firstOrNull { (_, rect) -> rect.contains(rootPos) }?.key
+
+    fun completeTableAssignment(reservation: Reservation, tableId: String) {
+        val tableLabel = tables.firstOrNull { it.id == tableId }?.let { ctx.tableOrderLabel(it.id) } ?: ctx.tableOrderLabel(tableId)
+        onAssignTable(reservation.id, tableId)
+        flashTableId = tableId
+        notifications.success(
+            title = resources.getString(R.string.floor_assign_success_title),
+            message = resources.getString(
+                R.string.floor_assign_success_message,
+                reservation.guestName,
+                tableLabel,
+                reservation.startTime,
+            ),
+        )
     }
 
     fun startAssign(reservation: Reservation) {
@@ -200,18 +233,12 @@ fun FloorCalendarView(
                 AssignBanner(
                     palette = palette,
                     reservation = reservation,
-                    previewTableLabel = previewTable?.label,
+                    previewTableLabel = previewTable?.let { ctx.tableOrderLabel(it.id) },
                     onCancel = { cancelAssign() },
                     onConfirm = {
                         val tableId = previewTableId
                         if (tableId != null) {
-                            val tableLabel = previewTable?.label ?: tableId
-                            onAssignTable(reservation.id, tableId)
-                            flashTableId = tableId
-                            notifications.success(
-                                title = "Table assigned",
-                                message = "${reservation.guestName} is confirmed at $tableLabel for ${reservation.startTime}.",
-                            )
+                            completeTableAssignment(reservation, tableId)
                             cancelAssign()
                         }
                     },
@@ -229,6 +256,7 @@ fun FloorCalendarView(
                     assigningRez = assigningRez,
                     previewTableId = previewTableId,
                     flashTableId = flashTableId,
+                    reassignDrag = reassignDrag,
                     showNowLine = showNowLine,
                     nowPercent = nowPercent,
                     nowHour = nowHour,
@@ -236,6 +264,43 @@ fun FloorCalendarView(
                     isTableAvailable = ::isTableAvailable,
                     onPickTable = { previewTableId = it },
                     onWindowPan = ::panWindow,
+                    onTableRowRectUpdate = { id, rect -> tableRowRectsRoot[id] = rect },
+                    onReassignDragStart = { reservation, blockRectRoot ->
+                        cancelAssign()
+                        reassignDrag = ReassignDrag(
+                            reservation = reservation,
+                            blockRectRoot = blockRectRoot,
+                            accumulatedY = 0f,
+                            hoverTableId = hitTableAtRoot(blockRectRoot.center),
+                        )
+                    },
+                    onReassignDragMove = { deltaY ->
+                        reassignDrag = reassignDrag?.let { d ->
+                            val nextAccum = d.accumulatedY + deltaY
+                            val probe = Offset(
+                                d.blockRectRoot.center.x,
+                                d.blockRectRoot.center.y + nextAccum,
+                            )
+                            d.copy(
+                                accumulatedY = nextAccum,
+                                hoverTableId = hitTableAtRoot(probe),
+                            )
+                        }
+                    },
+                    onReassignDragEnd = {
+                        val d = reassignDrag
+                        reassignDrag = null
+                        if (d != null) {
+                            val target = d.hoverTableId
+                            if (target != null &&
+                                target != d.reservation.tableId &&
+                                isTableAvailable(target, d.reservation)
+                            ) {
+                                completeTableAssignment(d.reservation, target)
+                            }
+                        }
+                    },
+                    onReassignDragCancel = { reassignDrag = null },
                     modifier = Modifier.weight(1f).fillMaxSize(),
                 )
 
@@ -292,3 +357,10 @@ fun FloorCalendarView(
         )
     }
 }
+
+internal data class ReassignDrag(
+    val reservation: Reservation,
+    val blockRectRoot: Rect,
+    val accumulatedY: Float,
+    val hoverTableId: String?,
+)
