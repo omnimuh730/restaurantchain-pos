@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.layout.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,8 +47,7 @@ fun PosAppBottomBar(
         modifier
             .fillMaxWidth()
             .height(PosDimens.BottomNavHeight)
-            .background(colors.navBackground)
-            .border(1.dp, colors.headerBorder),
+            .background(colors.navBackground),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         pages.forEach { item ->

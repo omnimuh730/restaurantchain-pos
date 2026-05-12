@@ -86,4 +86,28 @@
 
     <!-- Auth (shell) -->
     <string name="auth_cd_apps_logo">Restaurant apps</string>
+    <string name="auth_welcome_back">Welcome Back</string>
+    <string name="auth_sign_in_subtitle">Sign in to your POS account</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_username_ph">Enter your username</string>
+    <string name="auth_password_ph">Enter your password</string>
+    <string name="auth_sign_in">Sign In</string>
+    <string name="auth_error_invalid_credentials">Invalid username or password.</string>
+    <string name="auth_error_username_blank">Please enter your username.</string>
+    <string name="auth_error_password_short">Please enter your password (min 6 characters).</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
+    <string name="auth_sign_up">Sign Up</string>
+    <string name="auth_lock_switch_account">Switch account</string>
+    <string name="auth_lock_password">Password</string>
+    <string name="auth_lock_password_ph">Enter your password</string>
+    <string name="auth_unlock">Unlock</string>
+    <string name="auth_unlocking">Unlocking</string>
+    <string name="auth_lock_password_short">Password must be at least 6 characters.</string>
+
+    <!-- Settings chrome -->
+    <string name="settings_menu_cd">Settings sections</string>
+    <string name="settings_close_cd">Close settings menu</string>
+    <string name="language_option_ko">KO</string>
+    <string name="language_option_en">EN</string>
 </resources>

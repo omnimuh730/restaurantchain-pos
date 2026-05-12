@@ -2,7 +2,6 @@ package com.mh.restaurantchainpos.pos.ui.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,8 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.AuthSession
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import kotlinx.coroutines.delay
@@ -36,6 +37,7 @@ fun LockScreen(
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    val errPasswordShort = stringResource(R.string.auth_lock_password_short)
     val initials = session.name
         .split(" ")
         .mapNotNull { it.firstOrNull()?.toString() }
@@ -77,10 +79,10 @@ fun LockScreen(
         Text("@${session.username}", color = Color(0xFF6B7280), fontSize = 13.sp)
         Spacer(Modifier.height(28.dp))
         AuthField(
-            label = "Password",
+            label = stringResource(R.string.auth_lock_password),
             value = password,
             onChange = { password = it; error = "" },
-            placeholder = "Enter your password",
+            placeholder = stringResource(R.string.auth_lock_password_ph),
             password = true,
         )
         if (error.isNotBlank()) {
@@ -89,21 +91,21 @@ fun LockScreen(
         }
         Spacer(Modifier.height(20.dp))
         AuthPrimaryButton(
-            text = if (loading) "Unlocking" else "Unlock",
+            text = if (loading) stringResource(R.string.auth_unlocking) else stringResource(R.string.auth_unlock),
             enabled = !loading,
             loading = loading,
             modifier = Modifier.fillMaxWidth(),
         ) {
             error = ""
             if (password.length < 6) {
-                error = "Password must be at least 6 characters."
+                error = errPasswordShort
                 return@AuthPrimaryButton
             }
             loading = true
         }
         Spacer(Modifier.height(24.dp))
         Box(Modifier.clickableNoIndication(onSwitchAccount)) {
-            Text("Switch account", color = Color(0xFF6B7280), fontSize = 13.sp)
+            Text(stringResource(R.string.auth_lock_switch_account), color = Color(0xFF6B7280), fontSize = 13.sp)
         }
     }
 }

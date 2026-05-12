@@ -32,7 +32,6 @@ fun SettingsScreen(colors: PosColors, role: ActiveRole) {
     }
     var active by remember { mutableStateOf(sections.first()) }
     var drawerOpen by remember { mutableStateOf(false) }
-    var language by remember { mutableStateOf("EN") }
     val isMobile = rememberIsMobile()
     // Even if more than one section is available, the menu button only appears
     // on narrow layouts — wide layouts have a docked sidebar so the button is
@@ -66,8 +65,6 @@ fun SettingsScreen(colors: PosColors, role: ActiveRole) {
                     colors = colors,
                     showMenuButton = showMenuButton,
                     isAdmin = isAdmin,
-                    language = language,
-                    onLanguageChange = { language = it },
                     onMenuClick = { drawerOpen = true },
                 )
                 Box(Modifier.weight(1f).fillMaxWidth()) {

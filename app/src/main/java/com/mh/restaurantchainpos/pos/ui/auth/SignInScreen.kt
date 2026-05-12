@@ -10,7 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.AuthSession
 import kotlinx.coroutines.delay
 
@@ -24,11 +26,15 @@ fun SignInScreen(
     var error by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
 
+    val invalidCredentials = stringResource(R.string.auth_error_invalid_credentials)
+    val errUsernameBlank = stringResource(R.string.auth_error_username_blank)
+    val errPasswordShort = stringResource(R.string.auth_error_password_short)
+
     LaunchedEffect(loading) {
         if (!loading) return@LaunchedEffect
         delay(800)
         if (username == "demo" && password == "000000") {
-            error = "Invalid username or password."
+            error = invalidCredentials
             loading = false
             return@LaunchedEffect
         }
@@ -37,19 +43,22 @@ fun SignInScreen(
     }
 
     AuthBackdrop {
-        AuthBrand("Welcome Back", "Sign in to your POS account")
+        AuthBrand(
+            stringResource(R.string.auth_welcome_back),
+            stringResource(R.string.auth_sign_in_subtitle),
+        )
         AuthField(
-            label = "Username",
+            label = stringResource(R.string.auth_username),
             value = username,
             onChange = { username = it; error = "" },
-            placeholder = "Enter your username",
+            placeholder = stringResource(R.string.auth_username_ph),
         )
         Spacer(Modifier.height(16.dp))
         AuthField(
-            label = "Password",
+            label = stringResource(R.string.auth_password),
             value = password,
             onChange = { password = it; error = "" },
-            placeholder = "Enter your password",
+            placeholder = stringResource(R.string.auth_password_ph),
             password = true,
         )
         if (error.isNotBlank()) {
@@ -58,23 +67,27 @@ fun SignInScreen(
         }
         Spacer(Modifier.height(20.dp))
         AuthPrimaryButton(
-            text = "Sign In",
+            text = stringResource(R.string.auth_sign_in),
             enabled = !loading,
             loading = loading,
             modifier = Modifier.fillMaxWidth(),
         ) {
             error = ""
             if (username.isBlank()) {
-                error = "Please enter your username."
+                error = errUsernameBlank
                 return@AuthPrimaryButton
             }
             if (password.length < 6) {
-                error = "Please enter your password (min 6 characters)."
+                error = errPasswordShort
                 return@AuthPrimaryButton
             }
             loading = true
         }
         Spacer(Modifier.height(24.dp))
-        AuthSecondaryLink("Don't have an account?", "Sign Up", onSignUp)
+        AuthSecondaryLink(
+            stringResource(R.string.auth_no_account),
+            stringResource(R.string.auth_sign_up),
+            onSignUp,
+        )
     }
 }

@@ -32,9 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 
 /**
@@ -125,7 +127,7 @@ private fun SidebarContent(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Settings",
+                stringResource(R.string.settings_title),
                 color = colors.text,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
@@ -141,7 +143,7 @@ private fun SidebarContent(
                 ) {
                     Icon(
                         Icons.Outlined.Close,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.settings_close_cd),
                         tint = colors.textMuted,
                         modifier = Modifier.size(18.dp),
                     )
