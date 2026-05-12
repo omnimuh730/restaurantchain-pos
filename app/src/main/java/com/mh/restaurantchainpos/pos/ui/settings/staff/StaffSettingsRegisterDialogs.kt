@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -113,7 +112,6 @@ internal fun RegisterStaffDialog(
     val canSubmit = name.isNotBlank() && username.isNotBlank()
     val defaults = RoleDefaults[role] ?: emptyMap()
     val activePerms = AllPerms.filter { defaults[it.id] == true }
-    val ctx = LocalContext.current
 
     ModalScrim(onDismiss = onDismiss) {
         Column(
@@ -197,7 +195,7 @@ internal fun RegisterStaffDialog(
                 ) {
                     val roleRes = roleTitleRes(role)
                     val roleForHeader = if (roleRes != 0) {
-                        ctx.getString(roleRes).uppercase(Locale.ROOT)
+                        stringResource(roleRes).uppercase(Locale.ROOT)
                     } else {
                         role.uppercase(Locale.ROOT)
                     }

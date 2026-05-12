@@ -171,10 +171,10 @@ private fun Header(palette: FloorPalette, table: FloorTable, onClose: () -> Unit
                 Text(stringResource(R.string.floor_party_seated_minutes, 26), color = palette.text2, fontSize = 12.sp)
                 if (table.status != TableStatus.Available) {
                     Text("|", color = palette.text3, fontSize = 12.sp)
-                    val statusColor = when (table.status) {
-                        TableStatus.Occupied -> palette.occupiedText
-                        TableStatus.Reserved -> palette.reservedText
-                        TableStatus.Available -> palette.availableText
+                    val statusColor = if (table.status == TableStatus.Occupied) {
+                        palette.occupiedText
+                    } else {
+                        palette.reservedText
                     }
                     Text(table.status.floorDisplayTitle(), color = statusColor, fontSize = 12.sp)
                 }
@@ -239,7 +239,7 @@ private fun Footer(palette: FloorPalette, table: FloorTable, onPay: (FloorTable)
                 Text(stringResource(R.string.floor_order_total), color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
                 Text("₩%,d".format(table.revenue), color = palette.text1, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
-            FooterButton(stringResource(R.string.floor_payment), Blue500) { onPay(table) }
+            FooterButton(stringResource(R.string.floor_payment_confirm), Blue500) { onPay(table) }
         }
         if (table.status == TableStatus.Available) {
             FooterButton(stringResource(R.string.floor_seat_guest), Blue500) {}

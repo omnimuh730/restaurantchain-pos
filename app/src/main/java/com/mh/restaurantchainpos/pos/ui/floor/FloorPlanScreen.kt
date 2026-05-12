@@ -42,6 +42,7 @@ fun FloorPlanScreen(
     role: ActiveRole,
     isDark: Boolean = false,
     onPendingReservations: (Int) -> Unit,
+    onNavigateToOrderPayment: (String) -> Unit,
 ) {
     val palette = if (isDark) DarkFloorPalette else LightFloorPalette
     val state = rememberFloorPlanState()
@@ -195,7 +196,10 @@ fun FloorPlanScreen(
             palette = palette,
             table = state.selectedTable,
             onClose = { state.selectedTableId = null },
-            onPay = { state.selectedTableId = null },
+            onPay = { table ->
+                state.selectedTableId = null
+                onNavigateToOrderPayment(table.id)
+            },
         )
     }
 }

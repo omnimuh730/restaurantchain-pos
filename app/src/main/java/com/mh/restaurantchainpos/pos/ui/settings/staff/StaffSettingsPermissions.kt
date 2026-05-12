@@ -30,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,7 +54,6 @@ internal fun PermissionsModal(
     }
     val mapState: Map<String, Boolean> = perms.toMap()
     val enabledCount = perms.count { it.second }
-    val ctx = LocalContext.current
 
     fun setPerm(id: String, value: Boolean) {
         val idx = perms.indexOfFirst { it.first == id }
@@ -115,7 +113,7 @@ internal fun PermissionsModal(
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     val roleRes = roleTitleRes(member.role)
-                    val roleLabel = if (roleRes != 0) ctx.getString(roleRes) else member.role
+                    val roleLabel = if (roleRes != 0) stringResource(roleRes) else member.role
                     QuickActionPill(
                         colors,
                         stringResource(R.string.staff_perm_reset_role_defaults, roleLabel),

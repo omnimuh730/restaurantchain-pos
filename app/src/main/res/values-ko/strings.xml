@@ -51,6 +51,7 @@
     <string name="floor_no_active_orders">진행 중인 주문이 없습니다</string>
     <string name="floor_order_total">주문 합계</string>
     <string name="floor_payment">결제</string>
+    <string name="floor_payment_confirm">결제 확인</string>
     <string name="floor_seat_guest">착석</string>
     <string name="floor_check_in">체크인</string>
     <string name="floor_empty_dash">—</string>

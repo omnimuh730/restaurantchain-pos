@@ -225,8 +225,8 @@
     <string name="settings_menu_add_btn_n">항목 %1$d개 추가</string>
     <string name="settings_upgrade_page_title">요금제 업그레이드</string>
     <string name="settings_upgrade_page_subtitle">프리미엄 기능으로 매장을 성장시키세요</string>
-    <string name="settings_plan_pro">Pro</string>
-    <string name="settings_plan_ultra">Ultra</string>
+    <string name="settings_plan_pro">프로</string>
+    <string name="settings_plan_ultra">울트라</string>
     <string name="settings_plan_pro_tagline">성장하는 매장용</string>
     <string name="settings_plan_ultra_tagline">엔터프라이즈 매장용</string>
     <string name="settings_upgrade_choose_plan">%1$s 선택</string>
@@ -242,7 +242,7 @@
         <item>테이블 예약 시스템</item>
     </string-array>
     <string-array name="settings_up_ultra_features">
-        <item>Pro의 모든 기능</item>
+        <item>프로의 모든 기능</item>
         <item>무제한 직원</item>
         <item>다중 매장 지원</item>
         <item>24/7 우선 지원</item>

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -35,7 +34,13 @@ import java.util.UUID
 import kotlinx.coroutines.delay
 
 @Composable
-fun OrdersScreen(colors: PosColors, role: ActiveRole) {
+fun OrdersScreen(
+    colors: PosColors,
+    role: ActiveRole,
+    floorPaymentTableId: String? = null,
+    floorPaymentNonce: Long = 0L,
+    onConsumedFloorPayment: () -> Unit = {},
+) {
     val density = LocalDensity.current
     val ctx = LocalContext.current
     var selectedFloorId by remember { mutableStateOf("1F") }
@@ -82,6 +87,15 @@ fun OrdersScreen(colors: PosColors, role: ActiveRole) {
     val pendingNewItems = currentOrder.filter { !it.ordered && !it.deleted }
     val selectedTable = OrderTables.firstOrNull { it.id == selectedTableId }
     val canPay = role == ActiveRole.Admin || role == ActiveRole.Cashier
+
+    LaunchedEffect(floorPaymentNonce) {
+        if (floorPaymentNonce == 0L) return@LaunchedEffect
+        val tableId = floorPaymentTableId ?: return@LaunchedEffect
+        OrderTables.firstOrNull { it.id == tableId }?.let { t -> selectedFloorId = t.floor }
+        selectedTableId = tableId
+        showPayment = true
+        onConsumedFloorPayment()
+    }
 
     LaunchedEffect(orderHighlightLineId) {
         val id = orderHighlightLineId ?: return@LaunchedEffect

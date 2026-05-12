@@ -3,6 +3,7 @@ package com.mh.restaurantchainpos.pos.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,8 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
     var isDark by remember { mutableStateOf(false) }
     var role by remember { mutableStateOf(ActiveRole.Admin) }
     var page by remember { mutableStateOf(PosPage.FloorPlan) }
+    var ordersFloorPayTableId by remember { mutableStateOf<String?>(null) }
+    var ordersFloorPayNonce by remember { mutableLongStateOf(0L) }
     val badges = remember { mutableStateMapOf<String, Int>() }
     val colors = if (isDark) DarkPosColors else LightPosColors
     val allowed = roleNavAccess.getValue(role)
@@ -104,8 +107,27 @@ private fun PosShell(onLock: () -> Unit, onSignOut: () -> Unit) {
             },
         ) {
             when (page) {
-                PosPage.FloorPlan -> FloorPlanScreen(colors, role, isDark = isDark, onPendingReservations = { badges[""] = it })
-                PosPage.Orders -> OrdersScreen(colors, role)
+                PosPage.FloorPlan -> FloorPlanScreen(
+                    colors = colors,
+                    role = role,
+                    isDark = isDark,
+                    onPendingReservations = { badges[""] = it },
+                    onNavigateToOrderPayment = { tableId ->
+                        ordersFloorPayTableId = tableId
+                        ordersFloorPayNonce = System.nanoTime()
+                        page = PosPage.Orders
+                    },
+                )
+                PosPage.Orders -> OrdersScreen(
+                    colors = colors,
+                    role = role,
+                    floorPaymentTableId = ordersFloorPayTableId,
+                    floorPaymentNonce = ordersFloorPayNonce,
+                    onConsumedFloorPayment = {
+                        ordersFloorPayTableId = null
+                        ordersFloorPayNonce = 0L
+                    },
+                )
                 PosPage.Kitchen -> KitchenScreen(colors, role, onReceivedCount = { badges["kitchen"] = it })
                 PosPage.Analytics -> AnalyticsScreen(colors)
                 PosPage.Settings -> SettingsScreen(colors, role)

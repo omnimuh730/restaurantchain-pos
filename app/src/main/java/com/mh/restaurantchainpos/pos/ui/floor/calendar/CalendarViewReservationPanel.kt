@@ -226,8 +226,8 @@ internal fun RequestCard(
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             ChipText(palette, ctx.dayLabelForCalendarOffset(reservation.dayOffset))
             ChipText(palette, reservation.startTime)
-            ChipText(palette, ctx.getString(R.string.floor_cal_party_size, reservation.partySize))
-            ChipText(palette, ctx.formatReservationDurationHours(reservation.durationHours))
+            ChipText(palette, stringResource(R.string.floor_cal_party_size, reservation.partySize))
+            ChipText(palette, reservationDurationHoursLabel(reservation.durationHours))
             if (reservation.tableId.isNotBlank()) {
                 ChipText(palette, ctx.tableOrderLabel(reservation.tableId), emphasize = true)
             }
@@ -275,9 +275,9 @@ internal fun RequestCard(
 @Composable
 internal fun ConfirmedRow(palette: FloorPalette, reservation: Reservation, onAssign: () -> Unit) {
     val ctx = LocalContext.current
-    val partyLabel = ctx.getString(R.string.floor_cal_party_size, reservation.partySize)
-    val duration = ctx.formatReservationDurationHours(reservation.durationHours)
-    val subline = ctx.getString(R.string.floor_res_confirmed_subline, reservation.startTime, partyLabel, duration)
+    val partyLabel = stringResource(R.string.floor_cal_party_size, reservation.partySize)
+    val duration = reservationDurationHoursLabel(reservation.durationHours)
+    val subline = stringResource(R.string.floor_res_confirmed_subline, reservation.startTime, partyLabel, duration)
     Row(
         Modifier
             .fillMaxWidth()

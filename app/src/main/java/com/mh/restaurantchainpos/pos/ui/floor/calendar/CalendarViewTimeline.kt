@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -362,10 +363,10 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
                 }
             }
             if (!preview) {
-                val partyLabel = ctx.getString(R.string.floor_cal_party_size, reservation.partySize)
-                val dur = ctx.formatReservationDurationHours(reservation.durationHours)
+                val partyLabel = stringResource(R.string.floor_cal_party_size, reservation.partySize)
+                val dur = reservationDurationHoursLabel(reservation.durationHours)
                 Text(
-                    ctx.getString(R.string.floor_cal_party_duration_line, partyLabel, dur),
+                    stringResource(R.string.floor_cal_party_duration_line, partyLabel, dur),
                     color = visuals.subText,
                     fontSize = 9.sp,
                     maxLines = 1,

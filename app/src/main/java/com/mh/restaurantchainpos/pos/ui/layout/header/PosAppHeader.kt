@@ -43,7 +43,7 @@ import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.roleNavAccess
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownChip
 import com.mh.restaurantchainpos.pos.ui.components.PosDropdownMenuRow
-import com.mh.restaurantchainpos.pos.ui.i18n.pagesSummary
+import com.mh.restaurantchainpos.pos.ui.i18n.rolePagesSummary
 import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
@@ -145,7 +145,7 @@ fun PosAppHeader(
                     index = index,
                     totalCount = total,
                     text = option.stringTitle(),
-                    secondaryText = option.pagesSummary(roleNavAccess.getValue(option).size),
+                    secondaryText = rolePagesSummary(roleNavAccess.getValue(option).size),
                     selected = option == role,
                     colors = colors,
                     onClick = {

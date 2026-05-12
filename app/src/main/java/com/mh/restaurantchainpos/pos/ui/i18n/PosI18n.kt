@@ -33,7 +33,7 @@ fun ActiveRole.stringTitle(): String = when (this) {
 }
 
 @Composable
-fun ActiveRole.pagesSummary(pageCount: Int): String =
+fun rolePagesSummary(pageCount: Int): String =
     stringResource(R.string.role_pages_suffix, pageCount)
 
 @Composable

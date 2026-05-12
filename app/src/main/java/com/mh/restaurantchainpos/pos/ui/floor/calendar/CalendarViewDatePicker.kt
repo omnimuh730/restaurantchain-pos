@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -46,12 +47,13 @@ internal fun CalendarDatePickerPopup(
     modifier: Modifier = Modifier,
 ) {
     val ctx = LocalContext.current
+    val configuration = LocalConfiguration.current
     val base = calendarForOffset(pickerMonthOffset)
     val year = base.get(Calendar.YEAR)
     val month = base.get(Calendar.MONTH)
     val monthGrid = remember(year, month) { buildCalendarMonth(year, month) }
     val monthLabel = ctx.calendarMonthYearLabel(base)
-    val localeTag = ctx.resources.configuration.locales[0].toLanguageTag()
+    val localeTag = configuration.locales[0].toLanguageTag()
     val weekdayLabels = remember(localeTag) { ctx.calendarPickerWeekdayInitials() }
     val selectedDate = calendarForOffset(selectedOffset)
 

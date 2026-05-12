@@ -31,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,7 +56,7 @@ fun StaffSettings(colors: PosColors) {
     var tempPinFor by remember { mutableStateOf<String?>(null) }
     var registerOpen by remember { mutableStateOf(false) }
     val notifications = rememberPosNotificationHostState()
-    val ctx = LocalContext.current
+    val resources = LocalResources.current
 
     val pending = staff.filter { it.status == "pending" }
     val nonPending = staff.filter { it.status != "pending" }
@@ -112,10 +112,10 @@ fun StaffSettings(colors: PosColors) {
                         if (idx >= 0) {
                             staff[idx] = staff[idx].copy(status = "active")
                             val roleRes = roleTitleRes(member.role)
-                            val roleLabel = if (roleRes != 0) ctx.getString(roleRes) else member.role
+                            val roleLabel = if (roleRes != 0) resources.getString(roleRes) else member.role
                             notifications.success(
-                                title = ctx.getString(R.string.staff_toast_approved_title),
-                                message = ctx.getString(R.string.staff_toast_approved_msg, member.name, roleLabel),
+                                title = resources.getString(R.string.staff_toast_approved_title),
+                                message = resources.getString(R.string.staff_toast_approved_msg, member.name, roleLabel),
                             )
                         }
                     },

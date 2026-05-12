@@ -58,6 +58,7 @@
     <string name="floor_no_active_orders">No active orders</string>
     <string name="floor_order_total">Order total</string>
     <string name="floor_payment">Payment</string>
+    <string name="floor_payment_confirm">Confirm payment</string>
     <string name="floor_seat_guest">Seat guest</string>
     <string name="floor_check_in">Check-in</string>
     <string name="floor_empty_dash">—</string>

@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mh.restaurantchainpos.pos.data.Floor
@@ -57,6 +58,7 @@ fun FloorCalendarView(
 ) {
     val isMobile = rememberIsMobile()
     val ctx = LocalContext.current
+    val resources = LocalResources.current
     var startHour by remember { mutableFloatStateOf(16f) }
     var windowHours by remember { mutableFloatStateOf(8f) }
     var datePickerOpen by remember { mutableStateOf(false) }
@@ -213,8 +215,8 @@ fun FloorCalendarView(
                             onAssignTable(reservation.id, tableId)
                             flashTableId = tableId
                             notifications.success(
-                                title = ctx.getString(R.string.floor_assign_success_title),
-                                message = ctx.getString(
+                                title = resources.getString(R.string.floor_assign_success_title),
+                                message = resources.getString(
                                     R.string.floor_assign_success_message,
                                     reservation.guestName,
                                     tableLabel,
