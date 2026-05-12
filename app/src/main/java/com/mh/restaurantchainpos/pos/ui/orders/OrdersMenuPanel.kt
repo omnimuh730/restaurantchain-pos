@@ -91,7 +91,7 @@ internal fun MenuPanel(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            gridItems(items, key = { it.second.id }) { (sub, item) ->
+            gridItems(items, key = { "${it.first.id}:${it.second.id}" }) { (sub, item) ->
                 MenuTile(colors = colors, item = item, onClick = { onAdd(sub, item) })
             }
         }

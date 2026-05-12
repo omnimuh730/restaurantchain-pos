@@ -89,10 +89,47 @@ internal val OrderMenuCategories = listOf(
             OrderSubCategory(
                 "hot-appetizers",
                 listOf(
+                    OrderMenuItem("wings", 12.0),
                     OrderMenuItem("edamame", 5.0),
                     OrderMenuItem("gyoza", 8000.0, CurrencyKind.Domestic),
                     OrderMenuItem("takoyaki", 9000.0, CurrencyKind.Domestic),
                     OrderMenuItem("tempura", 10.0),
+                ),
+            ),
+            OrderSubCategory(
+                "hot-wok-noodles",
+                listOf(
+                    OrderMenuItem("ramen", 12000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pho", 13.0),
+                    OrderMenuItem("udon", 13000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("dan-dan-noodles", 11.0),
+                ),
+            ),
+            OrderSubCategory(
+                "hot-comfort-soups",
+                listOf(
+                    OrderMenuItem("miso-soup", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("wonton-soup", 7.0),
+                    OrderMenuItem("hot-sour-soup", 6.0),
+                    OrderMenuItem("tom-yum-soup", 12.0),
+                ),
+            ),
+            OrderSubCategory(
+                "hot-munchies",
+                listOf(
+                    OrderMenuItem("soup-dumplings", 10.0),
+                    OrderMenuItem("pork-spring-roll", 7.0),
+                    OrderMenuItem("shrimp-spring-roll", 8.0),
+                    OrderMenuItem("crispy-rolls", 7.0),
+                ),
+            ),
+            OrderSubCategory(
+                "hot-rice-bowls",
+                listOf(
+                    OrderMenuItem("fried-rice", 12.0),
+                    OrderMenuItem("bibimbap", 14000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("curry-rice", 13.0),
+                    OrderMenuItem("donburi", 14000.0, CurrencyKind.Domestic),
                 ),
             ),
         ),
@@ -116,6 +153,7 @@ internal val OrderMenuCategories = listOf(
                     OrderMenuItem("seaweed-salad", 6.0),
                     OrderMenuItem("kimchi", 5000.0, CurrencyKind.Domestic),
                     OrderMenuItem("pickled-vegetables", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("veggie-spring-roll", 6.0),
                 ),
             ),
             OrderSubCategory(
@@ -131,6 +169,26 @@ internal val OrderMenuCategories = listOf(
                 listOf(
                     OrderMenuItem("soba-noodles", 9.0),
                     OrderMenuItem("sesame-noodles", 8.0),
+                    OrderMenuItem("ramen", 12000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("udon", 13000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "cold-dimsum",
+                listOf(
+                    OrderMenuItem("vegetable-dumplings", 7.0),
+                    OrderMenuItem("chicken-dumplings", 8.0),
+                    OrderMenuItem("soup-dumplings", 10.0),
+                    OrderMenuItem("shrimp-dumplings", 9.0),
+                ),
+            ),
+            OrderSubCategory(
+                "cold-refreshers",
+                listOf(
+                    OrderMenuItem("thai-tea", 4.5),
+                    OrderMenuItem("bubble-tea", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("coconut-water", 4.5),
+                    OrderMenuItem("lychee-juice", 4.0),
                 ),
             ),
         ),
@@ -184,6 +242,33 @@ internal val OrderMenuCategories = listOf(
                     OrderMenuItem("yakitori", 12000.0, CurrencyKind.Domestic),
                 ),
             ),
+            OrderSubCategory(
+                "main-soup-line",
+                listOf(
+                    OrderMenuItem("miso-soup", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("wonton-soup", 7.0),
+                    OrderMenuItem("hot-sour-soup", 6.0),
+                    OrderMenuItem("tom-yum-soup", 12.0),
+                ),
+            ),
+            OrderSubCategory(
+                "main-dim-sum",
+                listOf(
+                    OrderMenuItem("pork-dumplings", 8.0),
+                    OrderMenuItem("vegetable-dumplings", 7.0),
+                    OrderMenuItem("gyoza", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("chicken-dumplings", 8.0),
+                ),
+            ),
+            OrderSubCategory(
+                "main-quick-bites",
+                listOf(
+                    OrderMenuItem("cheeseburger", 14.0),
+                    OrderMenuItem("french-fries", 6.5),
+                    OrderMenuItem("coke", 3.0),
+                    OrderMenuItem("sprite", 3.0),
+                ),
+            ),
         ),
     ),
     OrderMenuCategory(
@@ -205,6 +290,7 @@ internal val OrderMenuCategories = listOf(
                     OrderMenuItem("coke", 3.0),
                     OrderMenuItem("sprite", 3.0),
                     OrderMenuItem("ginger-ale", 3.0),
+                    OrderMenuItem("coconut-water", 4.5),
                 ),
             ),
             OrderSubCategory(
@@ -248,6 +334,498 @@ internal val OrderMenuCategories = listOf(
                     OrderMenuItem("sake-bomb", 10.0),
                     OrderMenuItem("mai-tai", 11.0),
                     OrderMenuItem("singapore-sling", 12.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "coffee-bar",
+        listOf(
+            OrderSubCategory(
+                "cb-espresso",
+                listOf(
+                    OrderMenuItem("americano", 4500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("cafe-latte", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("flat-white", 5200.0, CurrencyKind.Domestic),
+                    OrderMenuItem("espresso-con-panna", 4800.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "cb-cold-brew",
+                listOf(
+                    OrderMenuItem("honey-cold-brew", 5500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("oat-cold-brew", 5500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("vanilla-cold-brew", 5500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("bubble-tea", 5000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "cb-milk-tea",
+                listOf(
+                    OrderMenuItem("thai-tea", 4.5),
+                    OrderMenuItem("jasmine-tea", 3000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("oolong-tea", 3500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("green-tea", 3000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "cb-soda-mixer",
+                listOf(
+                    OrderMenuItem("coke", 3.0),
+                    OrderMenuItem("sprite", 3.0),
+                    OrderMenuItem("ginger-ale", 3.0),
+                    OrderMenuItem("coconut-water", 4.5),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "desserts-bakery",
+        listOf(
+            OrderSubCategory(
+                "db-cakes",
+                listOf(
+                    OrderMenuItem("tiramisu", 7.0),
+                    OrderMenuItem("white-rice-cake", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("bubble-tea", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("thai-tea", 4.5),
+                ),
+            ),
+            OrderSubCategory(
+                "db-frozen",
+                listOf(
+                    OrderMenuItem("mango-juice", 4.0),
+                    OrderMenuItem("lychee-juice", 4.0),
+                    OrderMenuItem("coconut-water", 4.5),
+                    OrderMenuItem("vanilla-cold-brew", 5500.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "db-bakery",
+                listOf(
+                    OrderMenuItem("pork-belly-bao", 9000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("chicken-bao", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("veggie-bao", 7000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("duck-bao", 10000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "db-pairing",
+                listOf(
+                    OrderMenuItem("plum-wine", 8.0),
+                    OrderMenuItem("red-wine", 9.0),
+                    OrderMenuItem("white-wine", 9.0),
+                    OrderMenuItem("hot-sour-soup", 6.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "breakfast-brunch",
+        listOf(
+            OrderSubCategory(
+                "bf-classics",
+                listOf(
+                    OrderMenuItem("bibimbap", 14000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("donburi", 14000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("fried-rice", 12.0),
+                    OrderMenuItem("steamed-rice", 2000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "bf-soups",
+                listOf(
+                    OrderMenuItem("miso-soup", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("wonton-soup", 7.0),
+                    OrderMenuItem("pho", 13.0),
+                    OrderMenuItem("tom-yum-soup", 12.0),
+                ),
+            ),
+            OrderSubCategory(
+                "bf-breads",
+                listOf(
+                    OrderMenuItem("pork-belly-bao", 9000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("chicken-bao", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("veggie-bao", 7000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("duck-bao", 10000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "bf-cafe",
+                listOf(
+                    OrderMenuItem("americano", 4500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("cafe-latte", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("jasmine-tea", 3000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("green-tea", 3000.0, CurrencyKind.Domestic),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "vegetarian-vegan",
+        listOf(
+            OrderSubCategory(
+                "vg-bowls",
+                listOf(
+                    OrderMenuItem("vegetable-dumplings", 7.0),
+                    OrderMenuItem("mixed-vegetables", 12.0),
+                    OrderMenuItem("seaweed-salad", 6.0),
+                    OrderMenuItem("cucumber-salad", 6.0),
+                ),
+            ),
+            OrderSubCategory(
+                "vg-plates",
+                listOf(
+                    OrderMenuItem("miso-soup", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("kimchi", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pickled-vegetables", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("papaya-salad", 8.0),
+                ),
+            ),
+            OrderSubCategory(
+                "vg-noodles",
+                listOf(
+                    OrderMenuItem("sesame-noodles", 8.0),
+                    OrderMenuItem("soba-noodles", 9.0),
+                    OrderMenuItem("ramen", 12000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("udon", 13000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "vg-drinks",
+                listOf(
+                    OrderMenuItem("green-tea", 3000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("coconut-water", 4.5),
+                    OrderMenuItem("mango-juice", 4.0),
+                    OrderMenuItem("lychee-juice", 4.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "seafood-grill",
+        listOf(
+            OrderSubCategory(
+                "sf-ocean",
+                listOf(
+                    OrderMenuItem("grilled-salmon", 20.0),
+                    OrderMenuItem("salmon-sushi", 8.0),
+                    OrderMenuItem("tuna-sushi", 9.0),
+                    OrderMenuItem("sashimi-platter", 20.0),
+                ),
+            ),
+            OrderSubCategory(
+                "sf-shell",
+                listOf(
+                    OrderMenuItem("shrimp-dumplings", 9.0),
+                    OrderMenuItem("shrimp-spring-roll", 8.0),
+                    OrderMenuItem("seafood-pasta", 16.0),
+                    OrderMenuItem("pho", 13.0),
+                ),
+            ),
+            OrderSubCategory(
+                "sf-grill",
+                listOf(
+                    OrderMenuItem("teriyaki-chicken", 16000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("yakitori", 12000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("bulgogi", 18000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("tempura", 10.0),
+                ),
+            ),
+            OrderSubCategory(
+                "sf-sides",
+                listOf(
+                    OrderMenuItem("seaweed-salad", 6.0),
+                    OrderMenuItem("miso-soup", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("edamame", 5.0),
+                    OrderMenuItem("cucumber-salad", 6.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "western-specials",
+        listOf(
+            OrderSubCategory(
+                "ws-steaks",
+                listOf(
+                    OrderMenuItem("t-bone-steak", 42.0),
+                    OrderMenuItem("sirloin-steak", 36.0),
+                    OrderMenuItem("mongolian-beef", 16.0),
+                    OrderMenuItem("kung-pao-chicken", 15.0),
+                ),
+            ),
+            OrderSubCategory(
+                "ws-pasta",
+                listOf(
+                    OrderMenuItem("seafood-pasta", 16.0),
+                    OrderMenuItem("tom-yum-soup", 12.0),
+                    OrderMenuItem("japanese-curry", 13.0),
+                    OrderMenuItem("pad-thai", 13.0),
+                ),
+            ),
+            OrderSubCategory(
+                "ws-casual",
+                listOf(
+                    OrderMenuItem("cheeseburger", 14.0),
+                    OrderMenuItem("french-fries", 6.5),
+                    OrderMenuItem("coke", 3.0),
+                    OrderMenuItem("sprite", 3.0),
+                ),
+            ),
+            OrderSubCategory(
+                "ws-sides",
+                listOf(
+                    OrderMenuItem("steamed-rice", 2000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("kimchi", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pickled-vegetables", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("cucumber-salad", 6.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "kids-menu",
+        listOf(
+            OrderSubCategory(
+                "kd-mains",
+                listOf(
+                    OrderMenuItem("chicken-dumplings", 8.0),
+                    OrderMenuItem("chicken-bao", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("fried-rice", 12.0),
+                    OrderMenuItem("teriyaki-chicken", 16000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "kd-sides",
+                listOf(
+                    OrderMenuItem("edamame", 5.0),
+                    OrderMenuItem("veggie-spring-roll", 6.0),
+                    OrderMenuItem("french-fries", 6.5),
+                    OrderMenuItem("steamed-rice", 2000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "kd-drinks",
+                listOf(
+                    OrderMenuItem("coke", 3.0),
+                    OrderMenuItem("sprite", 3.0),
+                    OrderMenuItem("mango-juice", 4.0),
+                    OrderMenuItem("lychee-juice", 4.0),
+                ),
+            ),
+            OrderSubCategory(
+                "kd-treats",
+                listOf(
+                    OrderMenuItem("bubble-tea", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("tiramisu", 7.0),
+                    OrderMenuItem("california-roll", 10.0),
+                    OrderMenuItem("gyoza", 8000.0, CurrencyKind.Domestic),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "sides-extras",
+        listOf(
+            OrderSubCategory(
+                "sd-grains",
+                listOf(
+                    OrderMenuItem("steamed-rice", 2000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("fried-rice", 12.0),
+                    OrderMenuItem("lo-mein", 12.0),
+                    OrderMenuItem("chow-mein", 12.0),
+                ),
+            ),
+            OrderSubCategory(
+                "sd-pickles",
+                listOf(
+                    OrderMenuItem("kimchi", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pickled-vegetables", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("seaweed-salad", 6.0),
+                    OrderMenuItem("papaya-salad", 8.0),
+                ),
+            ),
+            OrderSubCategory(
+                "sd-dimsum",
+                listOf(
+                    OrderMenuItem("pork-dumplings", 8.0),
+                    OrderMenuItem("gyoza", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("veggie-spring-roll", 6.0),
+                    OrderMenuItem("crispy-rolls", 7.0),
+                ),
+            ),
+            OrderSubCategory(
+                "sd-quench",
+                listOf(
+                    OrderMenuItem("oolong-tea", 3500.0, CurrencyKind.Domestic),
+                    OrderMenuItem("jasmine-tea", 3000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("green-tea", 3000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("thai-tea", 4.5),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "late-night",
+        listOf(
+            OrderSubCategory(
+                "ln-crispy",
+                listOf(
+                    OrderMenuItem("tempura", 10.0),
+                    OrderMenuItem("takoyaki", 9000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("gyoza", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("chicken-dumplings", 8.0),
+                ),
+            ),
+            OrderSubCategory(
+                "ln-noodles",
+                listOf(
+                    OrderMenuItem("ramen", 12000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("udon", 13000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pho", 13.0),
+                    OrderMenuItem("dan-dan-noodles", 11.0),
+                ),
+            ),
+            OrderSubCategory(
+                "ln-rice",
+                listOf(
+                    OrderMenuItem("bibimbap", 14000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("curry-rice", 13.0),
+                    OrderMenuItem("fried-rice", 12.0),
+                    OrderMenuItem("donburi", 14000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "ln-bar",
+                listOf(
+                    OrderMenuItem("asahi", 7.0),
+                    OrderMenuItem("soju", 7000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("mai-tai", 11.0),
+                    OrderMenuItem("lychee-martini", 12.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "lunch-combos",
+        listOf(
+            OrderSubCategory(
+                "lc-hot",
+                listOf(
+                    OrderMenuItem("pad-thai", 13.0),
+                    OrderMenuItem("kung-pao-chicken", 15.0),
+                    OrderMenuItem("pork-spring-roll", 7.0),
+                    OrderMenuItem("green-tea", 3000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "lc-grill",
+                listOf(
+                    OrderMenuItem("bulgogi", 18000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("teriyaki-chicken", 16000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("grilled-salmon", 20.0),
+                    OrderMenuItem("jasmine-tea", 3000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "lc-curry",
+                listOf(
+                    OrderMenuItem("thai-green-curry", 14.0),
+                    OrderMenuItem("massaman-curry", 15.0),
+                    OrderMenuItem("japanese-curry", 13.0),
+                    OrderMenuItem("steamed-rice", 2000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "lc-light",
+                listOf(
+                    OrderMenuItem("sashimi-platter", 20.0),
+                    OrderMenuItem("california-roll", 10.0),
+                    OrderMenuItem("miso-soup", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("cucumber-salad", 6.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "happy-hour",
+        listOf(
+            OrderSubCategory(
+                "hh-beer",
+                listOf(
+                    OrderMenuItem("asahi", 7.0),
+                    OrderMenuItem("sapporo", 7.0),
+                    OrderMenuItem("singha", 6.0),
+                    OrderMenuItem("tsingtao", 6.0),
+                ),
+            ),
+            OrderSubCategory(
+                "hh-shaken",
+                listOf(
+                    OrderMenuItem("lychee-martini", 12.0),
+                    OrderMenuItem("sake-bomb", 10.0),
+                    OrderMenuItem("mai-tai", 11.0),
+                    OrderMenuItem("singapore-sling", 12.0),
+                ),
+            ),
+            OrderSubCategory(
+                "hh-wine",
+                listOf(
+                    OrderMenuItem("plum-wine", 8.0),
+                    OrderMenuItem("red-wine", 9.0),
+                    OrderMenuItem("white-wine", 9.0),
+                    OrderMenuItem("sake-hot", 8000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "hh-bites",
+                listOf(
+                    OrderMenuItem("edamame", 5.0),
+                    OrderMenuItem("gyoza", 8000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("wings", 12.0),
+                    OrderMenuItem("tempura", 10.0),
+                ),
+            ),
+        ),
+    ),
+    OrderMenuCategory(
+        "retail-pantry",
+        listOf(
+            OrderSubCategory(
+                "rt-noodles",
+                listOf(
+                    OrderMenuItem("ramen", 12000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("udon", 13000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pho", 13.0),
+                    OrderMenuItem("soba-noodles", 9.0),
+                ),
+            ),
+            OrderSubCategory(
+                "rt-grains",
+                listOf(
+                    OrderMenuItem("steamed-rice", 2000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("white-rice-cake", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("kimchi", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("pickled-vegetables", 5000.0, CurrencyKind.Domestic),
+                ),
+            ),
+            OrderSubCategory(
+                "rt-bev",
+                listOf(
+                    OrderMenuItem("coke", 3.0),
+                    OrderMenuItem("sprite", 3.0),
+                    OrderMenuItem("green-tea", 3000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("coconut-water", 4.5),
+                ),
+            ),
+            OrderSubCategory(
+                "rt-sweets",
+                listOf(
+                    OrderMenuItem("tiramisu", 7.0),
+                    OrderMenuItem("bubble-tea", 5000.0, CurrencyKind.Domestic),
+                    OrderMenuItem("flat-white", 5200.0, CurrencyKind.Domestic),
+                    OrderMenuItem("americano", 4500.0, CurrencyKind.Domestic),
                 ),
             ),
         ),

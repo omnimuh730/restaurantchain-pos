@@ -86,10 +86,15 @@ fun DateFilterBar(
         ) { page ->
             val off = page - WeekPagerCenterPage
             val visibleDays = remember(today, off) { buildWeekDays(today, off) }
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                contentAlignment = Alignment.Center,
+            ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 6.dp),
             ) {
                 visibleDays.forEach { d ->
                     val isToday = d.sameDayAs(today)
@@ -143,11 +148,17 @@ fun DateFilterBar(
                     }
                 }
             }
+            }
         }
 
         Box(
             Modifier
-                .padding(top = 4.dp)
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+        Box(
+            Modifier
                 .clip(CircleShape)
                 .background(if (period == Period.Custom && rangeMatchesNonDay(range, days, today)) Blue600 else pillBg)
                 .clickable { pickerOpen = true }
@@ -165,6 +176,7 @@ fun DateFilterBar(
                 Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = labelColor, modifier = Modifier.size(14.dp))
                 Text(label, color = labelColor, fontSize = 13.sp, fontWeight = FontWeight.Medium)
             }
+        }
         }
     }
 

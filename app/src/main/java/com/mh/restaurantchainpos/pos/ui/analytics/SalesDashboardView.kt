@@ -84,7 +84,10 @@ fun SalesDashboardView(
                 val compact = maxWidth < 360.dp
                 val revenueSummary: @Composable () -> Unit = {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
                             Box(
                                 Modifier
                                     .size(28.dp)
@@ -94,8 +97,18 @@ fun SalesDashboardView(
                             ) {
                                 Icon(Icons.Outlined.Payments, contentDescription = null, tint = Blue600, modifier = Modifier.size(16.dp))
                             }
-                            Text(stringResource(R.string.analytics_total_revenue), color = text2, fontSize = 12.sp)
-                            ChangeChip(kpiKrw.revChange)
+                            Box(
+                                Modifier.height(28.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(stringResource(R.string.analytics_total_revenue), color = text2, fontSize = 12.sp)
+                            }
+                            Box(
+                                Modifier.height(28.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                ChangeChip(kpiKrw.revChange)
+                            }
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
@@ -254,7 +267,10 @@ private fun PaymentRow(
     usd: Double,
     text2: Color,
 ) {
-    Row(verticalAlignment = Alignment.Top) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(8.dp))
         Text(label, color = text2, fontSize = 13.sp, modifier = Modifier.weight(1f))
@@ -297,9 +313,17 @@ private fun KpiCard(
             .padding(14.dp),
     ) {
         Column {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                Icon(icon, contentDescription = null, tint = text2, modifier = Modifier.size(16.dp))
-                ChangeChip(change)
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.height(20.dp), contentAlignment = Alignment.Center) {
+                    Icon(icon, contentDescription = null, tint = text2, modifier = Modifier.size(16.dp))
+                }
+                Box(Modifier.height(20.dp), contentAlignment = Alignment.Center) {
+                    ChangeChip(change)
+                }
             }
             Spacer(Modifier.height(4.dp))
             Text(value, color = text1, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)

@@ -107,8 +107,6 @@ fun FloorTabsRow(
                     } else {
                         Column(
                             Modifier
-                                .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
-                                .background(if (isActive) Blue500.copy(alpha = 0.10f) else Color.Transparent)
                                 .clickable { onSelectFloor(f.id) }
                                 .padding(horizontal = 12.dp)
                                 .padding(top = 6.dp),
@@ -117,7 +115,7 @@ fun FloorTabsRow(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier.padding(bottom = 5.dp),
+                                modifier = Modifier.padding(bottom = 4.dp),
                             ) {
                                 Text(
                                     f.name,
@@ -143,9 +141,8 @@ fun FloorTabsRow(
                             }
                             Box(
                                 Modifier
-                                    .height(3.dp)
+                                    .height(4.dp)
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
                                     .background(if (isActive) Blue600 else Color.Transparent),
                             )
                         }
