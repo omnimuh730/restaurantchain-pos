@@ -21,8 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.customerSegmentTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.partySizeRowLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.visitFrequencyLabel
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.AreaCurveChart
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.DonutChart
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.DonutSlice
@@ -51,7 +56,7 @@ fun CustomerAnalysisView(
     val segment = CustomerAnalysisData.segmentByPeriod.getValue(period)
     val visitFreq = CustomerAnalysisData.visitFreqByPeriod.getValue(period)
     val peakHour = CustomerAnalysisData.hourlyTraffic.maxBy { it.customers }
-    val returningPct = segment.first { it.name == "Returning" }.value
+    val returningPct = segment.first { it.nameKey == "returning" }.value
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AnalyticsCard(card, border) {
@@ -68,12 +73,12 @@ fun CustomerAnalysisView(
         // 2x2 KPI grid
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                KpiCard("Total Customers", kpis.totalCust, kpis.custChange, "👥", card, border, text1, text2, Modifier.weight(1f))
-                KpiCard("New Customers", kpis.newCust, kpis.newChange, "👤+", card, border, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_total_customers), kpis.totalCust, kpis.custChange, "👥", card, border, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_new), kpis.newCust, kpis.newChange, "👤+", card, border, text1, text2, Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                KpiCard("Returning Rate", kpis.returning, kpis.retChange, "↻", card, border, text1, text2, Modifier.weight(1f))
-                KpiCard("Avg Satisfaction", kpis.satisfaction, kpis.satChange, "★", card, border, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_returning_rate), kpis.returning, kpis.retChange, "↻", card, border, text1, text2, Modifier.weight(1f))
+                KpiCard(stringResource(R.string.analytics_customer_satisfaction), kpis.satisfaction, kpis.satChange, "★", card, border, text1, text2, Modifier.weight(1f))
             }
         }
 
@@ -81,10 +86,10 @@ fun CustomerAnalysisView(
         AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Most visitors come at ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_customer_visitors_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                     Text("${peakHour.hour}:00", color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
-                Text("Customer traffic by hour", color = text2, fontSize = 12.sp)
+                Text(stringResource(R.string.analytics_customer_traffic_sub), color = text2, fontSize = 12.sp)
                 Spacer(Modifier.height(12.dp))
                 AreaCurveChart(
                     points = CustomerAnalysisData.hourlyTraffic.map { it.customers.toFloat() },
@@ -106,9 +111,9 @@ fun CustomerAnalysisView(
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("$returningPct%", color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text(" of customers are returning!", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_customer_returning_suffix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
-                Text("New vs returning customers", color = text2, fontSize = 12.sp)
+                Text(stringResource(R.string.analytics_customer_new_vs_returning), color = text2, fontSize = 12.sp)
                 Spacer(Modifier.height(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                     DonutChart(
@@ -122,7 +127,7 @@ fun CustomerAnalysisView(
                                 Box(Modifier.size(10.dp).clip(CircleShape).background(Color(seg.accent)))
                                 Spacer(Modifier.width(10.dp))
                                 Column {
-                                    Text(seg.name, color = text2, fontSize = 13.sp)
+                                    Text(customerSegmentTitle(seg.nameKey), color = text2, fontSize = 13.sp)
                                     Text("${seg.value}%", color = text1, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
@@ -135,10 +140,10 @@ fun CustomerAnalysisView(
         // Visit frequency
         AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
-                Text("Visit frequency", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.analytics_customer_visit_frequency), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
                 HorizontalBarChart(
-                    bars = visitFreq.map { HorizontalBar(it.visits, it.customers.toFloat(), freqAccent) },
+                    bars = visitFreq.map { HorizontalBar(visitFrequencyLabel(it.visitsKey), it.customers.toFloat(), freqAccent) },
                     track = mutedTrack.copy(alpha = 0.5f),
                     text = text1,
                     label = text2,
@@ -151,17 +156,17 @@ fun CustomerAnalysisView(
         AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Groups of ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text("3–4", color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text(" are the most common!", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_customer_groups_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_customer_groups_highlight), color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_customer_groups_suffix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
-                Text("Party size distribution", color = text2, fontSize = 12.sp)
+                Text(stringResource(R.string.analytics_customer_party_sub), color = text2, fontSize = 12.sp)
                 Spacer(Modifier.height(12.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     CustomerAnalysisData.partySize.forEach { p ->
                         Column {
                             Row {
-                                Text("${p.size} guests", color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                Text(partySizeRowLabel(p.sizeKey), color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
                                 Text("${p.pct}%", color = text1, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                             Spacer(Modifier.height(4.dp))

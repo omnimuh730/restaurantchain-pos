@@ -6,6 +6,8 @@ import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.ActiveRole
 import com.mh.restaurantchainpos.pos.data.PosPage
 import com.mh.restaurantchainpos.pos.ui.analytics.AnalyticsSection
+import com.mh.restaurantchainpos.pos.ui.analytics.HistoryKind
+import com.mh.restaurantchainpos.pos.ui.analytics.HistoryStatus
 import com.mh.restaurantchainpos.pos.ui.analytics.Period
 import com.mh.restaurantchainpos.pos.ui.floor.FloorViewMode
 import com.mh.restaurantchainpos.pos.ui.kitchen.KitchenSortMode
@@ -65,6 +67,23 @@ fun AnalyticsSection.stringTitle(): String = when (this) {
     AnalyticsSection.Menu -> stringResource(R.string.analytics_menu_analysis)
     AnalyticsSection.Customer -> stringResource(R.string.analytics_customer_analysis)
     AnalyticsSection.History -> stringResource(R.string.analytics_history)
+}
+
+@Composable
+fun HistoryKind.stringTitle(): String = when (this) {
+    HistoryKind.Order -> stringResource(R.string.analytics_hist_kind_order)
+    HistoryKind.Reservation -> stringResource(R.string.analytics_hist_kind_reservation)
+    HistoryKind.Payment -> stringResource(R.string.analytics_hist_kind_payment)
+    HistoryKind.NoShow -> stringResource(R.string.analytics_hist_kind_no_show)
+    HistoryKind.WalkIn -> stringResource(R.string.analytics_hist_kind_walk_in)
+}
+
+@Composable
+fun HistoryStatus.stringTitle(): String = when (this) {
+    HistoryStatus.Completed -> stringResource(R.string.analytics_hist_status_completed)
+    HistoryStatus.Paid -> stringResource(R.string.analytics_hist_status_paid)
+    HistoryStatus.NoShow -> stringResource(R.string.analytics_hist_status_no_show)
+    HistoryStatus.Refunded -> stringResource(R.string.analytics_hist_status_refunded)
 }
 
 @Composable

@@ -29,8 +29,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.paymentMethodLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.toAxisLabels
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.AreaCurveChart
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.ColumnBar
 import com.mh.restaurantchainpos.pos.ui.analytics.charts.ColumnBarChart
@@ -58,6 +62,7 @@ fun SalesDashboardView(
     val kpiUsd = SalesDashboardData.foreignKpis.getValue(period)
     val data = SalesDashboardData.forPeriod(period)
 
+    val trendLabels = data.toAxisLabels()
     Column(
         modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -89,7 +94,7 @@ fun SalesDashboardView(
                             ) {
                                 Icon(Icons.Outlined.Payments, contentDescription = null, tint = Blue600, modifier = Modifier.size(16.dp))
                             }
-                            Text("Total Revenue", color = text2, fontSize = 12.sp)
+                            Text(stringResource(R.string.analytics_total_revenue), color = text2, fontSize = 12.sp)
                             ChangeChip(kpiKrw.revChange)
                         }
                         Spacer(Modifier.height(8.dp))
@@ -120,8 +125,8 @@ fun SalesDashboardView(
                             val krw = (kpiKrw.totalRev * dom.pct / 100.0).toLong()
                             val usd = kpiUsd.totalRev * foreign.pct / 100.0
                             PaymentRow(
-                                label = dom.method,
-                                icon = if (dom.method == "Credit") Icons.Outlined.CreditCard else Icons.Outlined.Payments,
+                                label = paymentMethodLabel(dom.methodKey),
+                                icon = if (dom.methodKey == "credit") Icons.Outlined.CreditCard else Icons.Outlined.Payments,
                                 accent = Color(dom.accent),
                                 krw = krw,
                                 usd = usd,
@@ -150,7 +155,7 @@ fun SalesDashboardView(
         // Three KPI cards
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             KpiCard(
-                "Total Orders",
+                stringResource(R.string.analytics_total_orders),
                 kpiKrw.totalOrders,
                 kpiKrw.ordChange,
                 Icons.Outlined.ShoppingCart,
@@ -161,7 +166,7 @@ fun SalesDashboardView(
                 Modifier.weight(1f),
             )
             KpiCard(
-                "Avg Ticket",
+                stringResource(R.string.analytics_avg_ticket),
                 AnalyticsFormat.won(kpiKrw.avgTicket.toLong()),
                 kpiKrw.ticketChange,
                 Icons.AutoMirrored.Outlined.TrendingUp,
@@ -172,7 +177,7 @@ fun SalesDashboardView(
                 Modifier.weight(1f),
             )
             KpiCard(
-                "Cancellations",
+                stringResource(R.string.analytics_cancellations),
                 kpiKrw.cancels,
                 kpiKrw.cancelChange,
                 Icons.Outlined.Cancel,
@@ -187,16 +192,16 @@ fun SalesDashboardView(
         // Sales Trend area
         AnalyticsCard(card, border) {
             Column(Modifier.padding(16.dp)) {
-                Text("Sales Trend", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.analytics_sales_trend), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Text(
-                    "Tap on the chart to view revenue and order count",
+                    stringResource(R.string.analytics_sales_trend_hint),
                     color = text2,
                     fontSize = 12.sp,
                 )
                 Spacer(Modifier.height(12.dp))
                 AreaCurveChart(
                     points = data.map { (it.revenueKrw / 1000f) },
-                    labels = data.map { it.label },
+                    labels = trendLabels,
                     formatY = { v -> if (v >= 1000f) "${(v / 1000f).roundToInt()}M" else "${v.toInt()}k" },
                     formatTooltip = { i ->
                         val d = data[i]
@@ -216,15 +221,15 @@ fun SalesDashboardView(
             val peakIdx = activeKey.withIndex().maxByOrNull { it.value }?.index ?: 0
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Peak revenue at ", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text(data[peakIdx].label, color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_peak_revenue_prefix), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(trendLabels[peakIdx], color = Blue600, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
-                Text("Revenue over time", color = text2, fontSize = 12.sp)
+                Text(stringResource(R.string.analytics_revenue_over_time), color = text2, fontSize = 12.sp)
                 Spacer(Modifier.height(12.dp))
                 ColumnBarChart(
                     bars = data.mapIndexed { i, d ->
                         ColumnBar(
-                            label = d.label,
+                            label = trendLabels[i],
                             value = (d.revenueKrw / 1000f),
                             color = if (i == peakIdx) Blue600 else mutedTrack,
                         )

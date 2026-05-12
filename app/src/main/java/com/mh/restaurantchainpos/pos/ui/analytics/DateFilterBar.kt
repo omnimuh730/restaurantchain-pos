@@ -35,8 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -177,7 +179,7 @@ fun DateFilterBar(
             val label = when {
                 range != null && range.startMs != range.endMs - HistoryData.DAY + 1 ->
                     "${shortDate(range.startMs)} - ${shortDate(range.endMs)}"
-                selectedDate == today.timeInMillis -> "Today"
+                selectedDate == today.timeInMillis -> stringResource(R.string.analytics_date_today)
                 else -> shortDate(selectedDate)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -225,10 +227,11 @@ private fun Calendar.sameDayAs(other: Calendar): Boolean {
         get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
 }
 
-private val weekdayFmt = SimpleDateFormat("EEEEE", Locale.US)
-private val dayFmt = SimpleDateFormat("d", Locale.US)
-private val monthDayFmt = SimpleDateFormat("MMM d", Locale.US).apply { timeZone = TimeZone.getDefault() }
+private fun weekdayShort(c: Calendar): String =
+    SimpleDateFormat("EEEEE", Locale.getDefault()).format(Date(c.timeInMillis))
 
-private fun weekdayShort(c: Calendar): String = weekdayFmt.format(Date(c.timeInMillis))
-private fun dayOfMonth(c: Calendar): String = dayFmt.format(Date(c.timeInMillis))
-private fun shortDate(ms: Long): String = monthDayFmt.format(Date(ms))
+private fun dayOfMonth(c: Calendar): String =
+    SimpleDateFormat("d", Locale.getDefault()).format(Date(c.timeInMillis))
+
+private fun shortDate(ms: Long): String =
+    SimpleDateFormat("MMM d", Locale.getDefault()).apply { timeZone = TimeZone.getDefault() }.format(Date(ms))

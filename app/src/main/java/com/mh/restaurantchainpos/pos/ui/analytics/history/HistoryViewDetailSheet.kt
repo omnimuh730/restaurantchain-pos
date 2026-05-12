@@ -36,12 +36,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.fmtTimeLocalized
+import com.mh.restaurantchainpos.pos.ui.i18n.historyGuestLine
+import com.mh.restaurantchainpos.pos.ui.i18n.historyNoteText
+import com.mh.restaurantchainpos.pos.ui.i18n.paymentMethodLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.receiptLineTitle
+import com.mh.restaurantchainpos.pos.ui.i18n.relDayLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.tableNumberLabel
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 
 @Composable
 internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: () -> Unit) {
+    val ctx = LocalContext.current
+    val em = stringResource(R.string.analytics_detail_em_dash)
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
     val card = if (isDark) Color(0xFF1F2937) else Color.White
@@ -89,7 +102,7 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                         contentAlignment = Alignment.Center,
                     ) { Text("←", color = text1, fontSize = 16.sp, fontWeight = FontWeight.Bold) }
                     Spacer(Modifier.width(8.dp))
-                    Text("Event details", color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_detail_title), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Box(Modifier.fillMaxWidth().height(1.dp).background(border))
                 val (icon, accent) = kindIconAccent(event.kind, isDark)
@@ -108,9 +121,9 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                     ) { Text(icon, color = accent, fontSize = 16.sp) }
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(event.guest, color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Text(historyGuestLine(event.guest, event.guestKey), color = text1, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                         Text(
-                            "${relDay(event.timestampMs)} · ${fmtTime(event.timestampMs)}",
+                            "${relDayLabel(ctx, event.timestampMs)} · ${fmtTimeLocalized(event.timestampMs)}",
                             color = text2,
                             fontSize = 12.sp,
                         )
@@ -121,23 +134,39 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                             .background(statusBg)
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     ) {
-                        Text(event.status.label, color = statusFg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                        Text(event.status.stringTitle(), color = statusFg, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                     }
                 }
                 Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        DetailTile("Table", event.tableLabel, "📍", tile, text1, text2, Modifier.weight(1f))
-                        DetailTile("Party", "${event.partySize ?: "—"} guests", "👥", tile, text1, text2, Modifier.weight(1f))
+                        DetailTile(stringResource(R.string.analytics_detail_tile_table), tableNumberLabel(event.tableNum), "📍", tile, text1, text2, Modifier.weight(1f))
+                        DetailTile(
+                            stringResource(R.string.analytics_detail_tile_party),
+                            event.partySize?.let { stringResource(R.string.analytics_detail_party_guests, it) } ?: em,
+                            "👥",
+                            tile,
+                            text1,
+                            text2,
+                            Modifier.weight(1f),
+                        )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        DetailTile("Paid at", event.paidAt ?: "—", "💳", tile, text1, text2, Modifier.weight(1f))
-                        DetailTile("Method", event.payment ?: "—", "💵", tile, text1, text2, Modifier.weight(1f))
+                        DetailTile(stringResource(R.string.analytics_detail_tile_paid_at), event.paidAt ?: em, "💳", tile, text1, text2, Modifier.weight(1f))
+                        DetailTile(
+                            stringResource(R.string.analytics_detail_tile_method),
+                            event.paymentKey?.let { paymentMethodLabel(it) } ?: em,
+                            "💵",
+                            tile,
+                            text1,
+                            text2,
+                            Modifier.weight(1f),
+                        )
                     }
-                    DetailTile("# ID", event.id, "#", tile, text1, text2, Modifier.fillMaxWidth())
+                    DetailTile(stringResource(R.string.analytics_detail_tile_id), event.id, "#", tile, text1, text2, Modifier.fillMaxWidth())
                 }
                 Spacer(Modifier.height(12.dp))
                 if (event.items.isNotEmpty()) {
-                    Text("Receipt", color = text2, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp))
+                    Text(stringResource(R.string.analytics_detail_receipt), color = text2, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp))
                     Spacer(Modifier.height(6.dp))
                     Row(
                         Modifier
@@ -145,14 +174,14 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                             .background(tile)
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
-                        Text("Item", color = text2, fontSize = 11.sp, modifier = Modifier.weight(1f))
-                        Text("Qty", color = text2, fontSize = 11.sp, modifier = Modifier.width(40.dp), textAlign = TextAlign.End)
-                        Text("Price", color = text2, fontSize = 11.sp, modifier = Modifier.width(64.dp), textAlign = TextAlign.End)
-                        Text("Total", color = text2, fontSize = 11.sp, modifier = Modifier.width(72.dp), textAlign = TextAlign.End)
+                        Text(stringResource(R.string.analytics_col_item), color = text2, fontSize = 11.sp, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.analytics_detail_col_qty), color = text2, fontSize = 11.sp, modifier = Modifier.width(40.dp), textAlign = TextAlign.End)
+                        Text(stringResource(R.string.analytics_detail_col_price), color = text2, fontSize = 11.sp, modifier = Modifier.width(64.dp), textAlign = TextAlign.End)
+                        Text(stringResource(R.string.analytics_detail_col_total), color = text2, fontSize = 11.sp, modifier = Modifier.width(72.dp), textAlign = TextAlign.End)
                     }
                     event.items.forEach { it ->
                         Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                            Text(it.name, color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                            Text(receiptLineTitle(it), color = text1, fontSize = 13.sp, modifier = Modifier.weight(1f))
                             Text(it.qty.toString(), color = text1, fontSize = 13.sp, modifier = Modifier.width(40.dp), textAlign = TextAlign.End)
                             Text(formatLine(it.price, it.currency), color = text1, fontSize = 13.sp, modifier = Modifier.width(64.dp), textAlign = TextAlign.End)
                             Text(formatLine(it.qty * it.price, it.currency), color = text1, fontSize = 13.sp, modifier = Modifier.width(72.dp), textAlign = TextAlign.End)
@@ -165,7 +194,7 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                         Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Total", color = text1, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.analytics_detail_total), color = text1, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                         Column(horizontalAlignment = Alignment.End) {
                             if (totalKrw > 0) {
                                 Text(AnalyticsFormat.won(totalKrw), color = Blue600, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -179,7 +208,8 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                         }
                     }
                 }
-                if (!event.notes.isNullOrEmpty()) {
+                val noteText = historyNoteText(event.noteKey)
+                if (noteText != null) {
                     Box(
                         Modifier
                             .padding(16.dp)
@@ -188,8 +218,8 @@ internal fun HistoryDetailSheet(event: HistoryEvent, isDark: Boolean, onClose: (
                             .padding(12.dp),
                     ) {
                         Column {
-                            Text("Notes", color = text2, fontSize = 11.sp)
-                            Text(event.notes, color = text1, fontSize = 13.sp)
+                            Text(stringResource(R.string.analytics_detail_notes), color = text2, fontSize = 11.sp)
+                            Text(noteText, color = text1, fontSize = 13.sp)
                         }
                     }
                 }

@@ -11,7 +11,8 @@ package com.mh.restaurantchainpos.pos.ui.analytics
 // -----------------------------------------------------------------------------
 
 data class TrendPoint(
-    val label: String,
+    /** Axis tick key: hour digits, MON…SUN, W1…W4, JAN…APR, etc. */
+    val axisKey: String,
     val revenueUsd: Double,
     val revenueKrw: Long,
     val orders: Int,
@@ -28,7 +29,7 @@ data class SalesDashboardKpi(
     val cancelChange: String,
 )
 
-data class PaymentSplit(val method: String, val pct: Int, val accent: Long)
+data class PaymentSplit(val methodKey: String, val pct: Int, val accent: Long)
 
 object SalesDashboardData {
     val hourly: List<TrendPoint> = listOf(
@@ -49,13 +50,13 @@ object SalesDashboardData {
         TrendPoint("22", 210.0, 2_380_000, 18),
     )
     val weekly: List<TrendPoint> = listOf(
-        TrendPoint("Mon", 480.0, 4_180_000, 42),
-        TrendPoint("Tue", 1640.0, 1_920_000, 48),
-        TrendPoint("Wed", 820.0, 6_340_000, 55),
-        TrendPoint("Thu", 2180.0, 3_260_000, 50),
-        TrendPoint("Fri", 1240.0, 5_820_000, 68),
-        TrendPoint("Sat", 2940.0, 2_480_000, 82),
-        TrendPoint("Sun", 620.0, 4_960_000, 61),
+        TrendPoint("MON", 480.0, 4_180_000, 42),
+        TrendPoint("TUE", 1640.0, 1_920_000, 48),
+        TrendPoint("WED", 820.0, 6_340_000, 55),
+        TrendPoint("THU", 2180.0, 3_260_000, 50),
+        TrendPoint("FRI", 1240.0, 5_820_000, 68),
+        TrendPoint("SAT", 2940.0, 2_480_000, 82),
+        TrendPoint("SUN", 620.0, 4_960_000, 61),
     )
     val monthly: List<TrendPoint> = listOf(
         TrendPoint("W1", 4820.0, 12_360_000, 268),
@@ -64,10 +65,10 @@ object SalesDashboardData {
         TrendPoint("W4", 10940.0, 15_260_000, 338),
     )
     val quarterly: List<TrendPoint> = listOf(
-        TrendPoint("Jan", 18560.0, 94_200_000, 1080),
-        TrendPoint("Feb", 32840.0, 68_400_000, 996),
-        TrendPoint("Mar", 24720.0, 112_880_000, 1232),
-        TrendPoint("Apr", 38900.0, 79_420_000, 1283),
+        TrendPoint("JAN", 18560.0, 94_200_000, 1080),
+        TrendPoint("FEB", 32840.0, 68_400_000, 996),
+        TrendPoint("MAR", 24720.0, 112_880_000, 1232),
+        TrendPoint("APR", 38900.0, 79_420_000, 1283),
     )
 
     fun forPeriod(p: Period): List<TrendPoint> = when (p) {
@@ -93,12 +94,12 @@ object SalesDashboardData {
     )
 
     val paymentForeign: List<PaymentSplit> = listOf(
-        PaymentSplit("Credit", 78, 0xFF3B82F6),
-        PaymentSplit("Cash", 22, 0xFF22C55E),
+        PaymentSplit("credit", 78, 0xFF3B82F6),
+        PaymentSplit("cash", 22, 0xFF22C55E),
     )
     val paymentDomestic: List<PaymentSplit> = listOf(
-        PaymentSplit("Credit", 41, 0xFF3B82F6),
-        PaymentSplit("Cash", 59, 0xFF22C55E),
+        PaymentSplit("credit", 41, 0xFF3B82F6),
+        PaymentSplit("cash", 59, 0xFF22C55E),
     )
 }
 
@@ -108,9 +109,7 @@ object SalesDashboardData {
 
 data class MenuItemRow(
     val nameKey: String,
-    val name: String,
     val categoryKey: String,
-    val category: String,
     val currency: AnalyticsCurrency,
     val baseQty: Int,
     val basePrice: Double,
@@ -119,26 +118,26 @@ data class MenuItemRow(
 
 object MenuAnalysisData {
     val items: List<MenuItemRow> = listOf(
-        MenuItemRow("ribeyeSteak", "Ribeye Steak", "grilledBbq", "Grilled & BBQ", AnalyticsCurrency.Foreign, 102, 45.0, listOf(14, 17, 13, 15, 22, 28, 19)),
-        MenuItemRow("grilledSalmon", "Grilled Salmon", "grilledBbq", "Grilled & BBQ", AnalyticsCurrency.Foreign, 128, 20.0),
-        MenuItemRow("lobsterTail", "Lobster Tail", "entrees", "Entrees", AnalyticsCurrency.Foreign, 58, 58.0),
-        MenuItemRow("caesarSalad", "Caesar Salad", "salads", "Salads", AnalyticsCurrency.Foreign, 158, 14.0),
-        MenuItemRow("truffleFries", "Truffle Fries", "sides", "Sides", AnalyticsCurrency.Foreign, 182, 8.0),
-        MenuItemRow("lycheeMartini", "Lychee Martini", "cocktails", "Cocktails", AnalyticsCurrency.Foreign, 94, 12.0),
-        MenuItemRow("chickenWings", "Chicken Wings", "appetizers", "Appetizers", AnalyticsCurrency.Foreign, 146, 12.0),
-        MenuItemRow("tiramisu", "Tiramisu", "desserts", "Desserts", AnalyticsCurrency.Foreign, 74, 9.0),
-        MenuItemRow("fishAndChips", "Fish & Chips", "entrees", "Entrees", AnalyticsCurrency.Foreign, 88, 22.0),
-        MenuItemRow("maiTai", "Mai Tai", "cocktails", "Cocktails", AnalyticsCurrency.Foreign, 63, 11.0),
-        MenuItemRow("bibimbap", "Bibimbap", "riceDishes", "Rice Dishes", AnalyticsCurrency.Domestic, 212, 14000.0, listOf(24, 28, 31, 26, 36, 42, 33)),
-        MenuItemRow("bulgogi", "Bulgogi", "grilledBbq", "Grilled & BBQ", AnalyticsCurrency.Domestic, 165, 18000.0),
-        MenuItemRow("soju", "Soju", "sakeSoju", "Sake & Soju", AnalyticsCurrency.Domestic, 288, 7000.0),
-        MenuItemRow("makgeolli", "Makgeolli", "sakeSoju", "Sake & Soju", AnalyticsCurrency.Domestic, 142, 9000.0),
-        MenuItemRow("kimchi", "Kimchi", "coldDishes", "Cold Dishes", AnalyticsCurrency.Domestic, 196, 5000.0),
-        MenuItemRow("ramen", "Ramen", "hotSoups", "Hot Soups", AnalyticsCurrency.Domestic, 176, 12000.0),
-        MenuItemRow("udonNoodles", "Udon Noodles", "noodles", "Noodles", AnalyticsCurrency.Domestic, 134, 13000.0),
-        MenuItemRow("gyoza", "Gyoza", "hotAppetizers", "Hot Appetizers", AnalyticsCurrency.Domestic, 158, 8000.0),
-        MenuItemRow("greenTea", "Green Tea", "tea", "Tea", AnalyticsCurrency.Domestic, 224, 3000.0),
-        MenuItemRow("hotSake", "Hot Sake", "sakeSoju", "Sake & Soju", AnalyticsCurrency.Domestic, 96, 8000.0),
+        MenuItemRow("ribeyeSteak", "grilledBbq", AnalyticsCurrency.Foreign, 102, 45.0, listOf(14, 17, 13, 15, 22, 28, 19)),
+        MenuItemRow("grilledSalmon", "grilledBbq", AnalyticsCurrency.Foreign, 128, 20.0),
+        MenuItemRow("lobsterTail", "entrees", AnalyticsCurrency.Foreign, 58, 58.0),
+        MenuItemRow("caesarSalad", "salads", AnalyticsCurrency.Foreign, 158, 14.0),
+        MenuItemRow("truffleFries", "sides", AnalyticsCurrency.Foreign, 182, 8.0),
+        MenuItemRow("lycheeMartini", "cocktails", AnalyticsCurrency.Foreign, 94, 12.0),
+        MenuItemRow("chickenWings", "appetizers", AnalyticsCurrency.Foreign, 146, 12.0),
+        MenuItemRow("tiramisu", "desserts", AnalyticsCurrency.Foreign, 74, 9.0),
+        MenuItemRow("fishAndChips", "entrees", AnalyticsCurrency.Foreign, 88, 22.0),
+        MenuItemRow("maiTai", "cocktails", AnalyticsCurrency.Foreign, 63, 11.0),
+        MenuItemRow("bibimbap", "riceDishes", AnalyticsCurrency.Domestic, 212, 14000.0, listOf(24, 28, 31, 26, 36, 42, 33)),
+        MenuItemRow("bulgogi", "grilledBbq", AnalyticsCurrency.Domestic, 165, 18000.0),
+        MenuItemRow("soju", "sakeSoju", AnalyticsCurrency.Domestic, 288, 7000.0),
+        MenuItemRow("makgeolli", "sakeSoju", AnalyticsCurrency.Domestic, 142, 9000.0),
+        MenuItemRow("kimchi", "coldDishes", AnalyticsCurrency.Domestic, 196, 5000.0),
+        MenuItemRow("ramen", "hotSoups", AnalyticsCurrency.Domestic, 176, 12000.0),
+        MenuItemRow("udonNoodles", "noodles", AnalyticsCurrency.Domestic, 134, 13000.0),
+        MenuItemRow("gyoza", "hotAppetizers", AnalyticsCurrency.Domestic, 158, 8000.0),
+        MenuItemRow("greenTea", "tea", AnalyticsCurrency.Domestic, 224, 3000.0),
+        MenuItemRow("hotSake", "sakeSoju", AnalyticsCurrency.Domestic, 96, 8000.0),
     )
 
     fun multiplier(p: Period): Double = when (p) {
@@ -153,7 +152,7 @@ object MenuAnalysisData {
         0xFFEF4444, 0xFF14B8A6, 0xFFEC4899,
     )
 
-    val weekAxis = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    val weekAxis = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 }
 
 // -----------------------------------------------------------------------------
@@ -171,10 +170,10 @@ data class CustomerKpi(
     val satChange: String,
 )
 
-data class VisitFrequencyRow(val visits: String, val customers: Int)
-data class CustomerSegment(val name: String, val value: Int, val accent: Long)
+data class VisitFrequencyRow(val visitsKey: String, val customers: Int)
+data class CustomerSegment(val nameKey: String, val value: Int, val accent: Long)
 data class HourTraffic(val hour: String, val customers: Int)
-data class PartySize(val size: String, val pct: Int)
+data class PartySize(val sizeKey: String, val pct: Int)
 
 object CustomerAnalysisData {
     val kpiByPeriod: Map<Period, CustomerKpi> = mapOf(
@@ -186,57 +185,57 @@ object CustomerAnalysisData {
     )
 
     val segmentByPeriod: Map<Period, List<CustomerSegment>> = mapOf(
-        Period.Today to listOf(CustomerSegment("Returning", 58, 0xFF3B82F6), CustomerSegment("New", 42, 0xFF22C55E)),
-        Period.Week to listOf(CustomerSegment("Returning", 62, 0xFF3B82F6), CustomerSegment("New", 38, 0xFF22C55E)),
-        Period.Month to listOf(CustomerSegment("Returning", 65, 0xFF3B82F6), CustomerSegment("New", 35, 0xFF22C55E)),
-        Period.Quarter to listOf(CustomerSegment("Returning", 63, 0xFF3B82F6), CustomerSegment("New", 37, 0xFF22C55E)),
-        Period.Custom to listOf(CustomerSegment("Returning", 62, 0xFF3B82F6), CustomerSegment("New", 38, 0xFF22C55E)),
+        Period.Today to listOf(CustomerSegment("returning", 58, 0xFF3B82F6), CustomerSegment("new", 42, 0xFF22C55E)),
+        Period.Week to listOf(CustomerSegment("returning", 62, 0xFF3B82F6), CustomerSegment("new", 38, 0xFF22C55E)),
+        Period.Month to listOf(CustomerSegment("returning", 65, 0xFF3B82F6), CustomerSegment("new", 35, 0xFF22C55E)),
+        Period.Quarter to listOf(CustomerSegment("returning", 63, 0xFF3B82F6), CustomerSegment("new", 37, 0xFF22C55E)),
+        Period.Custom to listOf(CustomerSegment("returning", 62, 0xFF3B82F6), CustomerSegment("new", 38, 0xFF22C55E)),
     )
 
     val visitFreqByPeriod: Map<Period, List<VisitFrequencyRow>> = mapOf(
         Period.Today to listOf(
-            VisitFrequencyRow("1x", 34),
-            VisitFrequencyRow("2-3x", 26),
-            VisitFrequencyRow("4-6x", 14),
-            VisitFrequencyRow("7-10x", 6),
-            VisitFrequencyRow("10x+", 2),
+            VisitFrequencyRow("v1", 34),
+            VisitFrequencyRow("v2_3", 26),
+            VisitFrequencyRow("v4_6", 14),
+            VisitFrequencyRow("v7_10", 6),
+            VisitFrequencyRow("v10p", 2),
         ),
         Period.Week to listOf(
-            VisitFrequencyRow("1x", 486),
-            VisitFrequencyRow("2-3x", 384),
-            VisitFrequencyRow("4-6x", 228),
-            VisitFrequencyRow("7-10x", 124),
-            VisitFrequencyRow("10x+", 62),
+            VisitFrequencyRow("v1", 486),
+            VisitFrequencyRow("v2_3", 384),
+            VisitFrequencyRow("v4_6", 228),
+            VisitFrequencyRow("v7_10", 124),
+            VisitFrequencyRow("v10p", 62),
         ),
         Period.Month to listOf(
-            VisitFrequencyRow("1x", 1792),
-            VisitFrequencyRow("2-3x", 1536),
-            VisitFrequencyRow("4-6x", 1024),
-            VisitFrequencyRow("7-10x", 512),
-            VisitFrequencyRow("10x+", 256),
+            VisitFrequencyRow("v1", 1792),
+            VisitFrequencyRow("v2_3", 1536),
+            VisitFrequencyRow("v4_6", 1024),
+            VisitFrequencyRow("v7_10", 512),
+            VisitFrequencyRow("v10p", 256),
         ),
         Period.Quarter to listOf(
-            VisitFrequencyRow("1x", 5202),
-            VisitFrequencyRow("2-3x", 4158),
-            VisitFrequencyRow("4-6x", 2972),
-            VisitFrequencyRow("7-10x", 1636),
-            VisitFrequencyRow("10x+", 892),
+            VisitFrequencyRow("v1", 5202),
+            VisitFrequencyRow("v2_3", 4158),
+            VisitFrequencyRow("v4_6", 2972),
+            VisitFrequencyRow("v7_10", 1636),
+            VisitFrequencyRow("v10p", 892),
         ),
         Period.Custom to listOf(
-            VisitFrequencyRow("1x", 486),
-            VisitFrequencyRow("2-3x", 384),
-            VisitFrequencyRow("4-6x", 228),
-            VisitFrequencyRow("7-10x", 124),
-            VisitFrequencyRow("10x+", 62),
+            VisitFrequencyRow("v1", 486),
+            VisitFrequencyRow("v2_3", 384),
+            VisitFrequencyRow("v4_6", 228),
+            VisitFrequencyRow("v7_10", 124),
+            VisitFrequencyRow("v10p", 62),
         ),
     )
 
     val partySize: List<PartySize> = listOf(
-        PartySize("1", 8),
-        PartySize("2", 32),
-        PartySize("3-4", 38),
-        PartySize("5-6", 15),
-        PartySize("7+", 7),
+        PartySize("p1", 8),
+        PartySize("p2", 32),
+        PartySize("p3_4", 38),
+        PartySize("p5_6", 15),
+        PartySize("p7p", 7),
     )
 
     val hourlyTraffic: List<HourTraffic> = listOf(
@@ -262,23 +261,23 @@ object CustomerAnalysisData {
 // History
 // -----------------------------------------------------------------------------
 
-enum class HistoryKind(val id: String, val label: String) {
-    Order("order", "Orders"),
-    Reservation("reservation", "Reservations"),
-    Payment("payment", "Payments"),
-    NoShow("no-show", "No-shows"),
-    WalkIn("walk-in", "Walk-ins"),
+enum class HistoryKind(val id: String) {
+    Order("order"),
+    Reservation("reservation"),
+    Payment("payment"),
+    NoShow("no-show"),
+    WalkIn("walk-in"),
 }
 
-enum class HistoryStatus(val id: String, val label: String) {
-    Completed("completed", "Completed"),
-    Paid("paid", "Paid"),
-    NoShow("no-show", "No-show"),
-    Refunded("refunded", "Refunded"),
+enum class HistoryStatus(val id: String) {
+    Completed("completed"),
+    Paid("paid"),
+    NoShow("no-show"),
+    Refunded("refunded"),
 }
 
 data class HistoryReceiptItem(
-    val name: String,
+    val itemKey: String,
     val qty: Int,
     val price: Double,
     val currency: AnalyticsCurrency = AnalyticsCurrency.Foreign,
@@ -288,8 +287,8 @@ data class HistoryEvent(
     val id: String,
     val kind: HistoryKind,
     val guest: String,
+    val guestKey: String? = null,
     val tableNum: Int,
-    val tableLabel: String,
     val amountUsd: Double = 0.0,
     val amountKrw: Long = 0L,
     val status: HistoryStatus,
@@ -298,8 +297,8 @@ data class HistoryEvent(
     val reservedAt: String? = null,
     val arrivedAt: String? = null,
     val paidAt: String? = null,
-    val payment: String? = null,
-    val notes: String? = null,
+    val paymentKey: String? = null,
+    val noteKey: String? = null,
     val items: List<HistoryReceiptItem> = emptyList(),
     val linkedToId: String? = null,
 )
@@ -318,19 +317,18 @@ object HistoryData {
             kind = HistoryKind.Payment,
             guest = "Park K.",
             tableNum = 2,
-            tableLabel = "Table 2",
             amountUsd = 156.50,
             status = HistoryStatus.Completed,
             timestampMs = ago(0, 6, 25),
             partySize = 4,
             paidAt = "12:35",
-            payment = "Credit Card",
+            paymentKey = "credit_card",
             items = listOf(
-                HistoryReceiptItem("Americano", 2, 3.50),
-                HistoryReceiptItem("Cafe Latte", 1, 4.00),
-                HistoryReceiptItem("Honey Cold Brew", 1, 5.50),
-                HistoryReceiptItem("Croissant", 2, 4.00),
-                HistoryReceiptItem("Tiramisu", 1, 6.50),
+                HistoryReceiptItem("americano", 2, 3.50),
+                HistoryReceiptItem("cafe_latte", 1, 4.00),
+                HistoryReceiptItem("honey_cold_brew", 1, 5.50),
+                HistoryReceiptItem("croissant", 2, 4.00),
+                HistoryReceiptItem("tiramisu", 1, 6.50),
             ),
         ),
         HistoryEvent(
@@ -338,29 +336,27 @@ object HistoryData {
             kind = HistoryKind.Payment,
             guest = "Lee S.",
             tableNum = 3,
-            tableLabel = "Table 3",
             amountUsd = 41.00,
             amountKrw = 88_000,
             status = HistoryStatus.Paid,
             timestampMs = ago(0, 5, 47),
             partySize = 3,
             paidAt = "01:12 PM",
-            payment = "Cash",
+            paymentKey = "cash",
         ),
         HistoryEvent(
             id = "h-t3",
             kind = HistoryKind.Order,
             guest = "Choi M.",
             tableNum = 10,
-            tableLabel = "Table 10",
             amountUsd = 17.50,
             status = HistoryStatus.Completed,
             timestampMs = ago(0, 4, 12),
             partySize = 5,
-            payment = "Credit Card",
+            paymentKey = "credit_card",
             items = listOf(
-                HistoryReceiptItem("Vanilla cold brew", 2, 6.50),
-                HistoryReceiptItem("Espresso con Panna", 1, 4.50),
+                HistoryReceiptItem("vanilla_cold_brew", 2, 6.50),
+                HistoryReceiptItem("espresso_con_panna", 1, 4.50),
             ),
         ),
         HistoryEvent(
@@ -368,33 +364,31 @@ object HistoryData {
             kind = HistoryKind.Reservation,
             guest = "Kim M.",
             tableNum = 2,
-            tableLabel = "Table 2",
             status = HistoryStatus.Completed,
             timestampMs = ago(1, 2, 0),
             partySize = 4,
             reservedAt = "18:00",
             arrivedAt = "18:05",
             paidAt = "20:11",
-            notes = "Anniversary dinner",
+            noteKey = "anniversary_dinner",
         ),
         HistoryEvent(
             id = "h-n1",
             kind = HistoryKind.NoShow,
             guest = "Lim S.",
             tableNum = 3,
-            tableLabel = "Table 3",
             status = HistoryStatus.NoShow,
             timestampMs = ago(1, 1, 30),
             partySize = 4,
             reservedAt = "19:00",
-            notes = "Released after 20m grace period",
+            noteKey = "grace_20m",
         ),
         HistoryEvent(
             id = "h-w1",
             kind = HistoryKind.WalkIn,
-            guest = "Walk-in",
+            guest = "",
+            guestKey = "walk_in",
             tableNum = 3,
-            tableLabel = "Table 3",
             amountUsd = 41.00,
             amountKrw = 88_000,
             status = HistoryStatus.Completed,
@@ -402,12 +396,12 @@ object HistoryData {
             partySize = 3,
             arrivedAt = "19:20",
             paidAt = "20:55",
-            payment = "Cash",
+            paymentKey = "cash",
             linkedToId = "h-n1",
             items = listOf(
-                HistoryReceiptItem("Bibimbap", 2, 14_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Bulgogi", 1, 18_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Green Tea", 3, 3_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("bibimbap", 2, 14_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("bulgogi", 1, 18_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("greenTea", 3, 3_000.0, AnalyticsCurrency.Domestic),
             ),
         ),
         HistoryEvent(
@@ -415,7 +409,6 @@ object HistoryData {
             kind = HistoryKind.Reservation,
             guest = "Jung H.",
             tableNum = 8,
-            tableLabel = "Table 8",
             status = HistoryStatus.Completed,
             timestampMs = ago(2, 0, 30),
             partySize = 3,
@@ -428,30 +421,28 @@ object HistoryData {
             kind = HistoryKind.Payment,
             guest = "Yoo N.",
             tableNum = 5,
-            tableLabel = "Table 5",
             amountUsd = 22.00,
             status = HistoryStatus.Refunded,
             timestampMs = ago(3),
             partySize = 2,
             paidAt = "13:40",
-            payment = "Credit Card",
-            notes = "Customer refunded for cold soup",
+            paymentKey = "credit_card",
+            noteKey = "cold_soup_refund",
         ),
         HistoryEvent(
             id = "h-o1",
             kind = HistoryKind.Order,
             guest = "Oh S.",
             tableNum = 2,
-            tableLabel = "Table 2",
             amountKrw = 64_000,
             status = HistoryStatus.Completed,
             timestampMs = ago(4, 5, 0),
             partySize = 4,
             items = listOf(
-                HistoryReceiptItem("Bibimbap", 2, 14_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Soju", 2, 7_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Kimchi", 2, 5_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Green Tea", 2, 3_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("bibimbap", 2, 14_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("soju", 2, 7_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("kimchi", 2, 5_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("greenTea", 2, 3_000.0, AnalyticsCurrency.Domestic),
             ),
         ),
         HistoryEvent(
@@ -459,29 +450,27 @@ object HistoryData {
             kind = HistoryKind.Reservation,
             guest = "Han B.",
             tableNum = 9,
-            tableLabel = "Table 9",
             status = HistoryStatus.Completed,
             timestampMs = ago(5),
             partySize = 6,
             reservedAt = "20:00",
             arrivedAt = "20:02",
             paidAt = "22:35",
-            payment = "Credit Card",
+            paymentKey = "credit_card",
         ),
         HistoryEvent(
             id = "h-o2",
             kind = HistoryKind.Order,
             guest = "Bae J.",
             tableNum = 7,
-            tableLabel = "Table 7",
             amountUsd = 78.50,
             status = HistoryStatus.Completed,
             timestampMs = ago(5, 2, 0),
             partySize = 2,
             items = listOf(
-                HistoryReceiptItem("Ribeye Steak", 1, 45.0),
-                HistoryReceiptItem("Caesar Salad", 1, 14.0),
-                HistoryReceiptItem("Lychee Martini", 1, 12.0),
+                HistoryReceiptItem("ribeyeSteak", 1, 45.0),
+                HistoryReceiptItem("caesarSalad", 1, 14.0),
+                HistoryReceiptItem("lycheeMartini", 1, 12.0),
             ),
         ),
         HistoryEvent(
@@ -489,7 +478,6 @@ object HistoryData {
             kind = HistoryKind.WalkIn,
             guest = "Ji N.",
             tableNum = 1,
-            tableLabel = "Table 1",
             amountKrw = 32_000,
             status = HistoryStatus.Completed,
             timestampMs = ago(6),
@@ -502,55 +490,51 @@ object HistoryData {
             kind = HistoryKind.NoShow,
             guest = "Cho R.",
             tableNum = 6,
-            tableLabel = "Table 6",
             status = HistoryStatus.NoShow,
             timestampMs = ago(7, 3, 0),
             partySize = 2,
             reservedAt = "20:00",
-            notes = "Did not respond to confirmation",
+            noteKey = "no_confirmation",
         ),
         HistoryEvent(
             id = "h-pay4",
             kind = HistoryKind.Payment,
             guest = "Seo J.",
             tableNum = 4,
-            tableLabel = "Table 4",
             amountUsd = 96.20,
             status = HistoryStatus.Paid,
             timestampMs = ago(8),
             partySize = 3,
             paidAt = "21:18",
-            payment = "Credit Card",
+            paymentKey = "credit_card",
         ),
         HistoryEvent(
             id = "h-r4",
             kind = HistoryKind.Reservation,
             guest = "Moon S.",
             tableNum = 11,
-            tableLabel = "Table 11",
             status = HistoryStatus.Completed,
             timestampMs = ago(10),
             partySize = 4,
             reservedAt = "19:30",
             arrivedAt = "19:33",
             paidAt = "21:45",
-            payment = "Cash",
+            paymentKey = "cash",
         ),
         HistoryEvent(
             id = "h-o3",
             kind = HistoryKind.Order,
             guest = "Ryu T.",
             tableNum = 12,
-            tableLabel = "Table 12",
             amountKrw = 122_000,
             status = HistoryStatus.Completed,
             timestampMs = ago(12),
             partySize = 5,
             items = listOf(
-                HistoryReceiptItem("Bulgogi", 2, 18_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Bibimbap", 1, 14_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Makgeolli", 2, 9_000.0, AnalyticsCurrency.Domestic),
-                HistoryReceiptItem("Gyoza", 4, 8_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("bulgogi", 2, 18_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("bibimbap", 1, 14_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("makgeolli", 2, 9_000.0, AnalyticsCurrency.Domestic),
+                HistoryReceiptItem("gyoza", 4, 8_000.0, AnalyticsCurrency.Domestic),
             ),
         ),
         HistoryEvent(
@@ -558,7 +542,6 @@ object HistoryData {
             kind = HistoryKind.WalkIn,
             guest = "Kang M.",
             tableNum = 8,
-            tableLabel = "Table 8",
             amountUsd = 34.80,
             status = HistoryStatus.Completed,
             timestampMs = ago(15),
@@ -571,7 +554,6 @@ object HistoryData {
             kind = HistoryKind.Reservation,
             guest = "Yoon E.",
             tableNum = 2,
-            tableLabel = "Table 2",
             status = HistoryStatus.Completed,
             timestampMs = ago(20),
             partySize = 6,
@@ -584,26 +566,24 @@ object HistoryData {
             kind = HistoryKind.Payment,
             guest = "Hong M.",
             tableNum = 9,
-            tableLabel = "Table 9",
             amountUsd = 188.30,
             status = HistoryStatus.Completed,
             timestampMs = ago(25),
             partySize = 6,
             paidAt = "22:11",
-            payment = "Credit Card",
+            paymentKey = "credit_card",
         ),
         HistoryEvent(
             id = "h-rf2",
             kind = HistoryKind.Payment,
             guest = "Park J.",
             tableNum = 10,
-            tableLabel = "Table 10",
             amountKrw = 24_000,
             status = HistoryStatus.Refunded,
             timestampMs = ago(28),
             partySize = 1,
-            payment = "Cash",
-            notes = "Item out of stock — full refund",
+            paymentKey = "cash",
+            noteKey = "out_of_stock_refund",
         ),
     )
 }

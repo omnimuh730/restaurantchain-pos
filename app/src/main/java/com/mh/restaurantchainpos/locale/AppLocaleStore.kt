@@ -34,7 +34,9 @@ object AppLocaleStore {
             "KO" -> "ko"
             else -> "en"
         }
-        prefs(context).edit().putString(KEY_LOCALE, tag).apply()
+        // commit() so the value is persisted before activity recreate; apply() can race and
+        // the next onCreate may read null and skip setApplicationLocales.
+        prefs(context).edit().putString(KEY_LOCALE, tag).commit()
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
     }
 

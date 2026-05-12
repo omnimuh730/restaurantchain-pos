@@ -29,16 +29,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Date range picker modal with quick-presets and a month-grid calendar.
@@ -56,6 +60,17 @@ fun CustomRangePicker(
     var end by remember { mutableLongStateOf(zeroDay(initialEnd)) }
     val nav = remember { Calendar.getInstance().apply { timeInMillis = initialStart } }
     var navMillis by remember { mutableLongStateOf(nav.timeInMillis) }
+
+    val locale = LocalConfiguration.current.locales[0]
+    val monthYearFmt = remember(locale) {
+        SimpleDateFormat("MMMM yyyy", locale).apply { timeZone = TimeZone.getDefault() }
+    }
+    val shortFmt = remember(locale) {
+        SimpleDateFormat("MMM d, yyyy", locale).apply { timeZone = TimeZone.getDefault() }
+    }
+    fun monthYear(ms: Long): String = monthYearFmt.format(Date(ms))
+    fun shortDate(ms: Long): String = shortFmt.format(Date(ms))
+    val weekLetters = remember(locale) { localizedWeekdayInitials(locale) }
 
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
@@ -97,7 +112,7 @@ fun CustomRangePicker(
             ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Select date range", color = text1, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_range_title), color = text1, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Text(
                         text = "${shortDate(start)} – ${shortDate(end)}",
                         color = text2,
@@ -120,10 +135,10 @@ fun CustomRangePicker(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    "Last 1 week" to 7,
-                    "Last 2 weeks" to 14,
-                    "This month" to -1,
-                    "Last month" to -2,
+                    stringResource(R.string.analytics_preset_last_1_week) to 7,
+                    stringResource(R.string.analytics_preset_last_2_weeks) to 14,
+                    stringResource(R.string.analytics_preset_this_month) to -1,
+                    stringResource(R.string.analytics_preset_last_month) to -2,
                 ).forEach { (label, presetDays) ->
                     PresetPill(label, text2, border) {
                         val now = Calendar.getInstance().also { it.zeroDay() }.timeInMillis
@@ -174,9 +189,9 @@ fun CustomRangePicker(
             }
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                listOf("S", "M", "T", "W", "T", "F", "S").forEach {
+                weekLetters.forEach { letter ->
                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        Text(it, color = text2, fontSize = 11.sp)
+                        Text(letter, color = text2, fontSize = 11.sp)
                     }
                 }
             }
@@ -202,7 +217,7 @@ fun CustomRangePicker(
 
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "Cancel",
+                    stringResource(R.string.analytics_range_cancel),
                     color = text2,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -223,7 +238,7 @@ fun CustomRangePicker(
                         }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
-                    Text("Apply", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.analytics_range_apply), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -322,7 +337,15 @@ private fun Calendar.zeroDay() {
     set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
 }
 
-private val monthYearFmt = SimpleDateFormat("MMMM yyyy", Locale.US)
-private val shortFmt = SimpleDateFormat("MMM d, yyyy", Locale.US)
-private fun monthYear(ms: Long): String = monthYearFmt.format(Date(ms))
-private fun shortDate(ms: Long): String = shortFmt.format(Date(ms))
+private fun localizedWeekdayInitials(locale: Locale): List<String> {
+    val fmt = SimpleDateFormat("EEEEE", locale)
+    val base = Calendar.getInstance().apply {
+        clear()
+        set(2020, Calendar.MARCH, 1, 12, 0, 0)
+    }
+    return (0..6).map { i ->
+        val cal = (base.clone() as Calendar)
+        cal.add(Calendar.DATE, i)
+        fmt.format(cal.time)
+    }
+}

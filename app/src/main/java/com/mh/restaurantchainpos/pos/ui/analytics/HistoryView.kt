@@ -45,8 +45,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.i18n.historySearchHaystack
+import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,16 +88,14 @@ fun HistoryView(
         else -> 0L to Long.MAX_VALUE
     }
 
+    val ctx = LocalContext.current
     val q = search.trim().lowercase()
     val filtered = HistoryData.events
         .filter { it.timestampMs in start..end }
         .filter { tab == null || it.kind == tab }
         .filter { e ->
             if (q.isEmpty()) return@filter true
-            val text = listOfNotNull(
-                e.id, e.guest, e.tableLabel, e.tableNum.toString(), e.payment, e.notes,
-            ).joinToString(" ") + " " + e.items.joinToString(" ") { it.name }
-            text.lowercase().contains(q)
+            historySearchHaystack(ctx, e).lowercase().contains(q)
         }
         .sortedByDescending { it.timestampMs }
 
@@ -118,10 +121,10 @@ fun HistoryView(
 
         // KPI strip
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            HistKpi("Events", filtered.size.toString(), null, card, border, text1, text2, Modifier.weight(1f))
+            HistKpi(stringResource(R.string.analytics_hist_kpi_events), filtered.size.toString(), null, card, border, text1, text2, Modifier.weight(1f))
             val rev = if (totalKrw > 0) AnalyticsFormat.won(totalKrw) else AnalyticsFormat.usd(totalUsd)
-            HistKpi("Revenue", rev, null, card, border, text1, text2, Modifier.weight(1f))
-            HistKpi("No-Shows", noShows.toString(), null, card, border, text1, text2, Modifier.weight(1f))
+            HistKpi(stringResource(R.string.analytics_hist_kpi_revenue), rev, null, card, border, text1, text2, Modifier.weight(1f))
+            HistKpi(stringResource(R.string.analytics_hist_kpi_no_shows), noShows.toString(), null, card, border, text1, text2, Modifier.weight(1f))
         }
 
         // List card
@@ -141,7 +144,7 @@ fun HistoryView(
                     Box(Modifier.weight(1f)) {
                         if (search.isEmpty()) {
                             Text(
-                                "Search by order ID, menu item, payer name, table…",
+                                stringResource(R.string.analytics_hist_search_hint),
                                 color = muted,
                                 fontSize = 13.sp,
                                 maxLines = 1,
@@ -175,7 +178,7 @@ fun HistoryView(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     TabPill(
-                        label = "All",
+                        label = stringResource(R.string.analytics_hist_tab_all),
                         count = HistoryData.events.size,
                         active = tab == null,
                         activeColor = activeTab,
@@ -184,7 +187,7 @@ fun HistoryView(
                     ) { tab = null }
                     HistoryKind.entries.forEach { kind ->
                         TabPill(
-                            label = kind.label,
+                            label = kind.stringTitle(),
                             count = counts[kind] ?: 0,
                             active = tab == kind,
                             activeColor = activeTab,
@@ -196,13 +199,13 @@ fun HistoryView(
 
                 Spacer(Modifier.height(8.dp))
 
-                Text("${filtered.size} results", color = text2, fontSize = 11.sp)
+                Text(stringResource(R.string.analytics_hist_results, filtered.size), color = text2, fontSize = 11.sp)
 
                 Spacer(Modifier.height(8.dp))
 
                 if (filtered.isEmpty()) {
                     Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        Text("No matching events", color = muted, fontSize = 13.sp)
+                        Text(stringResource(R.string.analytics_hist_empty), color = muted, fontSize = 13.sp)
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
