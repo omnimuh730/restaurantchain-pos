@@ -188,3 +188,96 @@ private fun DialogButton(
         Text(label, color = foreground, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
     }
 }
+
+internal enum class OrderedLineModifyKind { Increase, Decrease, Remove }
+
+/**
+ * Confirmation dialog shown when the user adjusts (`-` / `+`) or removes an
+ * already-ordered line, mirroring the kitchen `ConfirmActionModal` style.
+ */
+@Composable
+internal fun ConfirmModifyOrderedDialog(
+    colors: PosColors,
+    line: OrderLine,
+    kind: OrderedLineModifyKind,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    val description = when (kind) {
+        OrderedLineModifyKind.Increase -> stringResource(R.string.orders_modify_increase)
+        OrderedLineModifyKind.Decrease -> stringResource(R.string.orders_modify_decrease)
+        OrderedLineModifyKind.Remove -> stringResource(R.string.orders_modify_remove)
+    }
+    val nextQty = when (kind) {
+        OrderedLineModifyKind.Increase -> line.qty + 1
+        OrderedLineModifyKind.Decrease -> (line.qty - 1).coerceAtLeast(0)
+        OrderedLineModifyKind.Remove -> 0
+    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(colors.overlay)
+            .clickable(onClick = onCancel),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .widthIn(min = 280.dp, max = 360.dp)
+                .fillMaxWidth(0.9f)
+                .clip(RoundedCornerShape(14.dp))
+                .background(colors.surface)
+                .border(1.dp, colors.border, RoundedCornerShape(14.dp))
+                .clickable(enabled = false) {}
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                stringResource(R.string.orders_modify_confirm_title),
+                color = colors.text,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(description, color = colors.textMuted, fontSize = 12.sp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(colors.surfaceRaised)
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    rememberOrderCatalogString("orders_item", line.baseId, line.baseId),
+                    color = colors.text,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    stringResource(R.string.orders_modify_qty_from_to, line.qty, nextQty),
+                    color = colors.textMuted,
+                    fontSize = 12.sp,
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Spacer(Modifier.weight(1f))
+                DialogButton(
+                    label = stringResource(R.string.common_cancel),
+                    background = colors.surfaceRaised,
+                    foreground = colors.text,
+                    onClick = onCancel,
+                )
+                DialogButton(
+                    label = stringResource(R.string.common_confirm),
+                    background = Blue600,
+                    foreground = Color.White,
+                    onClick = onConfirm,
+                )
+            }
+        }
+    }
+}

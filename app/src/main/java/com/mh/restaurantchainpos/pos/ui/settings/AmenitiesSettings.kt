@@ -1,7 +1,6 @@
 package com.mh.restaurantchainpos.pos.ui.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,6 +79,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -251,47 +251,49 @@ private fun AmenityTile(
     val labelColor = if (active) Blue600 else colors.text
     val label = amenityLabel(option.id)
 
-    Box(
-        modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(background)
-            .border(1.5.dp, borderColor, RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(14.dp),
+    PosElevatedSurface(
+        colors,
+        modifier.clickable(onClick = onClick),
+        RoundedCornerShape(12.dp),
+        fillColor = background,
+        borderWidth = 1.5.dp,
+        borderColor = borderColor,
     ) {
-        if (active) {
-            Box(
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(Blue600),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+        Box(Modifier.fillMaxWidth().padding(14.dp)) {
+            if (active) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(Blue600),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+                }
             }
-        }
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(
-                Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(iconBg),
-                contentAlignment = Alignment.Center,
+            Column(
+                Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Icon(option.icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+                Box(
+                    Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(iconBg),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(option.icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    label,
+                    color = labelColor,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                )
             }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                label,
-                color = labelColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }

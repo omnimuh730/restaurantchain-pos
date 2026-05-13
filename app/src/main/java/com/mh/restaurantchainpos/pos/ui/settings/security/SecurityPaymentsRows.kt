@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.PaymentCard
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -44,14 +45,13 @@ internal fun NotificationRow(
     checked: Boolean,
     onChange: () -> Unit,
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(colors.surfaceRaised)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    PosElevatedSurface(colors, Modifier.fillMaxWidth(), RoundedCornerShape(10.dp), fillColor = colors.surfaceRaised) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
         Box(
             Modifier
                 .size(34.dp)
@@ -67,6 +67,7 @@ internal fun NotificationRow(
             Text(description, color = colors.textMuted, fontSize = 11.sp)
         }
         ToggleSwitch(checked = checked, onChange = onChange)
+        }
     }
 }
 
@@ -78,16 +79,22 @@ internal fun PaymentCardRow(
     onSelect: () -> Unit,
     onRemove: () -> Unit,
 ) {
-    Row(
+    PosElevatedSurface(
+        colors,
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) Blue500.copy(alpha = 0.08f) else colors.surfaceRaised)
-            .border(1.dp, if (selected) Blue600 else colors.border, RoundedCornerShape(10.dp))
-            .clickable(onClick = onSelect)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .clickable(onClick = onSelect),
+        RoundedCornerShape(10.dp),
+        fillColor = if (selected) Blue500.copy(alpha = 0.08f) else colors.surfaceRaised,
+        borderWidth = 1.dp,
+        borderColor = if (selected) Blue600 else colors.border,
     ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
         Box(
             Modifier
                 .size(width = 44.dp, height = 30.dp)
@@ -117,6 +124,7 @@ internal fun PaymentCardRow(
             contentAlignment = Alignment.Center,
         ) {
             Icon(Icons.Outlined.Close, contentDescription = null, tint = Red500, modifier = Modifier.size(16.dp))
+        }
         }
     }
 }

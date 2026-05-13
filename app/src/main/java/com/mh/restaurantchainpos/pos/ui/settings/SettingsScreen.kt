@@ -72,7 +72,12 @@ fun SettingsScreen(colors: PosColors, role: ActiveRole) {
                     onMenuClick = { drawerOpen = true },
                 )
                 Box(Modifier.weight(1f).fillMaxWidth()) {
-                    Box(Modifier.padding(16.dp).fillMaxSize().verticalScroll(rememberScrollState())) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                    ) {
                         when (active) {
                             SettingsSection.General -> GeneralSettings(colors)
                             SettingsSection.Menu -> MenuManagement(colors)

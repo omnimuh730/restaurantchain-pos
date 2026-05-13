@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -55,37 +56,34 @@ fun SettingCard(
     headerIconTint: Color = Blue500,
     content: @Composable () -> Unit,
 ) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface),
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (headerIcon != null) {
-                        Icon(headerIcon, contentDescription = null, tint = headerIconTint, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.size(8.dp))
+    PosElevatedSurface(colors, Modifier.fillMaxWidth(), RoundedCornerShape(12.dp)) {
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (headerIcon != null) {
+                            Icon(headerIcon, contentDescription = null, tint = headerIconTint, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.size(8.dp))
+                        }
+                        Text(title, color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     }
-                    Text(title, color = colors.text, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    if (subtitle != null) {
+                        Spacer(Modifier.height(3.dp))
+                        Text(subtitle, color = colors.textMuted, fontSize = 12.sp)
+                    }
                 }
-                if (subtitle != null) {
-                    Spacer(Modifier.height(3.dp))
-                    Text(subtitle, color = colors.textMuted, fontSize = 12.sp)
+                if (badge != null) {
+                    CardBadge(colors = colors, text = badge, icon = badgeIcon)
                 }
             }
-            if (badge != null) {
-                CardBadge(colors = colors, text = badge, icon = badgeIcon)
-            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+            Column(Modifier.padding(16.dp)) { content() }
         }
-        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
-        Column(Modifier.padding(16.dp)) { content() }
     }
 }
 
@@ -290,16 +288,16 @@ fun OutlineButton(
 
 @Composable
 fun StatBox(colors: PosColors, label: String, value: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(10.dp))
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-    ) {
-        Text(label, color = colors.textMuted, fontSize = 11.sp)
-        Spacer(Modifier.height(3.dp))
-        Text(value, color = colors.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+    PosElevatedSurface(colors, modifier, RoundedCornerShape(10.dp)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+        ) {
+            Text(label, color = colors.textMuted, fontSize = 11.sp)
+            Spacer(Modifier.height(3.dp))
+            Text(value, color = colors.text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 

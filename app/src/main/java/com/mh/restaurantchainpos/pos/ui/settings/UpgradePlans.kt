@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.R
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -98,14 +99,15 @@ private fun PlanCard(
     onUpgrade: () -> Unit,
 ) {
     val highlighted = planKey == "Ultra"
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (highlighted) Blue500.copy(alpha = 0.08f) else colors.surfaceRaised)
-            .border(1.5.dp, if (highlighted) Blue600 else colors.border, RoundedCornerShape(12.dp))
-            .padding(16.dp),
+    PosElevatedSurface(
+        colors,
+        Modifier.fillMaxWidth(),
+        RoundedCornerShape(12.dp),
+        fillColor = if (highlighted) Blue500.copy(alpha = 0.08f) else colors.surfaceRaised,
+        borderWidth = if (highlighted) 1.5.dp else 1.dp,
+        borderColor = if (highlighted) Blue600 else colors.border,
     ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
@@ -154,6 +156,7 @@ private fun PlanCard(
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = Icons.Outlined.Bolt,
         )
+        }
     }
 }
 

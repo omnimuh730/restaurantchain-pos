@@ -28,6 +28,7 @@
     <string name="common_save">저장</string>
     <string name="common_cancel">취소</string>
     <string name="common_confirm">확인</string>
+    <string name="common_done">완료</string>
     <string name="common_tables">테이블</string>
     <string name="common_history">내역</string>
 
@@ -144,6 +145,11 @@
     <string name="orders_confirm_new_item_for_table">%1$s 테이블 · 신규 1건</string>
     <string name="orders_confirm_title">주문 확인</string>
     <string name="orders_badge_new">신규</string>
+    <string name="orders_modify_confirm_title">주문된 메뉴를 변경할까요?</string>
+    <string name="orders_modify_increase">수량을 1개 늘립니다</string>
+    <string name="orders_modify_decrease">수량을 1개 줄입니다</string>
+    <string name="orders_modify_remove">주문된 메뉴를 삭제합니다</string>
+    <string name="orders_modify_qty_from_to">수량 %1$d → %2$d</string>
     <string name="orders_col_item">메뉴</string>
     <string name="orders_col_qty">수량</string>
     <string name="orders_col_each">단가</string>

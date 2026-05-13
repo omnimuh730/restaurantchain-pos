@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.StaffMember
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
@@ -53,14 +54,9 @@ internal fun StaffCard(
     onRemove: () -> Unit,
 ) {
     val isActive = member.status == "active"
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(12.dp)),
-    ) {
-        Column(Modifier.padding(14.dp)) {
+    PosElevatedSurface(colors, Modifier.fillMaxWidth(), RoundedCornerShape(12.dp)) {
+        Column(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
                     Avatar(colors, member.name, 44.dp)
@@ -170,6 +166,7 @@ internal fun StaffCard(
                 tint = Red500,
                 onClick = onRemove,
             )
+        }
         }
     }
 }

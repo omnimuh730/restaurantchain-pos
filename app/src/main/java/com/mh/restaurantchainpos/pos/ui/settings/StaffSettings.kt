@@ -1,7 +1,5 @@
 package com.mh.restaurantchainpos.pos.ui.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.data.StaffMember
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.components.PosNotificationHost
 import com.mh.restaurantchainpos.pos.ui.components.rememberPosNotificationHostState
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
@@ -73,27 +71,26 @@ fun StaffSettings(colors: PosColors) {
 
     Box(Modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(colors.surface)
-                    .border(1.dp, colors.border, RoundedCornerShape(12.dp))
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(Icons.Outlined.Group, contentDescription = null, tint = Blue500, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.size(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.staff_mgmt_title), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(2.dp))
-                    Text(stringResource(R.string.staff_mgmt_subtitle), color = colors.textMuted, fontSize = 12.sp)
+            PosElevatedSurface(colors, Modifier.fillMaxWidth(), RoundedCornerShape(12.dp)) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Outlined.Group, contentDescription = null, tint = Blue500, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.size(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.staff_mgmt_title), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(2.dp))
+                        Text(stringResource(R.string.staff_mgmt_subtitle), color = colors.textMuted, fontSize = 12.sp)
+                    }
+                    PrimaryButton(
+                        label = stringResource(R.string.staff_action_register),
+                        onClick = { registerOpen = true },
+                        leadingIcon = Icons.Outlined.Add,
+                    )
                 }
-                PrimaryButton(
-                    label = stringResource(R.string.staff_action_register),
-                    onClick = { registerOpen = true },
-                    leadingIcon = Icons.Outlined.Add,
-                )
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

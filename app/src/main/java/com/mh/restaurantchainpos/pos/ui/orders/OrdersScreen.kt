@@ -54,6 +54,7 @@ fun OrdersScreen(
     var showPayment by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showOrderConfirm by remember { mutableStateOf(false) }
+    var pendingModify by remember { mutableStateOf<Pair<OrderLine, OrderedLineModifyKind>?>(null) }
     var splitFraction by remember { mutableFloatStateOf(0.35f) }
     var orderScrollNonce by remember { mutableIntStateOf(0) }
     var orderHighlightLineId by remember { mutableStateOf<String?>(null) }
@@ -110,7 +111,7 @@ fun OrdersScreen(
         orderHighlightLineId = null
     }
 
-    fun adjustQty(lineId: String, delta: Int) {
+    fun applyAdjustQty(lineId: String, delta: Int) {
         val current = orders[selectedTableId].orEmpty()
         orders[selectedTableId] = current.mapNotNull { existing ->
             if (existing.id != lineId) return@mapNotNull existing
@@ -128,12 +129,31 @@ fun OrdersScreen(
         }
     }
 
-    fun removeLine(lineId: String) {
+    fun applyRemoveLine(lineId: String) {
         val current = orders[selectedTableId].orEmpty()
         orders[selectedTableId] = current.mapNotNull { existing ->
             if (existing.id != lineId) return@mapNotNull existing
             if (existing.ordered) existing.copy(deleted = true, origQty = existing.origQty ?: existing.qty) else null
         }
+    }
+
+    // Already-ordered lines confirm before mutation; new lines mutate directly so
+    // users aren't blocked on every tap while still building up the new section.
+    fun requestAdjustQty(line: OrderLine, delta: Int) {
+        if (!line.ordered) {
+            applyAdjustQty(line.id, delta)
+            return
+        }
+        val kind = if (delta >= 0) OrderedLineModifyKind.Increase else OrderedLineModifyKind.Decrease
+        pendingModify = line to kind
+    }
+
+    fun requestRemoveLine(line: OrderLine) {
+        if (!line.ordered) {
+            applyRemoveLine(line.id)
+            return
+        }
+        pendingModify = line to OrderedLineModifyKind.Remove
     }
 
     fun addItem(sub: OrderSubCategory, item: OrderMenuItem) {
@@ -212,9 +232,9 @@ fun OrdersScreen(
                         totalKrw = totalKrw,
                         pendingCount = pendingCount,
                         canPay = canPay,
-                        onMinus = { adjustQty(it.id, -1) },
-                        onPlus = { adjustQty(it.id, +1) },
-                        onRemove = { removeLine(it.id) },
+                        onMinus = { requestAdjustQty(it, -1) },
+                        onPlus = { requestAdjustQty(it, +1) },
+                        onRemove = { requestRemoveLine(it) },
                         onOrder = {
                             if (pendingNewItems.isNotEmpty()) {
                                 showOrderConfirm = true
@@ -275,9 +295,9 @@ fun OrdersScreen(
                         totalKrw = totalKrw,
                         pendingCount = pendingCount,
                         canPay = canPay,
-                        onMinus = { adjustQty(it.id, -1) },
-                        onPlus = { adjustQty(it.id, +1) },
-                        onRemove = { removeLine(it.id) },
+                        onMinus = { requestAdjustQty(it, -1) },
+                        onPlus = { requestAdjustQty(it, +1) },
+                        onRemove = { requestRemoveLine(it) },
                         onOrder = {
                             if (pendingNewItems.isNotEmpty()) {
                                 showOrderConfirm = true
@@ -337,6 +357,27 @@ fun OrdersScreen(
                     showOrderConfirm = false
                 },
             )
+        }
+
+        AnimatedVisibility(pendingModify != null, modifier = Modifier.fillMaxSize()) {
+            val request = pendingModify
+            if (request != null) {
+                val (line, kind) = request
+                ConfirmModifyOrderedDialog(
+                    colors = colors,
+                    line = line,
+                    kind = kind,
+                    onCancel = { pendingModify = null },
+                    onConfirm = {
+                        when (kind) {
+                            OrderedLineModifyKind.Increase -> applyAdjustQty(line.id, +1)
+                            OrderedLineModifyKind.Decrease -> applyAdjustQty(line.id, -1)
+                            OrderedLineModifyKind.Remove -> applyRemoveLine(line.id)
+                        }
+                        pendingModify = null
+                    },
+                )
+            }
         }
     }
 }

@@ -37,6 +37,7 @@ import com.mh.restaurantchainpos.pos.data.FloorTable
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.max
 
 /**
  * Pan/zoom canvas for the floor plan. Mirrors the React FloorCanvas:
@@ -74,8 +75,8 @@ fun FloorCanvas(
 
     val canvasPxW = with(density) { FloorMetrics.CanvasW.dp.toPx() }
     val canvasPxH = with(density) { FloorMetrics.CanvasH.dp.toPx() }
-    val contentBoundsDp = remember(tables) { calculateTableContentBoundsDp(tables) }
-    val contentBoundsPx = contentBoundsDp?.let { bounds ->
+    val tableBoundsDp = remember(tables) { calculateTableContentBoundsDp(tables) }
+    val tableBoundsPx = tableBoundsDp?.let { bounds ->
         FloorContentBoundsPx(
             left = with(density) { bounds.left.dp.toPx() },
             top = with(density) { bounds.top.dp.toPx() },
@@ -83,17 +84,28 @@ fun FloorCanvas(
             bottom = with(density) { bounds.bottom.dp.toPx() },
         )
     }
+    // The "world" rectangle is the dotted canvas (0..CanvasW, 0..CanvasH). Pan must
+    // never expose anything outside this rect or the user sees an empty
+    // (non-dotted) band — see screenshots in chat thread.
+    val worldBoundsPx = FloorContentBoundsPx(left = 0f, top = 0f, right = canvasPxW, bottom = canvasPxH)
 
-    val fitZoom = remember(contentBoundsPx, viewportW, viewportH) {
+    val tableFitZoom = remember(tableBoundsPx, viewportW, viewportH) {
         calculateFitContentZoom(
             viewportW = viewportW,
             viewportH = viewportH,
-            contentWidth = contentBoundsPx?.width ?: 0f,
-            contentHeight = contentBoundsPx?.height ?: 0f,
+            contentWidth = tableBoundsPx?.width ?: 0f,
+            contentHeight = tableBoundsPx?.height ?: 0f,
             viewportPadding = contentGutterPx,
         )
     }
-    val minZoom = fitZoom
+    // World must always cover the viewport: zooming out further than this would
+    // shrink the dotted area below the viewport size and expose empty bg.
+    val worldFillZoom = remember(viewportW, viewportH, canvasPxW, canvasPxH) {
+        if (viewportW <= 0f || viewportH <= 0f) 0f
+        else max(viewportW / canvasPxW, viewportH / canvasPxH)
+    }
+    val fitZoom = max(tableFitZoom, worldFillZoom).coerceAtMost(MaxFloorZoom)
+    val minZoom = worldFillZoom.coerceAtMost(MaxFloorZoom)
 
     fun clampPanAt(proposedX: Float, proposedY: Float, zoomForClamp: Float): Offset =
         clampPanToContentBounds(
@@ -104,8 +116,8 @@ fun FloorCanvas(
             viewportH = viewportH,
             canvasW = canvasPxW,
             canvasH = canvasPxH,
-            contentBounds = contentBoundsPx,
-            viewportPadding = contentGutterPx,
+            contentBounds = worldBoundsPx,
+            viewportPadding = 0f,
         )
 
     fun applyClampedPan(zoomForClamp: Float = currentZoom.value) {
@@ -120,7 +132,7 @@ fun FloorCanvas(
             fitApplied = true
         }
     }
-    LaunchedEffect(zoom, minZoom, viewportW, viewportH, contentBoundsPx) {
+    LaunchedEffect(zoom, minZoom, viewportW, viewportH, worldBoundsPx) {
         val clampedZoom = zoom.coerceIn(minZoom, MaxFloorZoom)
         if (clampedZoom != zoom) {
             onZoomChange(clampedZoom)
@@ -145,7 +157,7 @@ fun FloorCanvas(
             // table — that way single-touch background drag pans the canvas, but
             // touching a table immediately routes events to the table's own
             // gesture loop without competing with this one.
-            .pointerInput(editMode, minZoom, contentBoundsPx, viewportW, viewportH) {
+            .pointerInput(editMode, minZoom, worldBoundsPx, viewportW, viewportH) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = true)
                     if (editMode) onSelectTable(null)

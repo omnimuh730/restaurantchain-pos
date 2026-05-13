@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.StaffMember
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -43,14 +44,9 @@ internal fun PendingRequestsCard(
     onApprove: (StaffMember) -> Unit,
     onReject: (StaffMember) -> Unit,
 ) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(12.dp)),
-    ) {
-        Row(
+    PosElevatedSurface(colors, Modifier.fillMaxWidth(), RoundedCornerShape(12.dp)) {
+        Column(Modifier.fillMaxWidth()) {
+            Row(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 14.dp, vertical = 12.dp),
@@ -136,6 +132,7 @@ internal fun PendingRequestsCard(
             if (idx < pending.lastIndex) {
                 Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
             }
+        }
         }
     }
 }

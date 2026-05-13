@@ -46,74 +46,84 @@ fun PosAppBottomBar(
     onSelect: (PosPage) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .height(PosDimens.BottomNavHeight)
-            .background(colors.navBackground),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        pages.forEach { item ->
-            val active = item == selected
-            val badge = badges[item.badgeKey] ?: 0
-            val label = item.stringTitle()
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .background(if (active) colors.navSelectedBackground else Color.Transparent)
-                    .clickable { onSelect(item) },
-            ) {
+    Column(modifier.fillMaxWidth()) {
+        // 1dp divider matching the page-header divider (see AnalyticsScreen);
+        // gives the bottom navbar the same chrome boundary as the top headbar.
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(colors.border),
+        )
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(PosDimens.BottomNavHeight)
+                .background(colors.navBackground),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            pages.forEach { item ->
+                val active = item == selected
+                val badge = badges[item.badgeKey] ?: 0
+                val label = item.stringTitle()
                 Box(
                     Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 3.dp)
-                        .width(PosSizes.NavIndicatorWidth)
-                        .height(PosSizes.NavIndicatorHeight)
-                        .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp))
-                        .background(if (active) colors.navSelectedIndicator else Color.Transparent),
-                )
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(top = 6.dp, bottom = 4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(if (active) colors.navSelectedBackground else Color.Transparent)
+                        .clickable { onSelect(item) },
                 ) {
-                    Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
-                        Icon(
-                            painter = posPageNavPainter(item),
-                            contentDescription = label,
-                            tint = if (active) colors.navSelectedForeground else colors.navInactive,
-                            modifier = Modifier.size(if (active) 26.dp else 24.dp),
-                        )
-                        if (badge > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .offset(x = 6.dp, y = (-6).dp)
-                                    .clip(CircleShape)
-                                    .background(colors.navBackground)
-                                    .padding(2.dp),
-                            ) {
-                                CountBadge(count = badge, accentColor = colors.accent)
+                    Box(
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 3.dp)
+                            .width(PosSizes.NavIndicatorWidth)
+                            .height(PosSizes.NavIndicatorHeight)
+                            .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp))
+                            .background(if (active) colors.navSelectedIndicator else Color.Transparent),
+                    )
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(top = 6.dp, bottom = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = posPageNavPainter(item),
+                                contentDescription = label,
+                                tint = if (active) colors.navSelectedForeground else colors.navInactive,
+                                modifier = Modifier.size(if (active) 26.dp else 24.dp),
+                            )
+                            if (badge > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = 6.dp, y = (-6).dp)
+                                        .clip(CircleShape)
+                                        .background(colors.navBackground)
+                                        .padding(2.dp),
+                                ) {
+                                    CountBadge(count = badge, accentColor = colors.accent)
+                                }
                             }
                         }
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = label,
-                        color = if (active) colors.navSelectedForeground else colors.navInactive,
-                        style = LocalTextStyle.current.merge(
-                            TextStyle(
-                                fontFamily = InterFontFamily,
-                                fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = if (active) 12.sp else 11.sp,
-                                lineHeight = if (active) 14.sp else 13.sp,
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = label,
+                            color = if (active) colors.navSelectedForeground else colors.navInactive,
+                            style = LocalTextStyle.current.merge(
+                                TextStyle(
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = if (active) 12.sp else 11.sp,
+                                    lineHeight = if (active) 14.sp else 13.sp,
+                                ),
                             ),
-                        ),
-                        maxLines = 1,
-                    )
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
         }

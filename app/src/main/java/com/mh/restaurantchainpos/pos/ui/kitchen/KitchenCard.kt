@@ -38,6 +38,7 @@ import com.mh.restaurantchainpos.R
 import com.mh.restaurantchainpos.pos.data.KitchenItem
 import com.mh.restaurantchainpos.pos.data.KitchenOrder
 import com.mh.restaurantchainpos.pos.data.KitchenStatus
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.i18n.ordersMenuLineTitle
 import com.mh.restaurantchainpos.pos.ui.theme.Amber500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
@@ -80,14 +81,12 @@ fun KitchenCard(
     var confirm by remember { mutableStateOf<String?>(null) }
     var countModalItemId by remember { mutableStateOf<String?>(null) }
 
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.border, RoundedCornerShape(14.dp))
-            .padding(12.dp),
-    ) {
+    PosElevatedSurface(colors, Modifier.fillMaxWidth(), RoundedCornerShape(14.dp)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+        ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.kitchen_ordered_minutes_ago, order.minutesAgo), color = colors.textMuted, fontSize = 11.sp, modifier = Modifier.weight(1f))
             if (!isCompleted) {
@@ -164,6 +163,7 @@ fun KitchenCard(
         ) {
             Text(stringResource(R.string.kitchen_order_details), color = colors.textMuted, fontSize = 12.sp)
         }
+    }
     }
 
     when (confirm) {

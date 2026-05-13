@@ -33,6 +33,7 @@
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_done">Done</string>
     <string name="common_tables">Tables</string>
     <string name="common_history">History</string>
 
@@ -153,6 +154,11 @@
     <string name="orders_confirm_new_item_for_table">1 item for %1$s</string>
     <string name="orders_confirm_title">Confirm order</string>
     <string name="orders_badge_new">New</string>
+    <string name="orders_modify_confirm_title">Modify ordered item?</string>
+    <string name="orders_modify_increase">Increase quantity by 1</string>
+    <string name="orders_modify_decrease">Decrease quantity by 1</string>
+    <string name="orders_modify_remove">Remove this ordered item</string>
+    <string name="orders_modify_qty_from_to">Qty %1$d → %2$d</string>
     <string name="orders_col_item">Item</string>
     <string name="orders_col_qty">Qty</string>
     <string name="orders_col_each">Each</string>

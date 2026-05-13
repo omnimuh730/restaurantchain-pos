@@ -159,6 +159,7 @@
     <string name="settings_gen_hours_remove_day_off_confirm">Remove</string>
     <string name="settings_gen_hours_to">to</string>
     <string name="settings_gen_hours_closed">Closed</string>
+    <string name="settings_gen_hours_pick_time">Pick time</string>
     <string name="settings_cal_day_off_title">Select day off</string>
     <string name="settings_cal_day_off_subtitle">Choose a date when the restaurant will be closed</string>
     <string name="settings_menu_add_title">Add items to %1$s</string>

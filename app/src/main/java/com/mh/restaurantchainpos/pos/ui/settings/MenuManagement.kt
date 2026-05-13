@@ -47,6 +47,7 @@ import com.mh.restaurantchainpos.pos.data.CurrencyKind
 import com.mh.restaurantchainpos.pos.data.MenuItem
 import com.mh.restaurantchainpos.pos.data.PosMockData
 import com.mh.restaurantchainpos.pos.data.formatMoney
+import com.mh.restaurantchainpos.pos.ui.components.PosElevatedSurface
 import com.mh.restaurantchainpos.pos.ui.theme.Blue500
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
@@ -283,17 +284,19 @@ private fun CategoryGrid(
 
 @Composable
 private fun MenuItemTile(colors: PosColors, item: MenuItem, modifier: Modifier = Modifier) {
-    Column(
-        modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(colors.surfaceRaised)
-            .border(1.dp, colors.border, RoundedCornerShape(10.dp))
-            .clickable {}
-            .padding(14.dp),
+    PosElevatedSurface(
+        colors,
+        modifier.clickable {},
+        RoundedCornerShape(10.dp),
+        fillColor = colors.surfaceRaised,
+        borderWidth = 1.dp,
+        borderColor = colors.border,
     ) {
-        Text(item.name, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
-        Spacer(Modifier.height(4.dp))
-        Text(formatMoney(item.price, item.currency), color = Blue500, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Column(Modifier.padding(14.dp).fillMaxWidth()) {
+            Text(item.name, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
+            Spacer(Modifier.height(4.dp))
+            Text(formatMoney(item.price, item.currency), color = Blue500, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        }
     }
 }
 
