@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -47,7 +46,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -128,52 +126,51 @@ internal fun CalendarTimeline(
     // ghost / drop-target math.
     val onWindowPanState = rememberUpdatedState(onWindowPan)
     val windowHoursState = rememberUpdatedState(windowHours)
-    val rowHorizontalPanModifier: Modifier = if (reassignDrag != null) {
-        Modifier
-    } else {
-        Modifier.pointerInput(Unit) {
-            awaitEachGesture {
-                val down = awaitFirstDown(requireUnconsumed = false)
-                val slop = viewConfiguration.touchSlop
-                var totalDx = 0f
-                var totalDy = 0f
-                var claimed = false
-                while (true) {
-                    val event = awaitPointerEvent(PointerEventPass.Main)
-                    val change = event.changes.firstOrNull { it.id == down.id }
-                        ?: return@awaitEachGesture
-                    if (!change.pressed) return@awaitEachGesture
-                    if (change.isConsumed) return@awaitEachGesture
-                    val delta = change.positionChange()
-                    totalDx += delta.x
-                    totalDy += delta.y
-                    val absDx = abs(totalDx)
-                    val absDy = abs(totalDy)
-                    if (absDx > slop && absDx > absDy) {
-                        change.consume()
-                        val w = timelineWidthPx
-                        if (w > 1f) {
-                            onWindowPanState.value(
-                                -(totalDx / w) * windowHoursState.value,
-                            )
-                        }
-                        claimed = true
-                        break
-                    }
-                    if (absDy > slop && absDy >= absDx) {
-                        return@awaitEachGesture
-                    }
-                }
-                if (!claimed) return@awaitEachGesture
-                drag(down.id) { change ->
+    val reassignDragState = rememberUpdatedState(reassignDrag)
+    val rowHorizontalPanModifier: Modifier = Modifier.pointerInput(Unit) {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            if (reassignDragState.value != null) return@awaitEachGesture
+            val slop = viewConfiguration.touchSlop
+            var totalDx = 0f
+            var totalDy = 0f
+            var claimed = false
+            while (true) {
+                val event = awaitPointerEvent(PointerEventPass.Main)
+                val change = event.changes.firstOrNull { it.id == down.id }
+                    ?: return@awaitEachGesture
+                if (!change.pressed) return@awaitEachGesture
+                if (change.isConsumed || reassignDragState.value != null) return@awaitEachGesture
+                val delta = change.positionChange()
+                totalDx += delta.x
+                totalDy += delta.y
+                val absDx = abs(totalDx)
+                val absDy = abs(totalDy)
+                if (absDx > slop && absDx > absDy) {
+                    change.consume()
                     val w = timelineWidthPx
                     if (w > 1f) {
                         onWindowPanState.value(
-                            -(change.positionChange().x / w) * windowHoursState.value,
+                            -(totalDx / w) * windowHoursState.value,
                         )
                     }
-                    change.consume()
+                    claimed = true
+                    break
                 }
+                if (absDy > slop && absDy >= absDx) {
+                    return@awaitEachGesture
+                }
+            }
+            if (!claimed) return@awaitEachGesture
+            drag(down.id) { change ->
+                if (reassignDragState.value != null) return@drag
+                val w = timelineWidthPx
+                if (w > 1f) {
+                    onWindowPanState.value(
+                        -(change.positionChange().x / w) * windowHoursState.value,
+                    )
+                }
+                change.consume()
             }
         }
     }
@@ -185,7 +182,6 @@ internal fun CalendarTimeline(
     // running coroutine down mid-drag (see comment on the gesture below) and
     // leave reassignDrag stuck without ever firing onDragEnd/onDragCancel.
     val assigningRezState = rememberUpdatedState(assigningRez)
-    val reassignDragState = rememberUpdatedState(reassignDrag)
     var dragOverlayCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val onStart by rememberUpdatedState(onReassignDragStart)
     val onMove by rememberUpdatedState(onReassignDragMove)
@@ -240,11 +236,10 @@ internal fun CalendarTimeline(
             Column(
                 Modifier
                     .fillMaxSize()
-                    // Scrolling is intentionally disabled while a slot is being
-                    // reassigned. Otherwise the row geometry shifts under the
-                    // ghost mid-drag and `blockRectRoot` / row hit-rects become
-                    // stale, producing wrong drop targets and a "jumping" ghost.
-                    .verticalScroll(scrollState, enabled = reassignDrag == null)
+                    // Keep the scroll modifier structurally stable while a slot
+                    // drag is active; the slot pointerInput consumes drag
+                    // movement, so the list will not scroll during reassignment.
+                    .verticalScroll(scrollState)
                     .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
@@ -331,33 +326,28 @@ internal fun CalendarTimeline(
                                                         val active = reassignDragState.value
                                                         if (active != null && active.reservation.id != reservation.id) return@awaitEachGesture
 
-                                                        // Any-direction slop wait. The block claims FIRST in the
-                                                        // Main-pass leaf-first dispatch, so consuming here
-                                                        // takes the gesture away from the row's horizontal-pan
-                                                        // pointerInput (which explicitly bails when it sees a
-                                                        // consumed event) and from the ancestor `verticalScroll`.
-                                                        // We deliberately use the omnidirectional detector here
-                                                        // rather than a vertical-dominant one: even with small
-                                                        // horizontal jitter in the first few frames of a
-                                                        // vertical drag, this triggers as soon as the Euclidean
-                                                        // motion exceeds slop, which is what makes the reassign
-                                                        // gesture feel responsive. Any horizontal component is
-                                                        // absorbed by the reassign drag (which only acts on the
-                                                        // y delta) — a no-op horizontally on the block is far
-                                                        // less surprising than a "drag doesn't start" miss.
-                                                        val drag: PointerInputChange? =
-                                                            awaitTouchSlopOrCancellation(down.id) { change, _ ->
-                                                                change.consume()
-                                                            }
-                                                        if (drag == null) return@awaitEachGesture
+                                                        // A down that starts on a reassignable slot belongs to
+                                                        // that slot. Start immediately instead of waiting for
+                                                        // slop so the ancestor vertical scroll and row time-pan
+                                                        // recognizers cannot steal the first drag frames.
                                                         val coords = blockLayoutCoords ?: return@awaitEachGesture
+                                                        down.consume()
                                                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                                         onStart(reservation, coords.boundsInRoot())
                                                         var completed = false
                                                         try {
-                                                            onMove(drag.positionChange().y)
-                                                            completed = drag(drag.id) { change ->
-                                                                onMove(change.positionChange().y)
+                                                            while (true) {
+                                                                val event = awaitPointerEvent(PointerEventPass.Main)
+                                                                val change = event.changes.firstOrNull { it.id == down.id }
+                                                                    ?: return@awaitEachGesture
+                                                                if (!change.pressed) {
+                                                                    completed = true
+                                                                    break
+                                                                }
+                                                                val delta = change.position - change.previousPosition
+                                                                if (delta != Offset.Zero) {
+                                                                    onMove(delta.y)
+                                                                }
                                                                 change.consume()
                                                             }
                                                         } finally {
@@ -592,7 +582,7 @@ internal fun BoxWithConstraintsScope.CalendarReservationBlock(
             .clip(RoundedCornerShape(5.dp))
             .background(visuals.fill)
             .then(blockModifier)
-            .then(if (dimmed) Modifier.graphicsLayer { alpha = 0.38f } else Modifier)
+            .graphicsLayer { alpha = if (dimmed) 0.38f else 1f }
             .then(blockInteractionModifier)
             .padding(horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
