@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
@@ -258,6 +260,12 @@ internal fun RestaurantImageGallery(colors: PosColors) {
                     index = pagerState.settledPage
                 }
             }
+            // Edge-to-edge dialog (`decorFitsSystemWindows = false`) draws under
+            // the device's status bar and navigation bar; pad the chrome rows
+            // explicitly so the "(n/n)" label and Hide button aren't hidden by
+            // the notch / status bar, and the dot indicators clear the gesture
+            // navigation bar. The pager itself stays edge-to-edge for the
+            // immersive image-viewer feel.
             Column(
                 Modifier
                     .fillMaxSize()
@@ -266,6 +274,7 @@ internal fun RestaurantImageGallery(colors: PosColors) {
                 Row(
                     Modifier
                         .fillMaxWidth()
+                        .statusBarsPadding()
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -308,6 +317,7 @@ internal fun RestaurantImageGallery(colors: PosColors) {
                 Row(
                     Modifier
                         .fillMaxWidth()
+                        .navigationBarsPadding()
                         .padding(bottom = 24.dp, top = 8.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {

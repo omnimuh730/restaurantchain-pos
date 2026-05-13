@@ -1,6 +1,7 @@
 package com.mh.restaurantchainpos.pos.ui.analytics
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,13 +77,23 @@ fun DateFilterBar(
     val text1 = if (isDark) Color(0xFFE5E7EB) else Color(0xFF1E293B)
     val text2 = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
     val pillBg = if (isDark) Color(0xFF1F2937) else Color.White
+    // Light gray ring drawn around each *available* (past / today) date cell
+    // so the row reads as a row of selectable affordances, matching the
+    // weekday picker design. Future dates intentionally have no ring, which
+    // — together with their muted text color — reinforces "not available".
+    val dayBorderColor = if (isDark) Color(0xFF374151) else Color(0xFFE2E8F0)
 
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         HorizontalPager(
             state = weekPager,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                // Sized to fully contain the day Column:
+                //   6.dp today-dot + 4.dp gap + 40.dp circle + 12.dp vertical
+                //   inner padding = 62.dp. Anything smaller squishes the
+                //   "circle" into an ellipse — which is what made the cells
+                //   look "eclipsed".
+                .height(64.dp),
         ) { page ->
             val off = page - WeekPagerCenterPage
             val visibleDays = remember(today, off) { buildWeekDays(today, off) }
@@ -110,13 +121,34 @@ fun DateFilterBar(
                         Spacer(Modifier.height(4.dp))
                         Box(
                             Modifier
-                                .size(36.dp)
+                                .size(40.dp)
                                 .clip(CircleShape)
                                 .background(
                                     when {
                                         isFuture -> Color.Transparent
                                         isSelected -> Blue600
                                         else -> pillBg
+                                    },
+                                )
+                                .then(
+                                    // Ring only on available, non-selected
+                                    // cells: the blue fill of the selected
+                                    // state is itself the selection cue, so a
+                                    // ring on top of it would look noisy.
+                                    if (!isFuture && !isSelected) {
+                                        // Equal stroke weight across all
+                                        // available cells. Today is still
+                                        // distinguished by the colored ring
+                                        // (text1, higher-contrast vs the
+                                        // muted gray ring on past days) and
+                                        // the dot rendered above the cell.
+                                        Modifier.border(
+                                            width = 2.dp,
+                                            color = if (isToday) text1 else dayBorderColor,
+                                            shape = CircleShape,
+                                        )
+                                    } else {
+                                        Modifier
                                     },
                                 )
                                 .then(

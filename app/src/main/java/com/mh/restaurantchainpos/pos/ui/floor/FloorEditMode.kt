@@ -53,6 +53,12 @@ fun FloorEditMode(
                 if (!isMobile) {
                     EditSidebar(palette, state, Modifier.width(232.dp).fillMaxHeight())
                 }
+                // When the per-table edit panel is showing (mobile drawer is up,
+                // or any platform has a selected table whose inspector is
+                // visible), the canvas should swallow the first background
+                // gesture as a "dismiss" tap instead of panning the world.
+                val tableEditPanelOpen =
+                    (isMobile && mobileDrawerOpen) || state.selectedTableId != null
                 FloorCanvas(
                     palette = palette,
                     tables = state.tables,
@@ -65,6 +71,7 @@ fun FloorEditMode(
                         state.selectedTableId = it
                         if (isMobile) mobileDrawerOpen = it != null
                     },
+                    backgroundPanEnabled = !tableEditPanelOpen,
                     onDragTable = { id, x, y, commit ->
                         if (commit) {
                             state.updateTables(commit = true) { list -> list }

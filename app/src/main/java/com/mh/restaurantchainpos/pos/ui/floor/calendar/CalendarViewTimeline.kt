@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -69,6 +70,8 @@ import com.mh.restaurantchainpos.pos.ui.layout.responsive.rememberIsMobile
 import com.mh.restaurantchainpos.pos.ui.theme.Blue600
 import com.mh.restaurantchainpos.pos.ui.theme.FloorPalette
 import com.mh.restaurantchainpos.pos.ui.theme.Red500
+import androidx.compose.ui.graphics.luminance
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -113,6 +116,67 @@ internal fun CalendarTimeline(
             state = horizontalPanState,
             orientation = Orientation.Horizontal,
         )
+    // Row-body horizontal pan. Custom direction-aware pointerInput that
+    // explicitly DEFERS to the reservation block's vertical-dominant slop
+    // wait: it only consumes once horizontal motion has been the dominant
+    // axis past touch slop, and bails immediately if the user is doing a
+    // vertical drag (so the block's reassign gesture, or the ancestor
+    // `verticalScroll` over empty rows, can claim instead). Standard
+    // `Modifier.draggable(Horizontal)` here would race the block's wait
+    // and steal vertical drags. While a reassign drag is in flight we
+    // disable pan entirely so the world geometry stays stable for the
+    // ghost / drop-target math.
+    val onWindowPanState = rememberUpdatedState(onWindowPan)
+    val windowHoursState = rememberUpdatedState(windowHours)
+    val rowHorizontalPanModifier: Modifier = if (reassignDrag != null) {
+        Modifier
+    } else {
+        Modifier.pointerInput(Unit) {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val slop = viewConfiguration.touchSlop
+                var totalDx = 0f
+                var totalDy = 0f
+                var claimed = false
+                while (true) {
+                    val event = awaitPointerEvent(PointerEventPass.Main)
+                    val change = event.changes.firstOrNull { it.id == down.id }
+                        ?: return@awaitEachGesture
+                    if (!change.pressed) return@awaitEachGesture
+                    if (change.isConsumed) return@awaitEachGesture
+                    val delta = change.positionChange()
+                    totalDx += delta.x
+                    totalDy += delta.y
+                    val absDx = abs(totalDx)
+                    val absDy = abs(totalDy)
+                    if (absDx > slop && absDx > absDy) {
+                        change.consume()
+                        val w = timelineWidthPx
+                        if (w > 1f) {
+                            onWindowPanState.value(
+                                -(totalDx / w) * windowHoursState.value,
+                            )
+                        }
+                        claimed = true
+                        break
+                    }
+                    if (absDy > slop && absDy >= absDx) {
+                        return@awaitEachGesture
+                    }
+                }
+                if (!claimed) return@awaitEachGesture
+                drag(down.id) { change ->
+                    val w = timelineWidthPx
+                    if (w > 1f) {
+                        onWindowPanState.value(
+                            -(change.positionChange().x / w) * windowHoursState.value,
+                        )
+                    }
+                    change.consume()
+                }
+            }
+        }
+    }
     val scrollState = rememberScrollState()
     val density = LocalDensity.current
     val haptics = LocalHapticFeedback.current
@@ -216,7 +280,14 @@ internal fun CalendarTimeline(
                                 .weight(1f)
                                 .height(rowHeight)
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(rowBackground(palette, inTablePickMode, isAvailableForAssign, isPending, isFlashing))
+                                .background(
+                                    if (inTablePickMode || isPending || isFlashing) {
+                                        rowBackground(palette, inTablePickMode, isAvailableForAssign, isPending, isFlashing)
+                                    } else {
+                                        // Outside operating hours: same tone as the calendar page (disabled).
+                                        palette.bg
+                                    },
+                                )
                                 .then(rowBorder(palette, inTablePickMode, isAvailableForAssign, isPending, isFlashing))
                                 .then(
                                     if (assigningRez != null && isAvailableForAssign) {
@@ -224,9 +295,16 @@ internal fun CalendarTimeline(
                                     } else {
                                         Modifier
                                     },
-                                ),
+                                )
+                                .then(rowHorizontalPanModifier),
                         ) {
-                            ClosedHoursOverlay(palette, startHour, windowHours)
+                            if (!inTablePickMode && !isPending && !isFlashing) {
+                                OperatingHoursOpenStrip(
+                                    palette = palette,
+                                    startHour = startHour,
+                                    windowHours = windowHours,
+                                )
+                            }
                             TimelineGrid(palette, startHour, windowHours, timeLabels)
                             dayReservations
                                 .filter { it.tableId == table.id }
@@ -253,11 +331,24 @@ internal fun CalendarTimeline(
                                                         val active = reassignDragState.value
                                                         if (active != null && active.reservation.id != reservation.id) return@awaitEachGesture
 
-                                                        // Wait for touch slop and consume in the callback so
-                                                        // the parent verticalScroll loses the gesture race.
-                                                        val drag: PointerInputChange? = awaitTouchSlopOrCancellation(down.id) { change, _ ->
-                                                            change.consume()
-                                                        }
+                                                        // Any-direction slop wait. The block claims FIRST in the
+                                                        // Main-pass leaf-first dispatch, so consuming here
+                                                        // takes the gesture away from the row's horizontal-pan
+                                                        // pointerInput (which explicitly bails when it sees a
+                                                        // consumed event) and from the ancestor `verticalScroll`.
+                                                        // We deliberately use the omnidirectional detector here
+                                                        // rather than a vertical-dominant one: even with small
+                                                        // horizontal jitter in the first few frames of a
+                                                        // vertical drag, this triggers as soon as the Euclidean
+                                                        // motion exceeds slop, which is what makes the reassign
+                                                        // gesture feel responsive. Any horizontal component is
+                                                        // absorbed by the reassign drag (which only acts on the
+                                                        // y delta) — a no-op horizontally on the block is far
+                                                        // less surprising than a "drag doesn't start" miss.
+                                                        val drag: PointerInputChange? =
+                                                            awaitTouchSlopOrCancellation(down.id) { change, _ ->
+                                                                change.consume()
+                                                            }
                                                         if (drag == null) return@awaitEachGesture
                                                         val coords = blockLayoutCoords ?: return@awaitEachGesture
                                                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -407,34 +498,35 @@ internal fun TableNameCell(
     }
 }
 
+/**
+ * Fills only the intersection of [BusinessOpen]..[BusinessClose] with the
+ * visible window with a light "bookable" surface; the row root is already
+ * [FloorPalette.bg] so hours outside that range read as disabled gray.
+ */
 @Composable
-internal fun BoxWithConstraintsScope.ClosedHoursOverlay(
+private fun BoxWithConstraintsScope.OperatingHoursOpenStrip(
     palette: FloorPalette,
     startHour: Float,
     windowHours: Float,
 ) {
-    val endHour = startHour + windowHours
-    val leftPct = ((BusinessOpen - startHour) / windowHours).coerceIn(0f, 1f)
-    val rightPct = ((BusinessClose - startHour) / windowHours).coerceIn(0f, 1f)
-    val closed = palette.availableBorder.copy(alpha = 0.36f)
-    if (BusinessOpen > startHour) {
-        Box(
-            Modifier
-                .align(Alignment.CenterStart)
-                .width(maxWidth * leftPct)
-                .fillMaxHeight()
-                .background(closed),
-        )
+    val windowEnd = startHour + windowHours
+    val openStart = max(startHour, BusinessOpen)
+    val openEnd = min(windowEnd, BusinessClose)
+    if (openEnd <= openStart) return
+    val leftPct = (openStart - startHour) / windowHours
+    val widthPct = (openEnd - openStart) / windowHours
+    val openFill = if (palette.bg.luminance() < 0.18f) {
+        palette.raised
+    } else {
+        Color.White
     }
-    if (BusinessClose < endHour) {
-        Box(
-            Modifier
-                .align(Alignment.CenterEnd)
-                .width(maxWidth * (1f - rightPct))
-                .fillMaxHeight()
-                .background(closed),
-        )
-    }
+    Box(
+        Modifier
+            .offset(x = maxWidth * leftPct)
+            .width(maxWidth * widthPct)
+            .fillMaxHeight()
+            .background(openFill),
+    )
 }
 
 @Composable
@@ -608,3 +700,4 @@ internal fun BoxWithConstraintsScope.NowLine(nowPercent: Float) {
             .zIndex(11f),
     )
 }
+

@@ -179,6 +179,7 @@
     <string name="orders_pay_card_number">Card number</string>
     <string name="orders_pay_card_password">Card password</string>
     <string name="orders_pay_done">Done</string>
+    <string name="orders_pay_cash_illustration_cd">Cash payment illustration</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

@@ -170,6 +170,7 @@
     <string name="orders_pay_card_number">카드 번호</string>
     <string name="orders_pay_card_password">카드 비밀번호</string>
     <string name="orders_pay_done">완료</string>
+    <string name="orders_pay_cash_illustration_cd">현금 결제 일러스트레이션</string>
 
     <string name="settings_title">설정</string>
     <string name="settings_password_only">비밀번호만</string>

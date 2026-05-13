@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -179,37 +178,53 @@ internal fun KitchenHeader(
             }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            TabPill(
-                colors = colors,
-                label = KitchenViewTab.Received.stringTitle(),
-                tabActive = selectedTabPage == 0,
-                items = receivedItems,
-                orders = receivedOrders,
-                role = role,
-                onClick = { onSelectTabPage(0) },
+        // Tab strip: equal-width tabs whose active blue indicator spans the
+        // tab's full width and overlaps a continuous gray base line below the
+        // row — mirrors the standard Material tabs / underline pattern and
+        // gives dark mode a visible separator between tabs and content.
+        Box(Modifier.fillMaxWidth()) {
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(colors.border),
             )
-            TabPill(
-                colors = colors,
-                label = KitchenViewTab.InProgress.stringTitle(),
-                tabActive = selectedTabPage == 1,
-                items = inProgressItems,
-                orders = inProgressOrders,
-                role = role,
-                onClick = { onSelectTabPage(1) },
-            )
-            TabPill(
-                colors = colors,
-                label = KitchenViewTab.Completed.stringTitle(),
-                tabActive = selectedTabPage == 2,
-                items = completedItems,
-                orders = completedOrders,
-                role = role,
-                onClick = { onSelectTabPage(2) },
-            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                TabPill(
+                    colors = colors,
+                    label = KitchenViewTab.Received.stringTitle(),
+                    tabActive = selectedTabPage == 0,
+                    items = receivedItems,
+                    orders = receivedOrders,
+                    role = role,
+                    onClick = { onSelectTabPage(0) },
+                    modifier = Modifier.weight(1f),
+                )
+                TabPill(
+                    colors = colors,
+                    label = KitchenViewTab.InProgress.stringTitle(),
+                    tabActive = selectedTabPage == 1,
+                    items = inProgressItems,
+                    orders = inProgressOrders,
+                    role = role,
+                    onClick = { onSelectTabPage(1) },
+                    modifier = Modifier.weight(1f),
+                )
+                TabPill(
+                    colors = colors,
+                    label = KitchenViewTab.Completed.stringTitle(),
+                    tabActive = selectedTabPage == 2,
+                    items = completedItems,
+                    orders = completedOrders,
+                    role = role,
+                    onClick = { onSelectTabPage(2) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }
@@ -223,33 +238,47 @@ private fun TabPill(
     orders: Int,
     role: ActiveRole,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        Modifier
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier.clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(label, color = if (tabActive) Blue500 else colors.textMuted, fontWeight = FontWeight.Medium, fontSize = 13.sp)
-        Spacer(Modifier.size(4.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (role != ActiveRole.Waiter) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(label, color = if (tabActive) Blue500 else colors.textMuted, fontWeight = FontWeight.Medium, fontSize = 13.sp)
+            Spacer(Modifier.size(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (role != ActiveRole.Waiter) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
+                        contentDescription = null,
+                        tint = colors.textMuted,
+                        modifier = Modifier.size(12.dp),
+                    )
+                    Text(orders.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                }
                 Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
+                    imageVector = Icons.Outlined.RestaurantMenu,
                     contentDescription = null,
                     tint = colors.textMuted,
                     modifier = Modifier.size(12.dp),
                 )
-                Text(orders.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Text(items.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
             }
-            Icon(
-                imageVector = Icons.Outlined.RestaurantMenu,
-                contentDescription = null,
-                tint = colors.textMuted,
-                modifier = Modifier.size(12.dp),
-            )
-            Text(items.toString(), color = colors.textMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
-        Box(Modifier.height(2.dp).width(36.dp).background(if (tabActive) Blue500 else Color.Transparent))
+        // Full-width active underline. Sits on top of the tab strip's
+        // continuous base divider so an inactive tab still shows the gray
+        // line behind, while the active tab paints blue across its slot.
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(if (tabActive) Blue500 else Color.Transparent),
+        )
     }
 }

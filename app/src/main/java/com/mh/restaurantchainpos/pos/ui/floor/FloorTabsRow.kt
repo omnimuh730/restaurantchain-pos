@@ -79,7 +79,7 @@ fun FloorTabsRow(
                 .height(52.dp)
                 .background(palette.card)
                 .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
                 Modifier
@@ -87,7 +87,7 @@ fun FloorTabsRow(
                     .fillMaxHeight()
                     .horizontalScroll(scroll),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 floors.forEach { f ->
                     val isActive = f.id == activeFloorId
@@ -108,13 +108,21 @@ fun FloorTabsRow(
                             )
                         }
                     } else {
-                        Column(
+                        // Each tab fills the full row height so the label sits
+                        // visually centered while the 4dp active-state indicator
+                        // is anchored at the bottom edge of the row (just above
+                        // the 1dp divider below). Earlier the entire column was
+                        // bottom-aligned in a 52dp row, which left ~22dp of dead
+                        // space above the label and made the top of the floor-
+                        // tabs area look "cut off" against the chrome above.
+                        Box(
                             Modifier
+                                .fillMaxHeight()
                                 .clickable { onSelectFloor(f.id) }
                                 .padding(horizontal = 12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Row(
+                                modifier = Modifier.align(Alignment.Center),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
@@ -140,9 +148,9 @@ fun FloorTabsRow(
                                     )
                                 }
                             }
-                            Spacer(Modifier.height(4.dp))
                             Box(
                                 Modifier
+                                    .align(Alignment.BottomCenter)
                                     .height(4.dp)
                                     .fillMaxWidth()
                                     .background(if (isActive) Blue600 else Color.Transparent),

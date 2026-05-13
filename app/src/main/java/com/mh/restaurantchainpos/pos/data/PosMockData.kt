@@ -132,7 +132,7 @@ object PosMockData {
     )
 
     val floors = listOf(
-        Floor("f1", "Hall", listOf(
+        Floor("f1", "1st Floor", listOf(
             FloorTable("T1", "Table 1", 2, TableShape.Rect, 48, 48, 72, 72, TableStatus.Available),
             FloorTable("T2", "Table 2", 4, TableShape.Circle, 216, 48, 144, 216, TableStatus.Occupied, 156500, 4, "Park K.", orderItems = cafeItems),
             FloorTable("T3", "Table 3", 4, TableShape.Rect, 480, 48, 144, 144, TableStatus.Occupied, 41000, 3, "Lee S.", orderItems = shortCafeItems),
@@ -145,7 +145,7 @@ object PosMockData {
             FloorTable("T10", "Table 10", 6, TableShape.Rect, 552, 336, 216, 144, TableStatus.Occupied, 17500, 5, "Choi M.", orderItems = listOf(TableOrderItem("vanilla_cold_brew", 2, 6500), TableOrderItem("espresso_con_panna", 1, 4500))),
             FloorTable("T11", "Table 11", 4, TableShape.Rect, 48, 648, 144, 72, TableStatus.Available),
         )),
-        Floor("f2", "Lounge", listOf(
+        Floor("f2", "2nd Floor", listOf(
             FloorTable("T12", "Table 1", 2, TableShape.Rect, 72, 48, 72, 72, TableStatus.Available),
             FloorTable("T13", "Table 2", 4, TableShape.Rect, 264, 48, 144, 72, TableStatus.Reserved, guestName = "Ji N.", reservationTime = "12:38"),
             FloorTable("T14", "Table 3", 4, TableShape.Rect, 480, 48, 144, 72, TableStatus.Available),

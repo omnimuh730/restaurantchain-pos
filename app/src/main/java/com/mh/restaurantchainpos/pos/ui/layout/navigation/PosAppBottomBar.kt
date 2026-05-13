@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -34,7 +32,6 @@ import com.mh.restaurantchainpos.pos.ui.components.CountBadge
 import com.mh.restaurantchainpos.pos.ui.i18n.stringTitle
 import com.mh.restaurantchainpos.pos.ui.theme.PosColors
 import com.mh.restaurantchainpos.pos.ui.theme.PosDimens
-import com.mh.restaurantchainpos.pos.ui.theme.PosSizes
 import com.mh.restaurantchainpos.ui.theme.InterFontFamily
 
 @Composable
@@ -73,15 +70,10 @@ fun PosAppBottomBar(
                         .background(if (active) colors.navSelectedBackground else Color.Transparent)
                         .clickable { onSelect(item) },
                 ) {
-                    Box(
-                        Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 3.dp)
-                            .width(PosSizes.NavIndicatorWidth)
-                            .height(PosSizes.NavIndicatorHeight)
-                            .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp))
-                            .background(if (active) colors.navSelectedIndicator else Color.Transparent),
-                    )
+                    // Active state is now conveyed by the tinted background +
+                    // icon/label color only. The previous blue top-indicator
+                    // sliver was removed per design — it competed visually with
+                    // the new full-cell selected background.
                     Column(
                         Modifier
                             .fillMaxSize()

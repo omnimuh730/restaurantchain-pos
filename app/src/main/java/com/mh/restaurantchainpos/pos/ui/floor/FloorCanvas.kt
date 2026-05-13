@@ -59,12 +59,18 @@ fun FloorCanvas(
     onDragTable: (id: String, x: Int, y: Int, commit: Boolean) -> Unit,
     zoomControlsTopPadding: Dp = 12.dp,
     zoomControlsEndPadding: Dp = 12.dp,
+    // When false (e.g. the edit-table panel is open), the first canvas gesture is
+    // consumed purely to dismiss the panel via `onSelectTable(null)`. Pan/zoom
+    // only re-arms on the next fresh gesture, matching the spec: "I have to
+    // click background once more and make drag & drop available."
+    backgroundPanEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val bg = if (editMode) palette.editBg else palette.bg
     val currentZoom = rememberUpdatedState(zoom)
     val currentOnZoomChange = rememberUpdatedState(onZoomChange)
+    val currentBackgroundPanEnabled = rememberUpdatedState(backgroundPanEnabled)
     val contentGutterPx = with(density) { FloorContentGutterDp.dp.toPx() }
 
     var viewportW by remember { mutableFloatStateOf(0f) }
@@ -160,7 +166,21 @@ fun FloorCanvas(
             .pointerInput(editMode, minZoom, worldBoundsPx, viewportW, viewportH) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = true)
+                    val panEnabledForGesture = currentBackgroundPanEnabled.value
                     if (editMode) onSelectTable(null)
+                    if (!panEnabledForGesture) {
+                        // Edit-table panel was open at the start of this gesture.
+                        // Treat the touch purely as "dismiss the panel": consume
+                        // movement so nothing pans, then bail out and wait for the
+                        // next fresh down to re-enable normal canvas gestures.
+                        do {
+                            val event = awaitPointerEvent()
+                            event.changes.forEach {
+                                if (it.positionChange() != Offset.Zero) it.consume()
+                            }
+                        } while (event.changes.any { it.pressed })
+                        return@awaitEachGesture
+                    }
                     var gestureZoomLevel = currentZoom.value
                     do {
                         val event = awaitPointerEvent()

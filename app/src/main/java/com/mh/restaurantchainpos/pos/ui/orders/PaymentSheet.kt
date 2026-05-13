@@ -1,6 +1,7 @@
 package com.mh.restaurantchainpos.pos.ui.orders
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +48,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -333,9 +336,14 @@ private fun MethodTile(
 
 @Composable
 private fun CashContent() {
-    // The reference shows a decorative illustration here. Keep the area
-    // intentionally empty so the focus stays on the totals and "Confirm".
-    Box(Modifier.fillMaxSize())
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Image(
+            painter = painterResource(R.drawable.ic_payment_cash),
+            contentDescription = stringResource(R.string.orders_pay_cash_illustration_cd),
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(232.dp),
+        )
+    }
 }
 
 /* ────────────────────────────────────────────────────────────── */
